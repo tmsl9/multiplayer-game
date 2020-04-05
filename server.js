@@ -60,12 +60,12 @@ io.sockets.on('connection', function(socket){
     });
         
     socket.on('keyPress',function(data){
-        if(data.input === 'x')
+        if(data.input === 'xy'){
             player.x = data.x;
-        else if(data.input === 'y')
             player.y = data.y;
-        else if(data.input === 'space')
+        }else if(data.input === 'space'){
             player.pressingSpace = data.state;
+        }
         
         var pack = [];
     
@@ -73,10 +73,10 @@ io.sockets.on('connection', function(socket){
             var player2 = PLAYER_LIST[i];
             if(player2.id != player.id){
                 pack.push({
-                    x:player2.x,
-                    y:player2.y,
-                    space:player2.pressingSpace,
-                    id:player2.id
+                    x:player.x,
+                    y:player.y,
+                    space:player.pressingSpace,
+                    id:player.id///////////
                 });
                 console.log("pack n",player2.id,"->",pack);
                 SOCKET_LIST[player2.id].emit('newPositions',pack);

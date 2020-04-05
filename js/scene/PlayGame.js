@@ -70,24 +70,34 @@ export default class playGame extends Phaser.Scene {
             fill: "#ffffff"
         });
 
+        this.bird;
+        this.bird2;
+        this.birds.children.iterate(function (bird) {
+            if(bird.id == this.id){
+                this.bird = bird;
+            }else{
+                this.bird2 = bird;
+            }
+        }, this);
+
         this.socket.on('newPositions',(data)=>{
             //console.log(data[0].id, data[0].x, data[0].y)
             //console.log(data[1].id, data[1].x, data[1].y)
-            for(var i = 0; i < data.length; i++){
-                this.birds.children.iterate(function (bird) {
-                    if (bird.id == data[i].id) {
-                        if(data[i].x > 0 + bird.frame.width && data[i].x < this.game.config.width - bird.frame.width){
-                            bird.x = data[i].x
+            //for(var i = 0; i < data.length; i++){//para mais de 2 jogadores
+                //this.birds.children.iterate(function (bird) {
+                    //if (bird.id == data[i].id) {
+                        if(data[0].x > 0 + this.bird2.frame.width && data[0].x < this.game.config.width - this.bird2.frame.width){
+                            this.bird2.x = data[0].x
                         }
-                        if(data[i].y > 0 + bird.frame.height && data[i].y < this.game.config.height - bird.frame.height){
-                            bird.y = data[i].y
+                        if(data[0].y > 0 + this.bird2.frame.height && data[0].y < this.game.config.height - this.bird2.frame.height){
+                            this.bird2.y = data[0].y
                         }
-                        if(data[i].space){
-                            bird.fire(this.time.now)
+                        if(data[0].space){
+                            this.bird2.fire(this.time.now)
                         }
-                    }
-                }, this);
-            }
+                    //}
+                //}, this);
+            //}
         });
 
         this.themeSound = this.sound.add("theme", { volume: 0.1 });
@@ -129,44 +139,24 @@ export default class playGame extends Phaser.Scene {
 
     update(time) {
         if (this.cursors.up.isDown) {
-            this.birds.children.iterate(function (bird) {
-                if(bird.id == this.id){
-                    bird.setVelocityY(-200);
-                    this.socket.emit('keyPress',{input:'y', y:bird.y});
-                }
-            }, this);
+            this.bird.setVelocityY(-this.bird.velocity);
+            this.socket.emit('keyPress',{input:'xy', x:this.bird.x, y:this.bird.y});
         }
         if (this.cursors.down.isDown) {
-            this.birds.children.iterate(function (bird) {
-                if(bird.id == this.id){
-                    bird.setVelocityY(bird.velocity);
-                    this.socket.emit('keyPress',{input:'y', y:bird.y});
-                }
-            }, this);
+            this.bird.setVelocityY(this.bird.velocity);
+            this.socket.emit('keyPress',{input:'xy', x:this.bird.x, y:this.bird.y});
         }
         if (this.cursors.left.isDown) {/////funciona se mandarmos vetor com teclas a false ou true
-            this.birds.children.iterate(function (bird) {
-                if(bird.id == this.id){
-                    bird.setVelocityX(-bird.velocity);
-                    this.socket.emit('keyPress',{input:'x', x:bird.x});
-                }
-            }, this);
+            this.bird.setVelocityX(-this.bird.velocity);
+            this.socket.emit('keyPress',{input:'xy', x:this.bird.x, y:this.bird.y});
         }
         if (this.cursors.right.isDown) {
-            this.birds.children.iterate(function (bird) {
-                if(bird.id == this.id){
-                    bird.setVelocityX(bird.velocity);
-                    this.socket.emit('keyPress',{input:'x', x:bird.x});
-                }
-            }, this);
+            this.bird.setVelocityX(this.bird.velocity);
+            this.socket.emit('keyPress',{input:'xy', x:this.bird.x, y:this.bird.y});
         }
         if (this.cursors.space.isDown) {
-            this.birds.children.iterate(function (bird) {
-                if(bird.id == this.id){
-                    bird.fire(time.now);
-                    this.socket.emit('keyPress',{input:'space',state:true});
-                }
-            }, this);
+            this.bird.fire(time);
+            this.socket.emit('keyPress',{input:'space',state:true});
         }
 
 
@@ -174,39 +164,13 @@ export default class playGame extends Phaser.Scene {
 
 
         /////////////////////////////////
-        if (this.cursors.up.isUp) {
-            this.birds.children.iterate(function (bird) {
-                if(bird.id == this.id){
-                    bird.setVelocityY(0);
-                    this.socket.emit('keyPress',{input:'y', y:0});
-                }
-            }, this);
+        if (this.cursors.up.isUp && this.cursors.down.isUp) {
+            this.bird.setVelocityY(0);
+            this.socket.emit('keyPress',{input:'xy', x:this.bird.x, y:this.bird.y});
         }
-        if (this.cursors.down.isUp) {
-            this.birds.children.iterate(function (bird) {
-                if(bird.id == this.id){
-                    bird.setVelocityY(0);
-                    this.socket.emit('keyPress',{input:'y', y:0});
-                }
-            }, this);
-            
-        }
-        if (this.cursors.left.isUp) {/////funciona se mandarmos vetor com teclas a false ou true
-            this.birds.children.iterate(function (bird) {
-                if(bird.id == this.id){
-                    bird.setVelocityX(0);
-                    this.socket.emit('keyPress',{input:'x', x:0});
-                }
-            }, this);
-            
-        }
-        if (this.cursors.right.isUp) {
-            this.birds.children.iterate(function (bird) {
-                if(bird.id == this.id){
-                    bird.setVelocityX(0);
-                    this.socket.emit('keyPress',{input:'x', x:0});
-                }
-            }, this);
+        if (this.cursors.left.isUp && this.cursors.right.isUp) {/////funciona se mandarmos vetor com teclas a false ou true
+            this.bird.setVelocityX(0);
+            this.socket.emit('keyPress',{input:'xy', x:this.bird.x, y:this.bird.y});
         }
         if (this.cursors.space.isUp) {
             this.socket.emit('keyPress',{input:'space',state:false});
