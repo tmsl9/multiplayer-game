@@ -10,27 +10,25 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
         
         this.scene.add.existing(this);
 
-        //enable physics to sprite
         this.scene.physics.world.enable(this);
 
-        /*this.lives = 3;
+        this.life = 100;
 
-        //used to create an invencibility time window after a death
         this.canBeKilled = true;
 
-        this.velocity = 250;
+        this.bulletsMaxsize = 5;
 
-        this.timeToShoot = 0;
         this.fireRate = 350;
 
-        //this.bullets=[];
+        this.timeToShoot = 0;
 
-        this.bulletsMaxsize = 5;
+        this.velocity = 200;
 
         this.bullets = this.scene.physics.add.group({
             maxSize: this.bulletsMaxsize,
             classType: Bullet
         });
+
 
         //creates animation from spritesheet
         //https://photonstorm.github.io/phaser3-docs/Phaser.Scene.html#anims__anchor
@@ -45,52 +43,11 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
         });
 
         //executes animation
-        this.play('flap');*/
+        this.play('flap');
 
     }
 
-    update(cursors, time, socket) {
-       /*
-        if (cursors.space.isDown && this.timeToShoot < time) {
-            //let bullet = this.scene.physics.add.image(this.x, this.y, "bullet");
-            let bullet = this.bullets.getFirstDead(true, this.x, this.y);
-
-            if (bullet) {
-                bullet.setVelocityX(bullet.baseVelocity);
-                bullet.active = true;
-                bullet.visible = true;
-            }
-
-            this.timeToShoot = time + this.fireRate;
-
-            if (this.bullets.children.size > this.bulletsMaxsize) {
-                console.log("Group size failed")
-            }
-            if (this.fireSound) {
-                this.fireSound.play();
-            }
-
-        }
-
-
-        this.setVelocity(0);
-        const width = this.scene.game.config.width;
-        const height = this.scene.game.config.height;
-        //const velocity = 150;
-        if (cursors.down.isDown && this.y < height - this.frame.height) {
-            this.setVelocityY(this.velocity);
-            socket.emit('keyPress',{inputId:'down',state:true});
-        } else if (cursors.up.isDown && this.y > 0 + this.frame.height) {
-            this.setVelocityY(-this.velocity);
-            socket.emit('keyPress',{inputId:'up',state:true});
-        }
-        if (cursors.right.isDown && this.x < width - this.frame.width) {
-            this.setVelocityX(this.velocity);
-            socket.emit('keyPress',{inputId:'left',state:true});
-        } else if (cursors.left.isDown && this.x > 0 + this.frame.width) {
-            this.setVelocityX(-this.velocity);
-            socket.emit('keyPress',{inputId:'right',state:true});
-        }
+    update() {
 
         this.bullets.children.iterate(function (bullet) {
             if (bullet.isOutsideCanvas()) {
@@ -98,25 +55,45 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
                 this.bullets.killAndHide(bullet);
             }
         }, this);
-*/
+        
     }
 
+    fire(time){
+        if (this.timeToShoot < time) {
+            let bullet  = this.bullets.getFirstDead(true, this.x, this.y)
+            if (bullet) {
+                if(this.id == 1){
+                    bullet.setVelocityX(bullet.baseVelocity);
+                }else{
+                    bullet.setVelocityX(-bullet.baseVelocity);
+                }
+                bullet.active = true;
+                bullet.visible = true;
+            }
+        
+            this.timeToShoot = time + this.fireRate;
+
+            if (this.bullets.children.size > this.bulletsMaxsize) {
+                console.log("Group size failed")
+            }
+
+            if (this.fireSound) {
+                this.fireSound.play();
+            }
+        }
+    }
 
     /**
      * create an explosion, decrease one life, prevent a new collision and put the bird off-screen
      */
-    /*dead() {
-        let x = this.x;
-        let y = this.y;
-        new Explosion(this.scene, x, y);
-        this.lives -= 1;
+    dead() {
+        new Explosion(this.scene, this.x, this.y);
 
         //prevents new collision
-        this.canBeKilled = false;
         this.x = -100;
         this.y = -100;
 
-    }*/
+    }
 
     /**
      * replace the bird on-screen, change the bird color (tint) and re-enable collisions
