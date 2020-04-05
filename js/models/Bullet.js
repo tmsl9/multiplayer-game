@@ -10,6 +10,8 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
         this.scene.physics.world.enable(this);
 
         this.baseVelocity = 350;
+
+        this.power = 10
     }
 
 

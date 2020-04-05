@@ -7,7 +7,7 @@ app.get('/',function(req, res) {
 });
 app.use('/',express.static(__dirname));
 
-serv.listen(5500);
+serv.listen(5500, '192.168.131.1');
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
 
@@ -24,11 +24,6 @@ var Player = function(id){
         id:id, //important information
         number:total_players,
         ready:false,
-        pressingRight:false,
-        pressingLeft:false,
-        pressingUp:false,
-        pressingDown:false,
-        pressingSpace:false,
         maxSpd:10
     }
     
@@ -38,16 +33,6 @@ var Player = function(id){
         console.log("-->", self.id)
     }
 
-    self.updatePosition = function(){
-        if(self.pressingRight)
-            self.x += self.maxSpd;
-        if(self.pressingLeft)
-            self.x -= self.maxSpd;
-        if(self.pressingUp)
-            self.y -= self.maxSpd;
-        if(self.pressingDown)
-            self.y += self.maxSpd;
-    }
     return self;
 }
 
@@ -75,16 +60,33 @@ io.sockets.on('connection', function(socket){
     });
         
     socket.on('keyPress',function(data){
-        if(data.inputId === 'left')
-            player.pressingLeft = data.state;
-        else if(data.inputId === 'right')
-            player.pressingRight = data.state;
-        else if(data.inputId === 'up')
-            player.pressingUp = data.state;
-        else if(data.inputId === 'down')
-            player.pressingDown = data.state;
+        if(data.input === 'x')
+            player.x = data.x;
+        else if(data.input === 'y')
+            player.y = data.y;
+        else if(data.input === 'space')
+            player.pressingSpace = data.state;
+        
+        var pack = [];
+    
+        for(var i in PLAYER_LIST){
+            var player2 = PLAYER_LIST[i];
+            if(player2.id != player.id){
+                pack.push({
+                    x:player2.x,
+                    y:player2.y,
+                    space:player2.pressingSpace,
+                    id:player2.id
+                });
+                console.log("pack n",player2.id,"->",pack);
+                SOCKET_LIST[player2.id].emit('newPositions',pack);
+            }
+        }
     });
 });
+
+
+
 
 setInterval(function(){
     if(players_ready == 2){
@@ -95,7 +97,7 @@ setInterval(function(){
         console.log('Both players are ready!')
         players_ready = 3
     }
-    if(players_ready == 3){//////
+    /*if(players_ready == 3){//////
         var pack = [];
         
         for(var i in PLAYER_LIST){
@@ -104,6 +106,7 @@ setInterval(function(){
             pack.push({
                 x:player.x,
                 y:player.y,
+                space:player.pressingSpace,
                 id:player.id
             });
         }
@@ -112,5 +115,5 @@ setInterval(function(){
             //console.log("pack n",i,"->",pack);
             socket.emit('newPositions',pack);
         }
-    }
+    }*/
 }, 20);//total_players > 0 && total_players % 2 == 0 ? 1000/25 : 0);

@@ -11,7 +11,7 @@ export default class play extends Phaser.Scene {
         this.socket.on('id',(data)=>{
             var id = data
             console.log("id received:", id)
-            this.clickButton = this.add.text(300, 300, 'Click me!', { fill: '#0f0' })
+            this.clickButton = this.add.text(270, 300, 'Let\'s play!', { fill: '#0f0' })
             .setInteractive()
             .on('pointerdown', () => {
                 this.scene.stop()
