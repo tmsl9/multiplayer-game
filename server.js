@@ -21,6 +21,7 @@ var Player = function(id){
     var self = {
         x:id % 2 != 0 ? 200 : 400,///////
         y:400,
+        life:100,
         id:id, //important information
         number:total_players,
         ready:false,
@@ -37,6 +38,13 @@ var Player = function(id){
 }
 
 io.sockets.on('connection', function(socket){
+    console.log("total --> ",total_players)////os dois ficam com id 2
+    if(total_players == 2){///está a dar problemas na sincronização
+        total_players = 0;
+        players_ready = 0;
+        SOCKET_LIST = {}
+        PLAYER_LIST = {}
+    }
     console.log("New connection", total_players + 1)
     total_players++;
     socket.id = total_players;
@@ -52,13 +60,23 @@ io.sockets.on('connection', function(socket){
         total_players--
         players_ready--
     });
-    
+
     socket.on('ready',function(){
         console.log("Player id", socket.id, "ready")
         PLAYER_LIST[socket.id].ready = true
         players_ready++
     });
         
+    socket.on('life',function(data){
+        for(var i in PLAYER_LIST){
+            var player2 = PLAYER_LIST[i];
+            if(player2.id != player.id && player2.life > data.life){
+                player2.life = data.life
+                SOCKET_LIST[player2.id].emit('life', {life:player2.life})
+            }
+        }
+    });
+
     socket.on('keyPress',function(data){
         if(data.input === 'xy'){
             player.x = data.x;
@@ -78,15 +96,12 @@ io.sockets.on('connection', function(socket){
                     space:player.pressingSpace,
                     id:player.id///////////
                 });
-                console.log("pack n",player2.id,"->",pack);
+                //console.log("pack n",player2.id,"->",pack);
                 SOCKET_LIST[player2.id].emit('newPositions',pack);
             }
         }
     });
 });
-
-
-
 
 setInterval(function(){
     if(players_ready == 2){
@@ -97,23 +112,4 @@ setInterval(function(){
         console.log('Both players are ready!')
         players_ready = 3
     }
-    /*if(players_ready == 3){//////
-        var pack = [];
-        
-        for(var i in PLAYER_LIST){
-            var player = PLAYER_LIST[i];
-            player.updatePosition();
-            pack.push({
-                x:player.x,
-                y:player.y,
-                space:player.pressingSpace,
-                id:player.id
-            });
-        }
-        for(var i in SOCKET_LIST){
-            var socket = SOCKET_LIST[i];
-            //console.log("pack n",i,"->",pack);
-            socket.emit('newPositions',pack);
-        }
-    }*/
 }, 20);//total_players > 0 && total_players % 2 == 0 ? 1000/25 : 0);

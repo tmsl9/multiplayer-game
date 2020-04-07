@@ -21,9 +21,6 @@ export default class playGame extends Phaser.Scene {
     create() {
         console.log("Starting game");
         
-        const width = this.game.config.width;
-        const height = this.game.config.height;
-
         this.map = this.make.tilemap({ key: "map1" });
         const tileset = this.map.addTilesetImage("tile-map", "tiles");
         this.map.createStaticLayer("back", tileset, 0, 0);
@@ -42,9 +39,16 @@ export default class playGame extends Phaser.Scene {
 
         this.birds.getFirstDead(true, 200, 400, 1);
         this.birds.getFirstDead(true, 400, 400, 2);
-        this.enemy = new Enemy(this, 450, 370);
-        this.enemy.setVelocityX(-200);
-        this.physics.add.collider(this.enemy, front);
+        this.enemy = new Enemy(this, 400, 370);
+        //this.enemy.setVelocityX(-200);
+        
+        //this.physics.add.collider(this.birds, front);
+        this.physics.add.collider(this.birds, front, (enemy, front) =>{
+            this.add.text(300, 300, "collide", {
+                font: "30px Cambria",
+                fill: "#f3f3f3"
+            });
+        });
         /*this.lifeLabels = this.physics.add.group({
             maxSize: 2,
             classType: Phaser.GameObjects.Text
@@ -81,23 +85,11 @@ export default class playGame extends Phaser.Scene {
         }, this);
 
         this.socket.on('newPositions',(data)=>{
-            //console.log(data[0].id, data[0].x, data[0].y)
-            //console.log(data[1].id, data[1].x, data[1].y)
-            //for(var i = 0; i < data.length; i++){//para mais de 2 jogadores
-                //this.birds.children.iterate(function (bird) {
-                    //if (bird.id == data[i].id) {
-                        if(data[0].x > 0 + this.bird2.frame.width && data[0].x < this.game.config.width - this.bird2.frame.width){
-                            this.bird2.x = data[0].x
-                        }
-                        if(data[0].y > 0 + this.bird2.frame.height && data[0].y < this.game.config.height - this.bird2.frame.height){
-                            this.bird2.y = data[0].y
-                        }
-                        if(data[0].space){
-                            this.bird2.fire(this.time.now)
-                        }
-                    //}
-                //}, this);
-            //}
+            this.bird2.x = data[0].x
+            this.bird2.y = data[0].y
+            if(data[0].space){
+                this.bird2.fire(this.time.now)
+            }
         });
 
         this.themeSound = this.sound.add("theme", { volume: 0.1 });
@@ -110,75 +102,47 @@ export default class playGame extends Phaser.Scene {
 
         this.birds.children.iterate(function (bird) {
             bird.fireSound = fireSound;
-            this.physics.add.collider(bird, front);
         }, this);
+
+        this.physics.add.overlap(this.bird2, this.bird.bullets, (bird, bullet) => {
         
-        this.birds.children.iterate(function (birdBullets) {
-            this.birds.children.iterate(function (bird) {
-                if(birdBullets.id != bird.id){
-                    this.physics.add.overlap(bird, birdBullets.bullets, (bird, bullet) => {
-                    
-                        birdBullets.bullets.killAndHide(bullet);
+            this.bird.bullets.killAndHide(bullet);
 
-                        //prevent collision with multiple enemies by removing the bullet from screen and stoping it
-                        bullet.removeFromScreen();
+            //prevent collision with multiple enemies by removing the bullet from screen and stoping it
+            bullet.removeFromScreen();
 
-                        bird.life -= bullet.power;
-                        
-                        //update the score text
-                        if(bird.id == 1){
-                            this.lifeLabel1.setText("Player 1: " + bird.life)
-                        }else{
-                            this.lifeLabel2.setText("Player 2: " + bird.life)
-                        }
-                    });
+            bird.life -= bullet.power;
+            
+            //update the score text
+            if(bird.id == 1){
+                this.lifeLabel1.setText("Player 1: " + bird.life)
+            }else{
+                this.lifeLabel2.setText("Player 2: " + bird.life)
+            }
+            this.socket.emit('life', {id:bird.id, life:bird.life})
+        });
+
+        this.socket.on('id', (data)=>{
+            this.scene.stop()
+            this.scene.start("Play")
+        })
+        
+        this.socket.on('life', (data)=>{///workiiiiing
+            if(data.life < this.bird.life){
+                this.bird.life = data.life
+                if(this.bird.id == 1){
+                    this.lifeLabel1.setText("Player 1: " + this.bird.life)
+                }else{
+                    this.lifeLabel2.setText("Player 2: " + this.bird.life)
                 }
-            }, this);
-        }, this);
+            }
+        })
     }
 
     update(time) {
-        if (this.cursors.up.isDown) {
-            this.bird.setVelocityY(-this.bird.velocity);
-            this.socket.emit('keyPress',{input:'xy', x:this.bird.x, y:this.bird.y});
-        }
-        if (this.cursors.down.isDown) {
-            this.bird.setVelocityY(this.bird.velocity);
-            this.socket.emit('keyPress',{input:'xy', x:this.bird.x, y:this.bird.y});
-        }
-        if (this.cursors.left.isDown) {/////funciona se mandarmos vetor com teclas a false ou true
-            this.bird.setVelocityX(-this.bird.velocity);
-            this.socket.emit('keyPress',{input:'xy', x:this.bird.x, y:this.bird.y});
-        }
-        if (this.cursors.right.isDown) {
-            this.bird.setVelocityX(this.bird.velocity);
-            this.socket.emit('keyPress',{input:'xy', x:this.bird.x, y:this.bird.y});
-        }
-        if (this.cursors.space.isDown) {
-            this.bird.fire(time);
-            this.socket.emit('keyPress',{input:'space',state:true});
-        }
-
-
-
-
-
-        /////////////////////////////////
-        if (this.cursors.up.isUp && this.cursors.down.isUp) {
-            this.bird.setVelocityY(0);
-            this.socket.emit('keyPress',{input:'xy', x:this.bird.x, y:this.bird.y});
-        }
-        if (this.cursors.left.isUp && this.cursors.right.isUp) {/////funciona se mandarmos vetor com teclas a false ou true
-            this.bird.setVelocityX(0);
-            this.socket.emit('keyPress',{input:'xy', x:this.bird.x, y:this.bird.y});
-        }
-        if (this.cursors.space.isUp) {
-            this.socket.emit('keyPress',{input:'space',state:false});
-        }
-
         this.birds.children.iterate(function (bird) {
             if(bird.life > 0){
-                bird.update()
+                bird.update(time, this.cursors, this.socket, this.id)
             }else{
                 bird.dead()
                 //stops this scene
@@ -188,8 +152,7 @@ export default class playGame extends Phaser.Scene {
 
                 //starts the game over scene and passes the actual score to render at that scene
                 this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: bird.id})
-            }
-            
+            } 
         }, this);
         
     }

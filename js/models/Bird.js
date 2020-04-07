@@ -12,6 +12,9 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
 
         this.scene.physics.world.enable(this);
 
+        this.sceneWidth = this.scene.game.config.width;
+        this.sceneHeight = this.scene.game.config.height;
+
         this.life = 100;
 
         this.canBeKilled = true;
@@ -47,7 +50,43 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    update() {
+    update(time, cursors, socket, id) {
+        if(this.id == id){
+            this.setVelocity(0)
+            if (cursors.up.isDown && this.y > this.frame.halfHeight + 6) {///se mudar pra 7 fica um espacinho de sobra
+                this.setVelocityY(-this.velocity);
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+            }
+            if (cursors.down.isDown && this.y < this.sceneHeight - this.frame.halfHeight - 6) {
+                this.setVelocityY(this.velocity);
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+            }
+            if (cursors.left.isDown && this.x > this.frame.halfWidth + 6) {/////funciona se mandarmos vetor com teclas a false ou true
+                this.setVelocityX(-this.velocity);
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+            }
+            if (cursors.right.isDown && this.x < this.sceneWidth - this.frame.halfWidth - 6) {
+                this.setVelocityX(this.velocity);
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+            }
+            if (cursors.space.isDown) {
+                this.fire(time);
+                socket.emit('keyPress',{input:'space',state:true});
+            }
+
+            /////////////////////////////////pode nao ser preciso pois em cima tem o setVelocity(0)
+            if (cursors.up.isUp && cursors.down.isUp) {
+                this.setVelocityY(0);
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+            }
+            if (cursors.left.isUp && cursors.right.isUp) {/////funciona se mandarmos vetor com teclas a false ou true
+                this.setVelocityX(0);
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+            }
+            if (cursors.space.isUp) {
+                socket.emit('keyPress',{input:'space',state:false});
+            }
+        }
 
         this.bullets.children.iterate(function (bullet) {
             if (bullet.isOutsideCanvas()) {
@@ -55,7 +94,6 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
                 this.bullets.killAndHide(bullet);
             }
         }, this);
-        
     }
 
     fire(time){
