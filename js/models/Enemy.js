@@ -19,32 +19,32 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         //this.setGravityY(-10);
 
         this.scene.anims.create({
-            key: 'up', //animation identifier
+            key: 'uup', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
             frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 3, end: 3 })
         });
         this.scene.anims.create({
-            key: 'down', //animation identifier
+            key: 'ddown', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
             frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 0, end: 0 })
         });
         this.scene.anims.create({
-            key: 'left', //animation identifier
+            key: 'lleft', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
             frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 1, end: 1 })
         });
         this.scene.anims.create({
-            key: 'right', //animation identifier
+            key: 'rright', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
             frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 2, end: 2 })
         });
 
         //executes animation
-        this.play('down');
+        this.play('ddown');
 
     }
 

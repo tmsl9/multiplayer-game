@@ -41,13 +41,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.velocity = 200;
 
-        this.pos = "down";
+        id == 1 ? this.pos = "down" : this.pos = "down2";
+
+        
 
         this.bullets = this.scene.physics.add.group({
             maxSize: this.bulletsMaxsize,
             classType: Bullet
         });
 
+        if(id==1){
         //creates animation from spritesheet
         //https://photonstorm.github.io/phaser3-docs/Phaser.Scene.html#anims__anchor
         //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html
@@ -55,29 +58,58 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             key: 'up', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 3, end: 3 })
+            frames: this.scene.anims.generateFrameNumbers("player1", { start: 3, end: 3 })
         });
         this.scene.anims.create({
             key: 'down', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 0, end: 0 })
+            frames: this.scene.anims.generateFrameNumbers("player1", { start: 0, end: 0 })
         });
         this.scene.anims.create({
             key: 'left', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 1, end: 1 })
+            frames: this.scene.anims.generateFrameNumbers("player1", { start: 1, end: 1 })
         });
         this.scene.anims.create({
             key: 'right', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 2, end: 2 })
+            frames: this.scene.anims.generateFrameNumbers("player1", { start: 2, end: 2 })
         });
+        }else{
+        //creates animation from spritesheet
+        //https://photonstorm.github.io/phaser3-docs/Phaser.Scene.html#anims__anchor
+        //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html
+        this.scene.anims.create({
+            key: 'up2', //animation identifier
+            //frames to play in animation 
+            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+            frames: this.scene.anims.generateFrameNumbers("player2", { start: 3, end: 3 })
+        });
+        this.scene.anims.create({
+            key: 'down2', //animation identifier
+            //frames to play in animation 
+            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+            frames: this.scene.anims.generateFrameNumbers("player2", { start: 0, end: 0 })
+        });
+        this.scene.anims.create({
+            key: 'left2', //animation identifier
+            //frames to play in animation 
+            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+            frames: this.scene.anims.generateFrameNumbers("player2", { start: 1, end: 1 })
+        });
+        this.scene.anims.create({
+            key: 'right2', //animation identifier
+            //frames to play in animation 
+            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+            frames: this.scene.anims.generateFrameNumbers("player2", { start: 2, end: 2 })
+        });
+        }
 
         //executes animation
-        this.play('down');
+        id == 1 ? this.play('down') : this.play('down2');
 
     }
 
@@ -85,27 +117,27 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if(this.id == id){
             this.setVelocity(0)
             if (cursors.up.isDown && this.y > this.frame.halfHeight + 6) {///se mudar pra 7 fica um espacinho de sobra
-                this.play('up');
+                id == 1 ? this.play('up') : this.play('up2');
                 this.setVelocityY(-this.velocity);
-                this.pos="up";
+                id == 1 ?this.pos="up":this.pos="up2";
                 socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:"up"});
             }
             if (cursors.down.isDown && this.y < this.sceneHeight - this.frame.halfHeight - 6) {
-                this.play('down');
+                id == 1 ? this.play('down') : this.play('down2');
                 this.setVelocityY(this.velocity);
-                this.pos="down";
+                id == 1 ?this.pos="down":this.pos="down2";
                 socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:"down"});
             }
             if (cursors.left.isDown && this.x > this.frame.halfWidth + 6) {/////funciona se mandarmos vetor com teclas a false ou true
-                this.play('left');
+                id == 1 ? this.play('left') : this.play('left2');
                 this.setVelocityX(-this.velocity);
-                this.pos="left";
+                id == 1 ?this.pos="left":this.pos="left2";
                 socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:"left"});
             }
             if (cursors.right.isDown && this.x < this.sceneWidth - this.frame.halfWidth - 6) {
-                this.play('right');
+                id == 1 ? this.play('right') : this.play('right2');
                 this.setVelocityX(this.velocity);
-                this.pos="right";
+                id == 1 ?this.pos="right":this.pos="right2";
                 socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:"right"});
             }
             if (cursors.space.isDown) {
