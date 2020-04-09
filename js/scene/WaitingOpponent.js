@@ -5,7 +5,7 @@ export default class waitingOpponent extends Phaser.Scene {
 
     init(data){
         console.log("Wait scene: ", data)
-
+        this.data = data
         this.socket = data.socket
         this.id = data.id
     }
@@ -18,7 +18,7 @@ export default class waitingOpponent extends Phaser.Scene {
         this.socket.emit('ready')
         this.socket.on('2players_ready', ()=>{
             this.scene.stop()
-            this.scene.start("PlayGame", {id: this.id, socket: this.socket})
+            this.scene.start("PlayGame", this.data)
         })
     }
 

@@ -8,7 +8,7 @@ export default class playGame extends Phaser.Scene {
 
     init(data){
         console.log("PlayGame scene: ", data)
-
+        this.data = data
         this.socket = data.socket
         this.id = data.id
     }
