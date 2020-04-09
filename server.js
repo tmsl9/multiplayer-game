@@ -7,7 +7,7 @@ app.get('/',function(req, res) {
 });
 app.use('/',express.static(__dirname));
 
-serv.listen(5500, '192.168.131.1');
+serv.listen(5500, '192.168.137.1');
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
 
@@ -19,6 +19,7 @@ var players_ready = 0;
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
     var self = {
+        pos:"down",
         x:id % 2 != 0 ? 200 : 400,///////
         y:400,
         life:100,
@@ -81,21 +82,22 @@ io.sockets.on('connection', function(socket){
         if(data.input === 'xy'){
             player.x = data.x;
             player.y = data.y;
+            player.pos = data.pos;
         }else if(data.input === 'space'){
             player.pressingSpace = data.state;
         }
         
-        var pack = [];
+        var pack;
     
         for(var i in PLAYER_LIST){
             var player2 = PLAYER_LIST[i];
             if(player2.id != player.id){
-                pack.push({
+                pack = {
                     x:player.x,
                     y:player.y,
                     space:player.pressingSpace,
                     id:player.id///////////
-                });
+                };
                 //console.log("pack n",player2.id,"->",pack);
                 SOCKET_LIST[player2.id].emit('newPositions',pack);
             }

@@ -1,10 +1,26 @@
 import Bullet from "./Bullet.js";
 import Explosion from "./Explosion.js";
 
-export default class Bird extends Phaser.Physics.Arcade.Sprite {
+export default class Player1 extends Phaser.Physics.Arcade.Sprite {
 
     constructor(scene, x, y, id) {
-        super(scene, x, y, "bird");
+        console.log("Id",id)
+        
+        var image;
+
+        if(id==1){
+            console.log("Id1",id)
+            image = "player1";
+        }else{
+            console.log("Id2",id)
+            image = "player2";
+        }
+
+        console.log(image)
+
+        super(scene, x, y, image);
+
+        this.image = image;
 
         this.id = id
         
@@ -37,16 +53,32 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
         //https://photonstorm.github.io/phaser3-docs/Phaser.Scene.html#anims__anchor
         //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html
         this.scene.anims.create({
-            key: 'flap', //animation identifier
+            key: 'up', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers('bird', { start: 0, end: 2 }),
-            frameRate: 1,
-            repeat: -1 //animation repetition (-1 = infinity)
+            frames: this.scene.anims.generateFrameNumbers(this.image, { start: 3, end: 3 })
+        });
+        this.scene.anims.create({
+            key: 'down', //animation identifier
+            //frames to play in animation 
+            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+            frames: this.scene.anims.generateFrameNumbers(this.image, { start: 0, end: 0 })
+        });
+        this.scene.anims.create({
+            key: 'left', //animation identifier
+            //frames to play in animation 
+            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+            frames: this.scene.anims.generateFrameNumbers(this.image, { start: 1, end: 1 })
+        });
+        this.scene.anims.create({
+            key: 'right', //animation identifier
+            //frames to play in animation 
+            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+            frames: this.scene.anims.generateFrameNumbers(this.image, { start: 2, end: 2 })
         });
 
         //executes animation
-        this.play('flap');
+        this.play('down');
 
     }
 
@@ -54,20 +86,24 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
         if(this.id == id){
             this.setVelocity(0)
             if (cursors.up.isDown && this.y > this.frame.halfHeight + 6) {///se mudar pra 7 fica um espacinho de sobra
+                this.play('up');
                 this.setVelocityY(-this.velocity);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:"up"});
             }
             if (cursors.down.isDown && this.y < this.sceneHeight - this.frame.halfHeight - 6) {
+                this.play('down');
                 this.setVelocityY(this.velocity);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:"down"});
             }
             if (cursors.left.isDown && this.x > this.frame.halfWidth + 6) {/////funciona se mandarmos vetor com teclas a false ou true
+                this.play('left');
                 this.setVelocityX(-this.velocity);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:"left"});
             }
             if (cursors.right.isDown && this.x < this.sceneWidth - this.frame.halfWidth - 6) {
+                this.play('right');
                 this.setVelocityX(this.velocity);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:"right"});
             }
             if (cursors.space.isDown) {
                 this.fire(time);

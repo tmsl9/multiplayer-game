@@ -3,9 +3,14 @@ export default class bootGame extends Phaser.Scene {
         super("BootGame");
     }
     preload() {
-        this.load.spritesheet("bird", "assets/bird.png", {
-            frameWidth: 34,
-            frameHeight: 24
+        this.load.spritesheet("player1", "assets/player1.png", {
+            frameWidth: 37.5,
+            frameHeight: 50
+        });
+
+        this.load.spritesheet("player2", "assets/player2.png", {
+            frameWidth: 37.5,
+            frameHeight: 50
         });
 
         this.load.image("bullet", "assets/bullet.png");
@@ -22,7 +27,7 @@ export default class bootGame extends Phaser.Scene {
 
         this.load.image("bg", "assets/background.png");
 
-        this.load.audio("fire", "assets/fire-sound.mp3");
+        this.load.audio("fire", "assets/fireball.mp3");
         this.load.audio("theme", "assets/overworld.mp3");
         this.load.audio("gameover", "assets/gameover.mp3");
 
