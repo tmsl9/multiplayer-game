@@ -1,26 +1,26 @@
 import Bullet from "./Bullet.js";
 import Explosion from "./Explosion.js";
 
-export default class Player1 extends Phaser.Physics.Arcade.Sprite {
+export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     constructor(scene, x, y, id) {
         console.log("Id",id)
         
-        var image;
+        var img;
 
         if(id==1){
             console.log("Id1",id)
-            image = "player1";
+            img = "player1";
         }else{
             console.log("Id2",id)
-            image = "player2";
+            img = "player2";
         }
 
-        console.log(image)
+        console.log(img)
 
-        super(scene, x, y, image);
+        super(scene, x, y, img);
 
-        this.image = image;
+        this.image = img;
 
         this.id = id
         
@@ -43,11 +43,12 @@ export default class Player1 extends Phaser.Physics.Arcade.Sprite {
 
         this.velocity = 200;
 
+        this.pos = "down";
+
         this.bullets = this.scene.physics.add.group({
             maxSize: this.bulletsMaxsize,
             classType: Bullet
         });
-
 
         //creates animation from spritesheet
         //https://photonstorm.github.io/phaser3-docs/Phaser.Scene.html#anims__anchor
@@ -82,27 +83,31 @@ export default class Player1 extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    update(time, cursors, socket, id) {
+    update(time, cursors, socket, id, player2) {
         if(this.id == id){
             this.setVelocity(0)
             if (cursors.up.isDown && this.y > this.frame.halfHeight + 6) {///se mudar pra 7 fica um espacinho de sobra
                 this.play('up');
                 this.setVelocityY(-this.velocity);
+                this.pos="up";
                 socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:"up"});
             }
             if (cursors.down.isDown && this.y < this.sceneHeight - this.frame.halfHeight - 6) {
                 this.play('down');
                 this.setVelocityY(this.velocity);
+                this.pos="down";
                 socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:"down"});
             }
             if (cursors.left.isDown && this.x > this.frame.halfWidth + 6) {/////funciona se mandarmos vetor com teclas a false ou true
                 this.play('left');
                 this.setVelocityX(-this.velocity);
+                this.pos="left";
                 socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:"left"});
             }
             if (cursors.right.isDown && this.x < this.sceneWidth - this.frame.halfWidth - 6) {
                 this.play('right');
                 this.setVelocityX(this.velocity);
+                this.pos="right";
                 socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:"right"});
             }
             if (cursors.space.isDown) {
@@ -113,11 +118,11 @@ export default class Player1 extends Phaser.Physics.Arcade.Sprite {
             /////////////////////////////////pode nao ser preciso pois em cima tem o setVelocity(0)
             if (cursors.up.isUp && cursors.down.isUp) {
                 this.setVelocityY(0);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
             }
             if (cursors.left.isUp && cursors.right.isUp) {/////funciona se mandarmos vetor com teclas a false ou true
                 this.setVelocityX(0);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
             }
             if (cursors.space.isUp) {
                 socket.emit('keyPress',{input:'space',state:false});

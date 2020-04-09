@@ -1,5 +1,5 @@
 import Enemy from "../models/Enemy.js";
-import Player1 from "../models/Player1.js";
+import Player from "../models/Player.js";
 
 export default class playGame extends Phaser.Scene {
     constructor() {
@@ -32,7 +32,7 @@ export default class playGame extends Phaser.Scene {
         
         this.players = this.physics.add.group({
             maxSize: 2,
-            classType: Player1
+            classType: Player
         });
 
         //this.player1 = new player1(this, 200, 400, 1)
@@ -44,6 +44,9 @@ export default class playGame extends Phaser.Scene {
         //this.enemy.setVelocityX(-200);
         
         //this.physics.add.collider(this.players, front);
+        
+
+
         this.physics.add.collider(this.players, front, (enemy, front) =>{
             this.add.text(300, 300, "collide", {
                 font: "30px Cambria",
@@ -77,6 +80,7 @@ export default class playGame extends Phaser.Scene {
 
         this.player1;
         this.player2;
+
         this.players.children.iterate(function (player1) {
             if(player1.id == this.id){
                 this.player1 = player1;
@@ -96,7 +100,7 @@ export default class playGame extends Phaser.Scene {
 
         this.themeSound = this.sound.add("theme", { volume: 0.1 });
 
-        this.themeSound.play();
+        //this.themeSound.play();
 
         let fireSound = this.sound.add("fire", {
             volume: 0.1
@@ -144,7 +148,7 @@ export default class playGame extends Phaser.Scene {
     update(time) {
         this.players.children.iterate(function (player1) {
             if(player1.life > 0){
-                player1.update(time, this.cursors, this.socket, this.id)
+                player1.update(time, this.cursors, this.socket, this.id, this.player2)
             }else{
                 player1.dead()
                 //stops this scene

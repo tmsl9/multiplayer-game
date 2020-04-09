@@ -96,6 +96,7 @@ io.sockets.on('connection', function(socket){
                     x:player.x,
                     y:player.y,
                     space:player.pressingSpace,
+                    pos:player.pos,
                     id:player.id///////////
                 };
                 //console.log("pack n",player2.id,"->",pack);
