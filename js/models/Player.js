@@ -9,18 +9,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         var img;
 
         if(id==1){
-            console.log("Id1",id)
             img = "player1";
         }else{
-            console.log("Id2",id)
             img = "player2";
         }
 
         console.log(img)
 
-        super(scene, x, y, img);
+        super(scene, x, y,img);
 
-        this.image = img;
+        this.imag = img;
 
         this.id = id
         
@@ -57,25 +55,25 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             key: 'up', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers(this.image, { start: 3, end: 3 })
+            frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 3, end: 3 })
         });
         this.scene.anims.create({
             key: 'down', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers(this.image, { start: 0, end: 0 })
+            frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 0, end: 0 })
         });
         this.scene.anims.create({
             key: 'left', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers(this.image, { start: 1, end: 1 })
+            frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 1, end: 1 })
         });
         this.scene.anims.create({
             key: 'right', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers(this.image, { start: 2, end: 2 })
+            frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 2, end: 2 })
         });
 
         //executes animation
