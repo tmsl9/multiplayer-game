@@ -11,7 +11,6 @@ export default class playGame extends Phaser.Scene {
         this.data = data
         this.socket = data.socket
         this.id = data.id
-        this.cursors = this.data.cursors
     }
 
     preload(){
@@ -86,7 +85,7 @@ export default class playGame extends Phaser.Scene {
         this.socket.on('newPositions',(data)=>{
             this.bird2.x = data[0].x
             this.bird2.y = data[0].y
-            if(data[0].space){
+            if(data[0].fight){
                 this.bird2.fire(this.time.now)
             }
         });
@@ -141,7 +140,7 @@ export default class playGame extends Phaser.Scene {
     update(time) {
         this.birds.children.iterate(function (bird) {
             if(bird.life > 0){
-                bird.update(time, this.cursors, this.socket, this.id)
+                bird.update(time, this.data)
             }else{
                 bird.dead()
                 //stops this scene

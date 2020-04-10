@@ -64,7 +64,7 @@ export default class controlsConfiguration extends Phaser.Scene {
         but.on('pointerout', () => but.setStyle({ fill: '#fff'}))
     }
     
-    clickKey(pointer, buttons){
+    clickKey(pointer, buttons){///z está a ir pra cima
         if(buttons.length > 0){
             this.button = buttons[0]
             this.button.setStyle({ fill: '#0f0'})
@@ -97,20 +97,29 @@ export default class controlsConfiguration extends Phaser.Scene {
         this.input.off('pointerout', this.outKey, this)
     }
   
-    changeKey(key){
-        if(String.fromCharCode(this.cursors.up.keyCode) == this.button.text){
+    changeKey(key){/////////////////////
+        if(this.keyText(this.cursors.up.keyCode) == this.button.text){
             this.cursors.up.keyCode = key
-        }else if(String.fromCharCode(this.cursors.down.keyCode) == this.button.text){
+        }else if(this.keyText(this.cursors.down.keyCode) == this.button.text){
             this.cursors.down.keyCode = key
-        }else if(String.fromCharCode(this.cursors.left.keyCode) == this.button.text){
+        }else if(this.keyText(this.cursors.left.keyCode) == this.button.text){
             this.cursors.left.keyCode = key
-        }else if(String.fromCharCode(this.cursors.right.keyCode) == this.button.text){
+        }else if(this.keyText(this.cursors.right.keyCode) == this.button.text){
             this.cursors.right.keyCode = key
-        }else if(String.fromCharCode(this.cursors.fight.keyCode) == this.button.text){
+        }else if(this.keyText(this.cursors.fight.keyCode) == this.button.text){
             this.cursors.fight.keyCode = key
-        }else if(String.fromCharCode(this.cursors.shop.keyCode) == this.button.text){
+        }else if(this.keyText(this.cursors.shop.keyCode) == this.button.text){
             this.cursors.shop.keyCode = key
         }
+    }
+
+    getTextFromCharsAllowed(keyCode){
+        for(var i in this.charsAllowed){
+            if(this.charsAllowed[i] == keyCode){
+                return i
+            }
+        }
+        return ""
     }
 
     canChoseKey(keyCode){
@@ -150,8 +159,6 @@ export default class controlsConfiguration extends Phaser.Scene {
         c['Up'] = 38
         c['Right'] = 39
         c['Down'] = 40
-        
-        console.log(c[11])
 
         return c
     }

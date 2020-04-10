@@ -81,8 +81,8 @@ io.sockets.on('connection', function(socket){
         if(data.input === 'xy'){
             player.x = data.x;
             player.y = data.y;
-        }else if(data.input === 'space'){
-            player.pressingSpace = data.state;
+        }else if(data.input === 'fight'){
+            player.pressingFight = data.state;
         }
         
         var pack = [];
@@ -93,7 +93,7 @@ io.sockets.on('connection', function(socket){
                 pack.push({
                     x:player.x,
                     y:player.y,
-                    space:player.pressingSpace,
+                    fight:player.pressingFight,
                     id:player.id///////////
                 });
                 //console.log("pack n",player2.id,"->",pack);

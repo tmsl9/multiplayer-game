@@ -8,6 +8,12 @@ export default class play extends Phaser.Scene {
         this.data = data
         this.socket = data.socket
         this.id = data.id
+        console.log(data.cursors.up.keyCode)
+        console.log(data.cursors.down.keyCode)
+        console.log(data.cursors.left.keyCode)
+        console.log(data.cursors.right.keyCode)
+        console.log(data.cursors.fight.keyCode)
+        console.log(data.cursors.shop.keyCode)
     }
 
     create() {
@@ -34,6 +40,4 @@ export default class play extends Phaser.Scene {
             //configurar controlos
                
     }
-
-
 }
