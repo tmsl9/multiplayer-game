@@ -97,7 +97,7 @@ export default class controlsConfiguration extends Phaser.Scene {
         this.input.off('pointerout', this.outKey, this)
     }
   
-    changeKey(key){/////////////////////
+    changeKey(key){
         if(this.keyText(this.cursors.up.keyCode) == this.button.text){
             this.cursors.up.keyCode = key
         }else if(this.keyText(this.cursors.down.keyCode) == this.button.text){
