@@ -15,25 +15,31 @@ export default class controlsConfiguration extends Phaser.Scene {
         this.charsAllowed = this.charsAllowedFun()
         
         this.add.text(50, 50, 'Characters allowed:', { fill: '#fff' })
-        this.add.text(100, 80, 'A-Z, 0-9, LeftShift, Control, Alt, CapsLock,', { fill: '#fff' })
-        this.add.text(100, 100, 'Esc, Spacebar, Tab, Enter, Ponto, Vírgula,', { fill: '#fff' })
-        this.add.text(100, 120, 'Backspace, Up, Left, Right, Down', { fill: '#fff' })
+        this.add.text(100, 80, 'A-Z, 0-9, LeftShift, LeftControl, Alt,', { fill: '#fff' })
+        this.add.text(100, 100, 'CapsLock, Esc, Spacebar, Tab, Enter, Ponto,', { fill: '#fff' })
+        this.add.text(100, 120, 'Backspace, Up, Left, Right, Down, Vírgula', { fill: '#fff' })
         
         this.add.text(100, 200, 'Mover para cima', { fill: '#fff' })
-        this.upButton = this.add.text(400, 200, String.fromCharCode(this.cursors.up.keyCode), { fill: '#fff' })
+        this.upButton = this.add.text(400, 200, this.keyText(this.cursors.up.keyCode), { fill: '#fff' })
         this.buttonInteraction(this.upButton)
         this.add.text(100, 220, 'Mover para baixo', { fill: '#fff' })
-        this.downButton = this.add.text(400, 220, String.fromCharCode(this.cursors.down.keyCode), { fill: '#fff' })
+        this.downButton = this.add.text(400, 220, this.keyText(this.cursors.down.keyCode), { fill: '#fff' })
         this.buttonInteraction(this.downButton)
         this.add.text(100, 240, 'Mover para a esquerda', { fill: '#fff' })
-        this.leftButton = this.add.text(400, 240, String.fromCharCode(this.cursors.left.keyCode), { fill: '#fff' })
+        this.leftButton = this.add.text(400, 240, this.keyText(this.cursors.left.keyCode), { fill: '#fff' })
         this.buttonInteraction(this.leftButton)
         this.add.text(100, 260, 'Mover para a direita', { fill: '#fff' })
-        this.rightButton = this.add.text(400, 260, String.fromCharCode(this.cursors.right.keyCode), { fill: '#fff' })
+        this.rightButton = this.add.text(400, 260, this.keyText(this.cursors.right.keyCode), { fill: '#fff' })
         this.buttonInteraction(this.rightButton)
         this.add.text(100, 280, 'Lutar', { fill: '#fff' })
-        this.fightButton = this.add.text(400, 280, String.fromCharCode(this.cursors.fight.keyCode), { fill: '#fff' })/////fight é o space ou seja vai imprimir uma coisa que nao existe
+        this.fightButton = this.add.text(400, 280, this.keyText(this.cursors.fight.keyCode), { fill: '#fff' })
         this.buttonInteraction(this.fightButton)
+        this.add.text(100, 300, 'Loja', { fill: '#fff' })
+        this.shopButton = this.add.text(400, 300, this.keyText(this.cursors.shop.keyCode), { fill: '#fff' })
+        this.buttonInteraction(this.shopButton)
+        this.add.text(100, 320, 'Atirar', { fill: '#fff' })
+        this.shopButton = this.add.text(400, 320, 'Mouse\'s left button (*)', { fill: '#fff' })
+        this.add.text(100, 500, '(*) Não pode ser alterado', { fill: '#fff' })
 
         this.input.on("pointerdown", this.clickKey, this)
 
@@ -65,10 +71,9 @@ export default class controlsConfiguration extends Phaser.Scene {
             this.input.off('pointerdown', this.clickKey, this)
             this.input.keyboard.addListener("keydown", ()=>{
                 var key = event.keyCode
-                var letter = String.fromCharCode(key)
-                if(letter == this.button.text || this.canChoseKey(key)){
+                if(key == this.charsAllowed[this.button.text] || this.canChoseKey(key)){
                     this.changeKey(key)
-                    this.button.setText(letter)
+                    this.button.setText(this.keyText(key))
                     this.button.setStyle({ fill: '#ffa82e'})
                     this.input.keyboard.removeAllListeners("keydown")
                 }
@@ -77,7 +82,17 @@ export default class controlsConfiguration extends Phaser.Scene {
         }
     }
 
+    keyText(key){
+        for(var keyString in this.charsAllowed){
+            if(this.charsAllowed[keyString] == key){
+                return keyString
+            }
+        }
+        return ""
+    }
+
     outKey(pointer){
+        this.input.keyboard.removeAllListeners("keydown")
         this.input.on('pointerdown', this.clickKey, this)
         this.input.off('pointerout', this.outKey, this)
     }
@@ -93,38 +108,50 @@ export default class controlsConfiguration extends Phaser.Scene {
             this.cursors.right.keyCode = key
         }else if(String.fromCharCode(this.cursors.fight.keyCode) == this.button.text){
             this.cursors.fight.keyCode = key
+        }else if(String.fromCharCode(this.cursors.shop.keyCode) == this.button.text){
+            this.cursors.shop.keyCode = key
         }
     }
 
     canChoseKey(keyCode){
-        return this.charsAllowed.includes(keyCode) && keyCode != this.cursors.up.keyCode && keyCode != this.cursors.down.keyCode && keyCode != this.cursors.left.keyCode 
-        && keyCode != this.cursors.right.keyCode && keyCode != this.cursors.fight.keyCode
+        var isAllowed = false
+        for(var i in this.charsAllowed){
+            if(this.charsAllowed[i] == keyCode){
+                isAllowed = true
+                break
+            }
+        }
+        return isAllowed && keyCode != this.cursors.up.keyCode && keyCode != this.cursors.down.keyCode
+        && keyCode != this.cursors.left.keyCode && keyCode != this.cursors.right.keyCode
+        && keyCode != this.cursors.fight.keyCode&& keyCode != this.cursors.shop.keyCode
     }
 
     charsAllowedFun(){
-        var c = []
+        var c = {}
         for(var i = '0'.charCodeAt(0); i <= '9'.charCodeAt(0); i++){
-            c.push(i)
+            c[String.fromCharCode(i)] = i
         }
         for(var i = 'A'.charCodeAt(0); i <= 'Z'.charCodeAt(0); i++){
-            c.push(i)
+            c[String.fromCharCode(i)] = i
         }
 
-        c.push(16)
-        c.push(17)
-        c.push(18)
-        c.push(20)
-        c.push(27)
-        c.push(32)
-        c.push(9)
-        c.push(13)
-        c.push(190)
-        c.push(188)
-        c.push(8)
-        c.push(37)
-        c.push(38)
-        c.push(39)
-        c.push(40)
+        c['LeftShift'] = 16
+        c['LeftControl'] = 17
+        c['Alt'] = 18
+        c['Capslock'] = 20
+        c['Esc'] = 27
+        c['Spacebar'] = 32
+        c['Tab'] = 9
+        c['Enter'] = 13
+        c['Ponto'] = 190
+        c['Vírgula'] = 188
+        c['Backspace'] = 8
+        c['Left'] = 37
+        c['Up'] = 38
+        c['Right'] = 39
+        c['Down'] = 40
+        
+        console.log(c[11])
 
         return c
     }

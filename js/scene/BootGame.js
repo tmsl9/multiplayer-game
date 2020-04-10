@@ -38,7 +38,8 @@ export default class bootGame extends Phaser.Scene {
             down: this.input.keyboard.addKey('S'),
             left: this.input.keyboard.addKey('A'),
             right: this.input.keyboard.addKey('D'),
-            fight: this.input.keyboard.addKey('SPACE')
+            fight: this.input.keyboard.addKey('SPACE'),
+            shop: this.input.keyboard.addKey('Q')
         }
 
         var socket = io();
