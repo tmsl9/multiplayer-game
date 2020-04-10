@@ -11,6 +11,7 @@ export default class playGame extends Phaser.Scene {
         this.data = data
         this.socket = data.socket
         this.id = data.id
+        this.volume = data.volume
     }
 
     preload(){
@@ -90,12 +91,12 @@ export default class playGame extends Phaser.Scene {
             }
         });
 
-        this.themeSound = this.sound.add("theme", { volume: 0.1 });
+        this.themeSound = this.sound.add("theme", { volume: this.volume });
 
         this.themeSound.play();
 
         let fireSound = this.sound.add("fire", {
-            volume: 0.1
+            volume: this.volume
         });
 
         this.birds.children.iterate(function (bird) {

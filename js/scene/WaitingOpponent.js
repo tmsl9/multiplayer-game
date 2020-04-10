@@ -11,8 +11,8 @@ export default class waitingOpponent extends Phaser.Scene {
     }
     
     create() {
-        this.add.text(230, 300, 'Waiting for opponent', { fill: '#0f0' })
-        this.add.text(280, 330, 'Good luck!', { fill: '#0f0' })
+        this.add.text(230, 300, 'Waiting for opponent', { fill: '#fff' })
+        this.add.text(280, 330, 'Good luck!', { fill: '#fff' })
         console.log("Waiting for opponent");
         console.log("id: ", this.id)
         this.socket.emit('ready')

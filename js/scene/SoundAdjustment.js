@@ -46,7 +46,8 @@ export default class soundAdjustment extends Phaser.Scene {
     clickVolume(pointer){
         this.volumeButton.off('pointerdown', this.clickVolume, this)
         this.volumeButton.on('pointermove', this.dragVolume, this)
-        this.volumeButton.on('pointerup', this.stopDragVolume, this)
+        this.input.on('pointermove', this.dragVolume, this)
+        this.input.on('pointerup', this.stopDragVolume, this)
     }
 
     dragVolume(pointer){
@@ -61,6 +62,7 @@ export default class soundAdjustment extends Phaser.Scene {
     stopDragVolume(pointer){
         this.volumeButton.on('pointerdown', this.clickVolume, this)
         this.volumeButton.off('pointermove', this.dragVolume, this)
-        this.volumeButton.off('pointerup', this.stopDragVolume, this)
+        this.input.off('pointermove', this.dragVolume, this)
+        this.input.off('pointerup', this.stopDragVolume, this)
     }
 }

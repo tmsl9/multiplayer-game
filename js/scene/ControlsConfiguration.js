@@ -64,7 +64,7 @@ export default class controlsConfiguration extends Phaser.Scene {
         but.on('pointerout', () => but.setStyle({ fill: '#fff'}))
     }
     
-    clickKey(pointer, buttons){///z está a ir pra cima
+    clickKey(pointer, buttons){
         if(buttons.length > 0){
             this.button = buttons[0]
             this.button.setStyle({ fill: '#0f0'})
