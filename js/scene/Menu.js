@@ -6,6 +6,11 @@ export default class menu extends Phaser.Scene {
     init(data){
         console.log("Menu: ", data)
         this.data = data
+        console.log(this.data.cursors.up.keyCode)
+        console.log(this.data.cursors.down.keyCode)
+        console.log(this.data.cursors.left.keyCode)
+        console.log(this.data.cursors.right.keyCode)
+        console.log(this.data.cursors.fight.keyCode)
     }
 
     create() {
