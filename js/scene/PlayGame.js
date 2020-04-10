@@ -11,6 +11,7 @@ export default class playGame extends Phaser.Scene {
         this.data = data
         this.socket = data.socket
         this.id = data.id
+        this.cursors = this.data.cursors
     }
 
     preload(){
@@ -27,8 +28,6 @@ export default class playGame extends Phaser.Scene {
         const front = this.map.createStaticLayer("front", tileset, 0, 0);
     
         front.setCollisionByProperty({ "collides": true }, true);
-        
-        this.cursors = this.input.keyboard.createCursorKeys()
         
         this.birds = this.physics.add.group({
             maxSize: 2,
