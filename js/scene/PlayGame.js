@@ -8,9 +8,10 @@ export default class playGame extends Phaser.Scene {
 
     init(data){
         console.log("PlayGame scene: ", data)
-
+        this.data = data
         this.socket = data.socket
         this.id = data.id
+        this.volume = data.volume
     }
 
     preload(){
@@ -28,12 +29,17 @@ export default class playGame extends Phaser.Scene {
     
         front.setCollisionByProperty({ "collides": true }, true);
         
-        this.cursors = this.input.keyboard.createCursorKeys()
-        
         this.birds = this.physics.add.group({
             maxSize: 2,
             classType: Bird
         });
+
+        this.enemies = this.physics.add.group({
+            maxSize: 10,
+            classType: Enemy
+        });
+
+        
         //this.bird = new Bird(this, 200, 400, 1)
         //this.bird2 = new Bird(this, 400, 400, 2)
 
@@ -87,24 +93,24 @@ export default class playGame extends Phaser.Scene {
         this.socket.on('newPositions',(data)=>{
             this.bird2.x = data[0].x
             this.bird2.y = data[0].y
-            if(data[0].space){
+            if(data[0].fight){
                 this.bird2.fire(this.time.now)
             }
         });
 
-        this.themeSound = this.sound.add("theme", { volume: 0.1 });
+        this.themeSound = this.sound.add("theme", { volume: this.volume });
 
-        this.themeSound.play();
+        //this.themeSound.play();
 
         let fireSound = this.sound.add("fire", {
-            volume: 0.1
+            volume: this.volume
         });
 
         this.birds.children.iterate(function (bird) {
             bird.fireSound = fireSound;
         }, this);
 
-        this.physics.add.overlap(this.bird2, this.bird.bullets, (bird, bullet) => {
+        this.physics.add.collider(this.bird2, this.bird.bullets, (bird, bullet) => {
         
             this.bird.bullets.killAndHide(bullet);
 
@@ -137,12 +143,59 @@ export default class playGame extends Phaser.Scene {
                 }
             }
         })
+        // CREATE ENEMY - ESCOLHA DE IDS
+
+        //passa para o servidor
+        let idNumber;
+        let idEnemy=1;
+        this.enemyTimerDelay = 5000
+        this.enemySpawnConfig = {
+            delay: this.enemyTimerDelay,
+            repeat: -1,
+            callback: () => {
+                let margin = 300;
+                let x ;
+                let y ;
+                let randNum= Math.floor(Math.random() *3);
+                //console.log("RandomNumber",randNum);
+                if(randNum==0){
+                    x = 0;
+                    y = Math.floor(Math.random() * (this.sys.canvas.height - margin)) + margin;
+                }else if( randNum == 1){
+                    x= this.game.config.width;
+                    y= Math.floor(Math.random() * (this.sys.canvas.height - margin)) + margin;
+                }else if(randNum ==2){
+                    x=Math.floor(Math.random() * (this.sys.canvas.width - margin)) + margin;
+                    y=this.game.config.height;
+                }
+                //now it does not need to create a new Enemy object (false argument) because they are created with the scene creation
+                let prob = Math.floor(Math.random() * 100+1);
+                //console.log("idEnemy",idEnemy);
+                if(prob<=40){
+                    idNumber=1;
+                }else if(prob<=80){
+                    idNumber=2;
+                }else if(prob<=100){
+                    idNumber=3;
+                }
+              // console.log("x-", x, "y-", y,"idNumber",idNumber);
+              // até aqui  
+                let enemy = this.enemies.getFirstDead(true, x, y, idNumber,idEnemy);
+                if (enemy) {
+                    idEnemy++;
+                    enemy.spawn()
+                }
+            }
+        };
+        this.enemyTimer = this.time.addEvent(this.enemySpawnConfig);
+
+        this.enemySpawnCounter = 0;
     }
 
     update(time) {
         this.birds.children.iterate(function (bird) {
             if(bird.life > 0){
-                bird.update(time, this.cursors, this.socket, this.id)
+                bird.update(time, this.data)
             }else{
                 bird.dead()
                 //stops this scene
@@ -154,8 +207,19 @@ export default class playGame extends Phaser.Scene {
                 this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: bird.id})
             } 
         }, this);
+
+        this.enemies.children.iterate(function (enemies) {
+          enemies.update(time,this.birds);
+        
+        }, this);
+
+    
+
         
     }
+    
+
+   
     
 
 }
