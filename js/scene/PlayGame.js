@@ -34,6 +34,13 @@ export default class playGame extends Phaser.Scene {
             maxSize: 2,
             classType: Bird
         });
+
+        this.enemies = this.physics.add.group({
+            maxSize: 10,
+            classType: Enemy
+        });
+
+        
         //this.bird = new Bird(this, 200, 400, 1)
         //this.bird2 = new Bird(this, 400, 400, 2)
 
@@ -94,7 +101,7 @@ export default class playGame extends Phaser.Scene {
 
         this.themeSound = this.sound.add("theme", { volume: 0.1 });
 
-        this.themeSound.play();
+        //this.themeSound.play();
 
         let fireSound = this.sound.add("fire", {
             volume: 0.1
@@ -104,7 +111,7 @@ export default class playGame extends Phaser.Scene {
             bird.fireSound = fireSound;
         }, this);
 
-        this.physics.add.overlap(this.bird2, this.bird.bullets, (bird, bullet) => {
+        this.physics.add.collider(this.bird2, this.bird.bullets, (bird, bullet) => {
         
             this.bird.bullets.killAndHide(bullet);
 
@@ -137,6 +144,53 @@ export default class playGame extends Phaser.Scene {
                 }
             }
         })
+        // CREATE ENEMY - ESCOLHA DE IDS
+
+        //passa para o servidor
+        let idNumber;
+        let idEnemy=1;
+        this.enemyTimerDelay = 5000
+        this.enemySpawnConfig = {
+            delay: this.enemyTimerDelay,
+            repeat: -1,
+            callback: () => {
+                let margin = 300;
+                let x ;
+                let y ;
+                let randNum= Math.floor(Math.random() *3);
+                //console.log("RandomNumber",randNum);
+                if(randNum==0){
+                    x = 0;
+                    y = Math.floor(Math.random() * (this.sys.canvas.height - margin)) + margin;
+                }else if( randNum == 1){
+                    x= this.game.config.width;
+                    y= Math.floor(Math.random() * (this.sys.canvas.height - margin)) + margin;
+                }else if(randNum ==2){
+                    x=Math.floor(Math.random() * (this.sys.canvas.width - margin)) + margin;
+                    y=this.game.config.height;
+                }
+                //now it does not need to create a new Enemy object (false argument) because they are created with the scene creation
+                let prob = Math.floor(Math.random() * 100+1);
+                //console.log("idEnemy",idEnemy);
+                if(prob<=40){
+                    idNumber=1;
+                }else if(prob<=80){
+                    idNumber=2;
+                }else if(prob<=100){
+                    idNumber=3;
+                }
+              // console.log("x-", x, "y-", y,"idNumber",idNumber);
+              // até aqui  
+                let enemy = this.enemies.getFirstDead(true, x, y, idNumber,idEnemy);
+                if (enemy) {
+                    idEnemy++;
+                    enemy.spawn()
+                }
+            }
+        };
+        this.enemyTimer = this.time.addEvent(this.enemySpawnConfig);
+
+        this.enemySpawnCounter = 0;
     }
 
     update(time) {
@@ -154,8 +208,19 @@ export default class playGame extends Phaser.Scene {
                 this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: bird.id})
             } 
         }, this);
+
+        this.enemies.children.iterate(function (enemies) {
+          enemies.update(time,this.birds);
+        
+        }, this);
+
+    
+
         
     }
+    
+
+   
     
 
 }

@@ -1,5 +1,5 @@
 export default class Bullet extends Phaser.Physics.Arcade.Image {
-    constructor(scene, x, y) {
+    constructor(scene, x, y, id) {
 
         super(scene, x, y, "bullet");
 
@@ -8,7 +8,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
 
         //enable physics to sprite
         this.scene.physics.world.enable(this);
-
+        this.id=id;
         this.baseVelocity = 350;
 
         this.power = 10
@@ -40,5 +40,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
 
         return this.x > width || this.y > height || this.x < 0 || this.y < 0;
     }
+
+    
 
 }

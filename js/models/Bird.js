@@ -16,16 +16,20 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
         this.sceneHeight = this.scene.game.config.height;
 
         this.life = 100;
+        this.atacklvl = 1;
+        this.velocity = 200;
+        this.fireRate = 350;
+        this.money = 0;
 
         this.canBeKilled = true;
 
         this.bulletsMaxsize = 5;
 
-        this.fireRate = 350;
+        
 
         this.timeToShoot = 0;
 
-        this.velocity = 200;
+        
 
         this.bullets = this.scene.physics.add.group({
             maxSize: this.bulletsMaxsize,
@@ -101,6 +105,7 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
             let bullet  = this.bullets.getFirstDead(true, this.x, this.y)
             if (bullet) {
                 if(this.id == 1){
+                    this.atacklvl=bullet.power*2;
                     bullet.setVelocityX(bullet.baseVelocity);
                 }else{
                     bullet.setVelocityX(-bullet.baseVelocity);
