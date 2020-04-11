@@ -8,9 +8,10 @@ export default class playGame extends Phaser.Scene {
 
     init(data){
         console.log("PlayGame scene: ", data)
-
+        this.data = data
         this.socket = data.socket
         this.id = data.id
+        this.volume = data.volume
     }
 
     preload(){
@@ -27,8 +28,6 @@ export default class playGame extends Phaser.Scene {
         const front = this.map.createStaticLayer("front", tileset, 0, 0);
     
         front.setCollisionByProperty({ "collides": true }, true);
-        
-        this.cursors = this.input.keyboard.createCursorKeys()
         
         this.birds = this.physics.add.group({
             maxSize: 2,
@@ -94,17 +93,17 @@ export default class playGame extends Phaser.Scene {
         this.socket.on('newPositions',(data)=>{
             this.bird2.x = data[0].x
             this.bird2.y = data[0].y
-            if(data[0].space){
+            if(data[0].fight){
                 this.bird2.fire(this.time.now)
             }
         });
 
-        this.themeSound = this.sound.add("theme", { volume: 0.1 });
+        this.themeSound = this.sound.add("theme", { volume: this.volume });
 
         //this.themeSound.play();
 
         let fireSound = this.sound.add("fire", {
-            volume: 0.1
+            volume: this.volume
         });
 
         this.birds.children.iterate(function (bird) {
@@ -196,7 +195,7 @@ export default class playGame extends Phaser.Scene {
     update(time) {
         this.birds.children.iterate(function (bird) {
             if(bird.life > 0){
-                bird.update(time, this.cursors, this.socket, this.id)
+                bird.update(time, this.data)
             }else{
                 bird.dead()
                 //stops this scene

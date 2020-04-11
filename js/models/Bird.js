@@ -54,7 +54,10 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    update(time, cursors, socket, id) {
+    update(time, data) {
+        var id = data.id
+        var socket = data. socket
+        var cursors = this.defCursors(data)
         if(this.id == id){
             this.setVelocity(0)
             if (cursors.up.isDown && this.y > this.frame.halfHeight + 6) {///se mudar pra 7 fica um espacinho de sobra
@@ -73,9 +76,9 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
                 this.setVelocityX(this.velocity);
                 socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
             }
-            if (cursors.space.isDown) {
+            if (cursors.fight.isDown) {
                 this.fire(time);
-                socket.emit('keyPress',{input:'space',state:true});
+                socket.emit('keyPress',{input:'fight',state:true});
             }
 
             /////////////////////////////////pode nao ser preciso pois em cima tem o setVelocity(0)
@@ -87,8 +90,8 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
                 this.setVelocityX(0);
                 socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
             }
-            if (cursors.space.isUp) {
-                socket.emit('keyPress',{input:'space',state:false});
+            if (cursors.fight.isUp) {
+                socket.emit('keyPress',{input:'fight',state:false});
             }
         }
 
@@ -98,6 +101,17 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
                 this.bullets.killAndHide(bullet);
             }
         }, this);
+    }
+
+    defCursors(data){
+        return {
+            up: this.scene.input.keyboard.addKey(data.cursors.up.keyCode),
+            down: this.scene.input.keyboard.addKey(data.cursors.down.keyCode),
+            left: this.scene.input.keyboard.addKey(data.cursors.left.keyCode),
+            right: this.scene.input.keyboard.addKey(data.cursors.right.keyCode),
+            fight: this.scene.input.keyboard.addKey(data.cursors.fight.keyCode),
+            shop: this.scene.input.keyboard.addKey(data.cursors.shop.keyCode)
+        }
     }
 
     fire(time){
