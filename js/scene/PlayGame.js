@@ -33,6 +33,13 @@ export default class playGame extends Phaser.Scene {
             maxSize: 2,
             classType: Bird
         });
+
+        this.enemies = this.physics.add.group({
+            maxSize: 10,
+            classType: Enemy
+        });
+
+        
         //this.bird = new Bird(this, 200, 400, 1)
         //this.bird2 = new Bird(this, 400, 400, 2)
 
@@ -93,7 +100,7 @@ export default class playGame extends Phaser.Scene {
 
         this.themeSound = this.sound.add("theme", { volume: this.volume });
 
-        this.themeSound.play();
+        //this.themeSound.play();
 
         let fireSound = this.sound.add("fire", {
             volume: this.volume
@@ -103,7 +110,7 @@ export default class playGame extends Phaser.Scene {
             bird.fireSound = fireSound;
         }, this);
 
-        this.physics.add.overlap(this.bird2, this.bird.bullets, (bird, bullet) => {
+        this.physics.add.collider(this.bird2, this.bird.bullets, (bird, bullet) => {
         
             this.bird.bullets.killAndHide(bullet);
 
@@ -137,26 +144,53 @@ export default class playGame extends Phaser.Scene {
                 }
             }
         })
-        this.cursors = {
-            up: this.input.keyboard.addKey(this.data.cursors.up.keyCode),
-            down: this.input.keyboard.addKey(this.data.cursors.down.keyCode),
-            left: this.input.keyboard.addKey(this.data.cursors.left.keyCode),
-            right: this.input.keyboard.addKey(this.data.cursors.right.keyCode),
-            fight: this.input.keyboard.addKey(this.data.cursors.fight.keyCode),
-            shop: this.input.keyboard.addKey(this.data.cursors.shop.keyCode)
-        }
-        
-        var pl
-        var minor = 100000
-        this.birds.children.iterate(function (bird) {
-            var dist = Phaser.Math.Distance.Between(bird.x, bird.y, this.enemy.x, this.enemy.y)
-            console.log("dist-> ", dist, ", id-> ", bird.id)
-            if(dist < minor){
-                pl = bird
-                minor = dist
+        // CREATE ENEMY - ESCOLHA DE IDS
+
+        //passa para o servidor
+        let idNumber;
+        let idEnemy=1;
+        this.enemyTimerDelay = 5000
+        this.enemySpawnConfig = {
+            delay: this.enemyTimerDelay,
+            repeat: -1,
+            callback: () => {
+                let margin = 300;
+                let x ;
+                let y ;
+                let randNum= Math.floor(Math.random() *3);
+                //console.log("RandomNumber",randNum);
+                if(randNum==0){
+                    x = 0;
+                    y = Math.floor(Math.random() * (this.sys.canvas.height - margin)) + margin;
+                }else if( randNum == 1){
+                    x= this.game.config.width;
+                    y= Math.floor(Math.random() * (this.sys.canvas.height - margin)) + margin;
+                }else if(randNum ==2){
+                    x=Math.floor(Math.random() * (this.sys.canvas.width - margin)) + margin;
+                    y=this.game.config.height;
+                }
+                //now it does not need to create a new Enemy object (false argument) because they are created with the scene creation
+                let prob = Math.floor(Math.random() * 100+1);
+                //console.log("idEnemy",idEnemy);
+                if(prob<=40){
+                    idNumber=1;
+                }else if(prob<=80){
+                    idNumber=2;
+                }else if(prob<=100){
+                    idNumber=3;
+                }
+              // console.log("x-", x, "y-", y,"idNumber",idNumber);
+              // até aqui  
+                let enemy = this.enemies.getFirstDead(true, x, y, idNumber,idEnemy);
+                if (enemy) {
+                    idEnemy++;
+                    enemy.spawn()
+                }
             }
-        }, this);
-        console.log("pl.id = ", pl.id, "minor: ", minor)
+        };
+        this.enemyTimer = this.time.addEvent(this.enemySpawnConfig);
+
+        this.enemySpawnCounter = 0;
     }
 
     update(time) {
@@ -182,8 +216,19 @@ export default class playGame extends Phaser.Scene {
                 this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: bird.id})
             } 
         }, this);
+
+        this.enemies.children.iterate(function (enemies) {
+          enemies.update(time,this.birds);
+        
+        }, this);
+
+    
+
         
     }
+    
+
+   
     
 
 }
