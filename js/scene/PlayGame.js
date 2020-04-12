@@ -121,12 +121,13 @@ export default class playGame extends Phaser.Scene {
             this.socket.emit('life', {id:bird.id, life:bird.life})
         });
 
-        this.socket.on('id', (data)=>{
+        //recomeçar o jogo quando servidor desligar e voltar a ligar, mas nao funciona bem por causa do servidor
+        /*this.socket.on('id', (data)=>{
             this.scene.stop()
             this.scene.start("Play")
-        })
+        })*/
         
-        this.socket.on('life', (data)=>{///workiiiiing
+        this.socket.on('life', (data)=>{
             if(data.life < this.bird.life){
                 this.bird.life = data.life
                 if(this.bird.id == 1){
@@ -136,13 +137,41 @@ export default class playGame extends Phaser.Scene {
                 }
             }
         })
+        this.cursors = {
+            up: this.input.keyboard.addKey(this.data.cursors.up.keyCode),
+            down: this.input.keyboard.addKey(this.data.cursors.down.keyCode),
+            left: this.input.keyboard.addKey(this.data.cursors.left.keyCode),
+            right: this.input.keyboard.addKey(this.data.cursors.right.keyCode),
+            fight: this.input.keyboard.addKey(this.data.cursors.fight.keyCode),
+            shop: this.input.keyboard.addKey(this.data.cursors.shop.keyCode)
+        }
+        
+        var pl
+        var minor = 100000
+        this.birds.children.iterate(function (bird) {
+            var dist = Phaser.Math.Distance.Between(bird.x, bird.y, this.enemy.x, this.enemy.y)
+            console.log("dist-> ", dist, ", id-> ", bird.id)
+            if(dist < minor){
+                pl = bird
+                minor = dist
+            }
+        }, this);
+        console.log("pl.id = ", pl.id, "minor: ", minor)
     }
 
     update(time) {
+
+        if(this.cursors.fight.isDown){
+            this.scene.launch("menu", this.data)
+        }
+
+
+        if(this.bird.life > 0){
+            this.bird.update(time, this.data)
+        }
+        
         this.birds.children.iterate(function (bird) {
-            if(bird.life > 0){
-                bird.update(time, this.data)
-            }else{
+            if(bird.life <= 0){
                 bird.dead()
                 //stops this scene
                 this.scene.stop();
