@@ -15,11 +15,11 @@ var SOCKET_LIST = {};
 var PLAYER_LIST = {};
 var total_players = 0;
 var players_ready = 0;
-const enemyTimerDelay = 5000;
 const width = 640
 const height = 640
+var ENEMY_LIST = {};
 let idEnemy = 1;
-let enemyCreatedSuccessfully = 0
+const enemyTimerDelay = 5000;
 
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
@@ -31,6 +31,25 @@ var Player = function(id){
         number:total_players,
         ready:false,
         maxSpd:10
+    }
+    
+    self.emitId = function(){
+        var socket = SOCKET_LIST[self.id]
+        socket.emit('id', self.id);
+        console.log("-->", self.id)
+    }
+
+    return self;
+}
+
+var Enemy = function(x, y, id, type){
+    console.log("Enemy successfully created: ", id)
+    var self = {
+        x:x,
+        y:y,
+        life:100,/////
+        id:id,
+        type:type
     }
     
     self.emitId = function(){
@@ -89,13 +108,6 @@ io.sockets.on('connection', function(socket){
         }
     });
 
-    socket.on('enemyCreationSuccess',function(){
-        enemyCreatedSuccessfully++
-        if(enemyCreatedSuccessfully % 2 == 0){
-            idEnemy++
-        }
-    });
-
     socket.on('keyPress',function(data){
         if(data.input === 'xy'){
             player.x = data.x;
@@ -124,7 +136,7 @@ io.sockets.on('connection', function(socket){
 
 setInterval(function(){
     if(players_ready == 2){
-        let idNumber;
+        let type;
         console.log("enemy id:", idEnemy)
         let margin = 300;
         let x ;
@@ -145,19 +157,23 @@ setInterval(function(){
         let prob = Math.floor(Math.random() * 100+1);
         //console.log("idEnemy",idEnemy);
         if(prob<=40){
-            idNumber=1;
+            type=1;
         }else if(prob<=80){
-            idNumber=2;
+            type=2;
         }else if(prob<=100){
-            idNumber=3;
+            type=3;
         }
-        // console.log("x-", x, "y-", y,"idNumber",idNumber);
-        // até aqui  
+        // console.log("x-", x, "y-", y,"type",type);
+        idEnemy++
 
+        var enemy = Enemy(x, y, idEnemy, type);
+        ENEMY_LIST[idEnemy] = enemy;
         
         for(var i in SOCKET_LIST){
             var socketEmit = SOCKET_LIST[i];
-            socketEmit.emit('createEnemy', {x: x, y: y, idNumber: idNumber, idEnemy: idEnemy});
+            socketEmit.emit('createEnemy', {x: x, y: y, type: type, idEnemy: idEnemy});
         }
     }
 }, enemyTimerDelay);////////////fazer o mover e o ataque aqui no server
+////inicialmente fazer dist aqui, depois dist sempre nos jogadores, quando um dos jogadores enviar info que o player mais proximo mudou, fazer dist aqui
+/// mover vai ser um problema vamos ter que saber as posiçoes exatas dos inimigos aqui no servidor

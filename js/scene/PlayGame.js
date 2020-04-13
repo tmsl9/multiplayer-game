@@ -146,11 +146,8 @@ export default class playGame extends Phaser.Scene {
         })
 
         this.socket.on('createEnemy', (data) =>{
-            let enemy = this.enemies.getFirstDead(true, data.x, data.y, data.idNumber, data.idEnemy);
-            if (enemy) {
-                enemy.spawn()
-                this.socket.emit('enemyCreationSuccess')
-            }
+            let enemy = this.enemies.getFirstDead(true, data.x, data.y, data.type, data.idEnemy);
+            enemy.spawn()
         })
 
         this.cursors = this.defCursors()
