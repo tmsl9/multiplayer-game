@@ -27,20 +27,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.sceneHeight = this.scene.game.config.height;
 
         this.life = 100;
-        this.atacklvl = 1;
-        this.velocity = 200;
-        this.fireRate = 350;
-        this.money = 0;
 
         this.canBeKilled = true;
 
         this.bulletsMaxsize = 5;
 
-        this.numBullets = 0
+        this.fireRate = 350;
 
         this.timeToShoot = 0;
 
-        
+        this.velocity = 200;
 
         id == 1 ? this.pos = "down" : this.pos = "down2";
 
@@ -114,10 +110,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    update(time, data) {
-        var id = data.id
-        var socket = data. socket
-        var cursors = this.defCursors(data)
+    update(time, cursors, socket, id, player2) {
         if(this.id == id){
             this.setVelocity(0)
             if (cursors.up.isDown && this.y > this.frame.halfHeight + 6) {///se mudar pra 7 fica um espacinho de sobra
@@ -144,9 +137,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 id == 1 ?this.pos="right":this.pos="right2";
                 socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:"right"});
             }
-            if (cursors.fight.isDown) {
-                this.fire(id, time);
-                socket.emit('keyPress',{input:'fight',state:true});
+            if (cursors.space.isDown) {
+                this.fire(time);
+                socket.emit('keyPress',{input:'space',state:true});
             }
 
             /////////////////////////////////pode nao ser preciso pois em cima tem o setVelocity(0)
@@ -158,8 +151,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.setVelocityX(0);
                 socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
             }
-            if (cursors.fight.isUp) {
-                socket.emit('keyPress',{input:'fight',state:false});
+            if (cursors.space.isUp) {
+                socket.emit('keyPress',{input:'space',state:false});
             }
         }
 
@@ -171,34 +164,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }, this);
     }
 
-    defCursors(data){
-        return {
-            up: this.scene.input.keyboard.addKey(data.cursors.up.keyCode),
-            down: this.scene.input.keyboard.addKey(data.cursors.down.keyCode),
-            left: this.scene.input.keyboard.addKey(data.cursors.left.keyCode),
-            right: this.scene.input.keyboard.addKey(data.cursors.right.keyCode),
-            fight: this.scene.input.keyboard.addKey(data.cursors.fight.keyCode),
-            shop: this.scene.input.keyboard.addKey(data.cursors.shop.keyCode)
-        }
-    }
-
-    removeBullet(idBullet){
-        this.bullets.children.iterate(function (bullet) {
-            if(bullet.id == idBullet){
-                console.log("bullet removed", idBullet)
-                this.bullets.killAndHide(bullet);
-                bullet.removeFromScreen();
-            }
-          }, this);
-    }
-
-    fire(id, time){
+    fire(time){
         if (this.timeToShoot < time) {
-            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
-            console.log("bird new bullet", this.numBullets)
+            let bullet  = this.bullets.getFirstDead(true, this.x, this.y)
             if (bullet) {
                 if(this.id == 1){
-                    //this.atacklvl=bullet.power*2;
                     bullet.setVelocityX(bullet.baseVelocity);
                 }else{
                     bullet.setVelocityX(-bullet.baseVelocity);

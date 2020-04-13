@@ -38,9 +38,7 @@ export default class bootGame extends Phaser.Scene {
 
         this.load.image("bg", "assets/background.png");
 
-        this.load.image("volume", "assets/volume.png");
-
-        this.load.audio("fire", "assets/fire-sound.mp3");
+        this.load.audio("fire", "assets/fireball.mp3");
         this.load.audio("theme", "assets/overworld.mp3");
         this.load.audio("gameover", "assets/gameover.mp3");
 
