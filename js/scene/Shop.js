@@ -18,18 +18,18 @@ export default class shop extends Phaser.Scene {
         this.min = 200
         this.max = 300
         this.mouseX = this.game.input.mousePointer.x
-        this.bird1 = new Player(this, this.min, 400, 1)
-        this.bird = new Player(this, this.volume, 400, 1)
-        this.bird2 = new Player(this, this.max, 400, 1)
-        this.bird.setInteractive()
-        this.bird.on('pointerdown', () => {
+        this.player1 = new Player(this, this.min, 400, 1)
+        this.player = new Player(this, this.volume, 400, 1)
+        this.player2 = new Player(this, this.max, 400, 1)
+        this.player.setInteractive()
+        this.player.on('pointerdown', () => {
            
             if(this.mouseX >= this.min && this.mouseX <= this.max){
-                this.bird = this.mouseX
+                this.player = this.mouseX
             }else{
-                this.bird = this.mouseX < this.min ? this.min : this.max
+                this.player = this.mouseX < this.min ? this.min : this.max
             }
-            this.bird.x =  this.mouseX
+            this.player.x =  this.mouseX
         })
         console.log(this.mouseX)
         

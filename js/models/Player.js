@@ -169,7 +169,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     fire(time){
         if (this.timeToShoot < time) {
-            let bullet  = this.bullets.getFirstDead(true, this.x, this.y)
+            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
+            console.log("player new bullet", this.numBullets)
             if (bullet) {
                 if(this.id == 1){
                     bullet.setVelocityX(bullet.baseVelocity);
@@ -193,7 +194,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     /**
-     * create an explosion, decrease one life, prevent a new collision and put the bird off-screen
+     * create an explosion, decrease one life, prevent a new collision and put the player off-screen
      */
     dead() {
         new Explosion(this.scene, this.x, this.y);
@@ -205,7 +206,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     /**
-     * replace the bird on-screen, change the bird color (tint) and re-enable collisions
+     * replace the player on-screen, change the player color (tint) and re-enable collisions
      */
     /*revive() {
 
@@ -217,7 +218,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         let changeTint = true;*/
 
         /**
-         * timer to change the bird's color/tint 
+         * timer to change the player's color/tint 
          */
         /*this.scene.time.addEvent({
             repeat: repetition,
