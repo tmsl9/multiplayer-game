@@ -2,29 +2,52 @@ import Explosion from './Explosion.js'
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
-    constructor(scene, x, y, id) {
-        var img;
-
-        if(id==1){
-            img = "z1";
-        }else if(id==2){
-            img = "z2";
-        }else{
-            img = "z3";
-        }
+    constructor(scene, x, y, type, id) {
+        var img = 'z' + type
         
         super(scene, x, y, img);
 
-        this.imag = img;
-
+        this.img = img;
         this.scene.add.existing(this);
 
         //enable physics to sprite
         this.scene.physics.world.enable(this);
+        
+        this.id=id;
+        this.type=type;
+        this.hp = 100;
+        this.rangedDamage=20;
+        this.meeleDamage=10;
+        this.baseVelocity=5;
+        this.fireRate=4000;
+        this.timeToShoot = 0;
+        this.timeToMeelee = 0;
+        this.enemyTimerDelay = 2000;
 
-        this.setScale(1);
+        this.bullets = this.scene.physics.add.group({
+            maxSize: this.bulletsMaxsize,
+            classType: Bullet
+        });
 
-        //this.setGravityY(-10);
+        this.scene.anims.create({
+            key: 'up'+this.img,
+            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 3, end: 3 })
+        });
+        this.scene.anims.create({
+            key: 'down'+this.img,
+            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 0 })
+        });
+        this.scene.anims.create({
+            key: 'left'+this.img,
+            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 1, end: 1 })
+        });
+        this.scene.anims.create({
+            key: 'right'+this.img,
+            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 2, end: 2 })
+        });
+
+        //executes animation
+        this.play('down'+this.img);
 
         if(id==1){
             //creates animation from spritesheet
@@ -145,10 +168,8 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         return this.x > width || this.y > height || this.x < 0 || this.y < 0;
     }
     update(time,players){
-        //console.log("id-",this.id,"x-",this.x,"y-",this.y)
-       //this.move(players);
-       //this.attack(time,players);/////attack fazer no server
-       
+       this.rangedAttack(players, time);/////attack fazer no server
+       this.bulletOutsideCanvas()
     }
 
     move(pl, socket){
@@ -157,18 +178,27 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         const alpha = Math.atan2(dy, dx);
         const vx = this.baseVelocity * Math.cos(alpha);
         const vy = this.baseVelocity * Math.sin(alpha);
+        if(Math.abs(vx) > Math.abs(vy)){
+            vx < 0 ? this.play('left'+this.img) : this.play('right'+this.img)
+        }else{
+            vy > 0 ? this.play('down'+this.img) : this.play('up'+this.img)
+        }
         this.setVelocityX(vx);
         this.setVelocityY(vy);
         socket.emit('enemyPosition', {id: this.id, x: this.x, y: this.y})
     }
 
-    killbullets(){
+    bulletOutsideCanvas(){
         this.bullets.children.iterate(function (bullet) {
             if (bullet.isOutsideCanvas()) {
-                //bullet.active = false;
                 this.bullets.killAndHide(bullet);
             }
         }, this);
+    }
+
+    removeBullet(bullet){
+        this.bullets.killAndHide(bullet);
+        bullet.removeFromScreen();
     }
 
     attack(time, players){
@@ -182,19 +212,19 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     rangedAttack(players,time){
-        console.log(this.timeToShoot, "----", time)
+        ////console.log(this.timeToShoot, "----", time)
         if (this.timeToShoot < time) {
             var pl
             var minor = 100000
             players.children.iterate(function (player ) {
-            var dist = Phaser.Math.Distance.Between(player.x, player.y, this.x, this.y)
-            console.log("dist-> ", dist, ", id-> ", player.id)
-            if(dist < minor){
-                pl = player
-                minor = dist
-            }
-        }, this);
-            let bullet  = this.bullets.getFirstDead(true, this.x, this.y)
+                var dist = Phaser.Math.Distance.Between(player.x, player.y, this.x, this.y)
+                ////console.log("dist-> ", dist, ", id-> ", player.id)
+                if(dist < minor){
+                    pl = player
+                    minor = dist
+                }
+            }, this);
+            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, 0)
             if (bullet) {
                 this.power=this.rangedDamage;
                 bullet.fire(pl);
@@ -202,12 +232,12 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
                 bullet.visible = true;
             }
 
-            console.log("pl.id = ", pl.id, "minor: ", minor)
+            //console.log("pl.id = ", pl.id, "minor: ", minor)
         
             this.timeToShoot = time + this.fireRate;
 
             if (this.bullets.children.size > this.bulletsMaxsize) {
-                console.log("Group size failed")
+                //console.log("Group size failed")
             }
 
             if (this.fireSound) {

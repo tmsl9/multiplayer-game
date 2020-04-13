@@ -1,9 +1,9 @@
 export default class Bullet extends Phaser.Physics.Arcade.Image {
     constructor(scene, x, y, id) {
+        super(scene, x, y, id == 0 ? "bulletz" : "bullet");
 
-        super(scene, x, y, "bullet");
-
-        console.log("id da bullet", id)
+        //console.log("id da bullet", id)
+        //console.log("-",id == 0 ? "bulletz" : "bullet","-")
         this.scene.add.existing(this);
 
         //enable physics to sprite
@@ -14,9 +14,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
         this.power = 10
     }
 
-
     fire(enemy) {
-
         const dx = enemy.x - this.x;
         const dy = enemy.y - this.y;
         const alpha = Math.atan2(dy, dx);
@@ -40,7 +38,4 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
 
         return this.x > width || this.y > height || this.x < 0 || this.y < 0;
     }
-
-    
-
 }
