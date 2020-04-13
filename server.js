@@ -19,6 +19,7 @@ var players_ready = 0;
 const width = 640
 const height = 640
 var ENEMY_LIST = {};
+var max_enemies = 10;
 let idEnemy = 1;
 const enemyTimerDelay = 5000;
 
@@ -160,7 +161,7 @@ io.sockets.on('connection', function(socket){
 });
 
 setInterval(function(){//criação do inimigo
-    if(players_ready == 2){
+    if(players_ready == 2 && idEnemy < max_enemies){
         let type;
         console.log("enemy id:", idEnemy)
         let margin = 300;
@@ -228,9 +229,11 @@ setInterval(function(){//range o inimigo
     if(players_ready == 2){
         for(var ei in ENEMY_LIST){
             var enemy = ENEMY_LIST[ei]
-            for(var i in SOCKET_LIST){
-                var socketEmit = SOCKET_LIST[i];
-                socketEmit.emit('enemyShoot', {id: enemy.id, time: Date.now() - start});
+            if(enemy.type == 1){
+                for(var i in SOCKET_LIST){
+                    var socketEmit = SOCKET_LIST[i];
+                    socketEmit.emit('enemyShoot', {id: enemy.id, time: Date.now() - start});
+                }
             }
         }
     }

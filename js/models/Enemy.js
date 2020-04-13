@@ -14,7 +14,6 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         //enable physics to sprite
         this.scene.physics.world.enable(this);
         
-        this.setScale(0.5);
         this.id=id;
         this.type=type;
         this.hp = 100;
