@@ -14,7 +14,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.setScale(0.5);
         this.id=id;
         this.type=type;
-        this.hp;
+        this.hp = 100;
         this.rangedDamage=20;
         this.meeleDamage=10;
         this.baseVelocity=5;
@@ -49,34 +49,21 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
     update(time,birds){
         //console.log("id-",this.id,"x-",this.x,"y-",this.y)
-       this.move(birds);
-       this.attack(time,birds);
+       //this.move(birds);
+       //this.attack(time,birds);/////attack fazer no server
        
     }
 
-    move(birds){ //move recebe vx vy
-
-        // passar para servidor
-        var pl
-        var minor = 100000
-        birds.children.iterate(function (bird ) {
-        var dist = Phaser.Math.Distance.Between(bird.x, bird.y, this.x, this.y)
-        //console.log("dist-> ", dist, ", id-> ", bird.id)
-        if(dist < minor){
-            pl = bird
-            minor = dist
-        }
-    }, this);
-
+    move(pl, socket){
+        
         const dx = pl.x - this.x;
         const dy = pl.y - this.y;
         const alpha = Math.atan2(dy, dx);
         const vx = this.baseVelocity * Math.cos(alpha);
         const vy = this.baseVelocity * Math.sin(alpha);
-        // ate aqui
         this.setVelocityX(vx);
         this.setVelocityY(vy);
-
+        socket.emit('enemyPosition', {id:this.id, x: this.x, y: this.y})
     }
 
     killbullets(){

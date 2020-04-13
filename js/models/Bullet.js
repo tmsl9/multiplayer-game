@@ -3,7 +3,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
 
         super(scene, x, y, "bullet");
 
-
+        console.log("id da bullet", id)
         this.scene.add.existing(this);
 
         //enable physics to sprite

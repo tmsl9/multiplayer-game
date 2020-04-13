@@ -12,6 +12,7 @@ export default class playGame extends Phaser.Scene {
         this.socket = data.socket
         this.id = data.id
         this.volume = data.volume
+        console.log("volume",this.volume)
     }
 
     preload(){
@@ -49,7 +50,7 @@ export default class playGame extends Phaser.Scene {
         //this.enemy.setVelocityX(-200);
         
         //this.physics.add.collider(this.birds, front);
-        this.physics.add.collider(this.birds, front, (enemy, front) =>{
+        this.physics.add.collider(this.birds, front, (bird, front) =>{
             this.add.text(300, 300, "collide", {
                 font: "30px Cambria",
                 fill: "#f3f3f3"
@@ -94,7 +95,7 @@ export default class playGame extends Phaser.Scene {
             this.bird2.x = data[0].x
             this.bird2.y = data[0].y
             if(data[0].fight){
-                this.bird2.fire(this.time.now)
+                this.bird2.fire(this.id, this.time.now)
             }
         });
 
@@ -107,16 +108,15 @@ export default class playGame extends Phaser.Scene {
         });
 
         this.birds.children.iterate(function (bird) {
-            bird.fireSound = fireSound;
+            //bird.fireSound = fireSound;
         }, this);
 
-        this.physics.add.collider(this.bird2, this.bird.bullets, (bird, bullet) => {
+        this.physics.add.collider(this.bird, this.bird2.bullets, (bird, bullet) => {//eu levar com bala
         
-            this.bird.bullets.killAndHide(bullet);
+            var idBullet = bullet.id
 
-            //prevent collision with multiple enemies by removing the bullet from screen and stoping it
-            bullet.removeFromScreen();
-
+            this.bird2.removeBullet(bullet.id);
+            
             bird.life -= bullet.power;
             
             //update the score text
@@ -125,74 +125,58 @@ export default class playGame extends Phaser.Scene {
             }else{
                 this.lifeLabel2.setText("Player 2: " + bird.life)
             }
-            this.socket.emit('life', {id:bird.id, life:bird.life})
+            this.socket.emit('life', {id:bird.id, life:bird.life, idBullet:idBullet})// o outro bird mexe-se ahahha
+
         });
 
-        this.socket.on('id', (data)=>{
+        //recomeçar o jogo quando servidor desligar e voltar a ligar, mas nao funciona bem por causa do servidor
+        /*this.socket.on('id', (data)=>{
             this.scene.stop()
             this.scene.start("Play")
-        })
+        })*/
         
-        this.socket.on('life', (data)=>{///workiiiiing
-            if(data.life < this.bird.life){
-                this.bird.life = data.life
-                if(this.bird.id == 1){
-                    this.lifeLabel1.setText("Player 1: " + this.bird.life)
-                }else{
-                    this.lifeLabel2.setText("Player 2: " + this.bird.life)
-                }
+        this.socket.on('life', (data)=>{//se o outro player tiver sido atingido, eu atualizo a vida dele
+            this.bird2.life = data.life
+            this.bird.removeBullet(data.idBullet)
+            if(this.bird2.id == 1){
+                this.lifeLabel1.setText("Player 1: " + this.bird2.life)
+            }else{
+                this.lifeLabel2.setText("Player 2: " + this.bird2.life)
             }
         })
-        // CREATE ENEMY - ESCOLHA DE IDS
 
-        //passa para o servidor
-        let idNumber;
-        let idEnemy=1;
-        this.enemyTimerDelay = 5000
-        this.enemySpawnConfig = {
-            delay: this.enemyTimerDelay,
-            repeat: -1,
-            callback: () => {
-                let margin = 300;
-                let x ;
-                let y ;
-                let randNum= Math.floor(Math.random() *3);
-                //console.log("RandomNumber",randNum);
-                if(randNum==0){
-                    x = 0;
-                    y = Math.floor(Math.random() * (this.sys.canvas.height - margin)) + margin;
-                }else if( randNum == 1){
-                    x= this.game.config.width;
-                    y= Math.floor(Math.random() * (this.sys.canvas.height - margin)) + margin;
-                }else if(randNum ==2){
-                    x=Math.floor(Math.random() * (this.sys.canvas.width - margin)) + margin;
-                    y=this.game.config.height;
-                }
-                //now it does not need to create a new Enemy object (false argument) because they are created with the scene creation
-                let prob = Math.floor(Math.random() * 100+1);
-                //console.log("idEnemy",idEnemy);
-                if(prob<=40){
-                    idNumber=1;
-                }else if(prob<=80){
-                    idNumber=2;
-                }else if(prob<=100){
-                    idNumber=3;
-                }
-              // console.log("x-", x, "y-", y,"idNumber",idNumber);
-              // até aqui  
-                let enemy = this.enemies.getFirstDead(true, x, y, idNumber,idEnemy);
-                if (enemy) {
-                    idEnemy++;
-                    enemy.spawn()
-                }
+        this.socket.on('createEnemy', (data) =>{
+            let enemy = this.enemies.getFirstDead(true, data.x, data.y, data.type, data.idEnemy);
+            if(enemy){
+                enemy.spawn()
             }
-        };
-        this.enemyTimer = this.time.addEvent(this.enemySpawnConfig);
+        })
 
-        this.enemySpawnCounter = 0;
+        this.socket.on('moveEnemy', (data) =>{
+            this.enemies.children.iterate(function (enemy) {
+                if(enemy.id == data.idEnemy){
+                    this.birds.children.iterate(function (bird) {
+                        if(bird.id == data.idPlayer){
+                            enemy.move(bird, this.socket)
+                        }
+                    }, this)
+                }
+            }, this)
+        })
+
+        this.physics.add.collider(this.enemies, this.front, (enemy, front) => {//eu levar com bala
+            console.log("collideeeeeeeeeeeeeeeeeeeee")
+        });
+
+        this.cursors = this.defCursors()
     }
 
     update(time) {
+
+        /*if(this.cursors.shop.isDown){
+            this.scene.launch("menu", this.data)
+        }*/
+        
         this.birds.children.iterate(function (bird) {
             if(bird.life > 0){
                 bird.update(time, this.data)
@@ -209,6 +193,7 @@ export default class playGame extends Phaser.Scene {
         }, this);
 
         this.enemies.children.iterate(function (enemies) {
+
           enemies.update(time,this.birds);
         
         }, this);
@@ -218,8 +203,16 @@ export default class playGame extends Phaser.Scene {
         
     }
     
-
-   
+    defCursors(){
+        return {
+            up: this.input.keyboard.addKey(this.data.cursors.up.keyCode),
+            down: this.input.keyboard.addKey(this.data.cursors.down.keyCode),
+            left: this.input.keyboard.addKey(this.data.cursors.left.keyCode),
+            right: this.input.keyboard.addKey(this.data.cursors.right.keyCode),
+            fight: this.input.keyboard.addKey(this.data.cursors.fight.keyCode),
+            shop: this.input.keyboard.addKey(this.data.cursors.shop.keyCode)
+        }
+    }
     
 
 }

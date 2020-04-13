@@ -6,7 +6,7 @@ export default class controlsConfiguration extends Phaser.Scene {
     init(data){
         console.log("ControlsConfiguration: ", data)
         this.data = data
-        this.cursors = this.data.cursors
+        this.cursors = this.defCursors()
     }
 
     create() {
@@ -46,12 +46,14 @@ export default class controlsConfiguration extends Phaser.Scene {
         this.okButton = this.add.text(220, 400, 'Ok', { fill: '#fff' })
             .on('pointerdown', () => {
                 this.data.cursors = this.cursors
+                this.destroyCursors()
                 this.scene.stop()
                 this.scene.start("Menu", this.data)
             })
         this.buttonInteraction(this.okButton)
         this.cancelarButton = this.add.text(300, 400, 'Cancelar', { fill: '#fff' })
             .on('pointerdown', () => {
+                this.destroyCursors()
                 this.scene.stop()
                 this.scene.start("Menu", this.data)
             })
@@ -133,6 +135,26 @@ export default class controlsConfiguration extends Phaser.Scene {
         return isAllowed && keyCode != this.cursors.up.keyCode && keyCode != this.cursors.down.keyCode
         && keyCode != this.cursors.left.keyCode && keyCode != this.cursors.right.keyCode
         && keyCode != this.cursors.fight.keyCode&& keyCode != this.cursors.shop.keyCode
+    }
+
+    defCursors(){
+        return {
+            up: this.input.keyboard.addKey(this.data.cursors.up.keyCode),
+            down: this.input.keyboard.addKey(this.data.cursors.down.keyCode),
+            left: this.input.keyboard.addKey(this.data.cursors.left.keyCode),
+            right: this.input.keyboard.addKey(this.data.cursors.right.keyCode),
+            fight: this.input.keyboard.addKey(this.data.cursors.fight.keyCode),
+            shop: this.input.keyboard.addKey(this.data.cursors.shop.keyCode)
+        }
+    }
+
+    destroyCursors(){
+        this.input.keyboard.removeKey(this.cursors.up)
+        this.input.keyboard.removeKey(this.cursors.down)
+        this.input.keyboard.removeKey(this.cursors.left)
+        this.input.keyboard.removeKey(this.cursors.right)
+        this.input.keyboard.removeKey(this.cursors.fight)
+        this.input.keyboard.removeKey(this.cursors.shop)
     }
 
     charsAllowedFun(){
