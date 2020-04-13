@@ -3,7 +3,16 @@ import Explosion from './Explosion.js'
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     constructor(scene, x, y) {
-        var img = "z1";
+
+        var img;
+
+        if(id==1){
+            img = "z1";
+        }else if(id==2){
+            img = "z2";
+        }else{
+            img = "z3";
+        }
         
         super(scene, x, y, img);
 
@@ -18,30 +27,101 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         //this.setGravityY(-10);
 
-        this.scene.anims.create({
-            key: 'uup', //animation identifier
-            //frames to play in animation 
-            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 3, end: 3 })
-        });
-        this.scene.anims.create({
-            key: 'ddown', //animation identifier
-            //frames to play in animation 
-            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 0, end: 0 })
-        });
-        this.scene.anims.create({
-            key: 'lleft', //animation identifier
-            //frames to play in animation 
-            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 1, end: 1 })
-        });
-        this.scene.anims.create({
-            key: 'rright', //animation identifier
-            //frames to play in animation 
-            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers(this.imag, { start: 2, end: 2 })
-        });
+        if(id==1){
+            //creates animation from spritesheet
+            //https://photonstorm.github.io/phaser3-docs/Phaser.Scene.html#anims__anchor
+            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html
+            this.scene.anims.create({
+                key: 'up', //animation identifier
+                //frames to play in animation 
+                //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+                frames: this.scene.anims.generateFrameNumbers("z1", { start: 3, end: 3 })
+            });
+            this.scene.anims.create({
+                key: 'down', //animation identifier
+                //frames to play in animation 
+                //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+                frames: this.scene.anims.generateFrameNumbers("z1", { start: 0, end: 0 })
+            });
+            this.scene.anims.create({
+                key: 'left', //animation identifier
+                //frames to play in animation 
+                //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+                frames: this.scene.anims.generateFrameNumbers("z1", { start: 1, end: 1 })
+            });
+            this.scene.anims.create({
+                key: 'right', //animation identifier
+                //frames to play in animation 
+                //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+                frames: this.scene.anims.generateFrameNumbers("z1", { start: 2, end: 2 })
+            });
+            }else if(id==2){
+            //creates animation from spritesheet
+            //https://photonstorm.github.io/phaser3-docs/Phaser.Scene.html#anims__anchor
+            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html
+            this.scene.anims.create({
+                key: 'up2', //animation identifier
+                //frames to play in animation 
+                //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+                frames: this.scene.anims.generateFrameNumbers("z2", { start: 3, end: 3 })
+            });
+            this.scene.anims.create({
+                key: 'down2', //animation identifier
+                //frames to play in animation 
+                //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+                frames: this.scene.anims.generateFrameNumbers("z2", { start: 0, end: 0 })
+            });
+            this.scene.anims.create({
+                key: 'left2', //animation identifier
+                //frames to play in animation 
+                //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+                frames: this.scene.anims.generateFrameNumbers("z2", { start: 1, end: 1 })
+            });
+            this.scene.anims.create({
+                key: 'right2', //animation identifier
+                //frames to play in animation 
+                //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+                frames: this.scene.anims.generateFrameNumbers("z2", { start: 2, end: 2 })
+            });
+            }else{
+                //creates animation from spritesheet
+                //https://photonstorm.github.io/phaser3-docs/Phaser.Scene.html#anims__anchor
+                //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html
+                this.scene.anims.create({
+                    key: 'up3', //animation identifier
+                    //frames to play in animation 
+                    //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+                    frames: this.scene.anims.generateFrameNumbers("z3", { start: 3, end: 3 })
+                });
+                this.scene.anims.create({
+                    key: 'down3', //animation identifier
+                    //frames to play in animation 
+                    //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+                    frames: this.scene.anims.generateFrameNumbers("z3", { start: 0, end: 0 })
+                });
+                this.scene.anims.create({
+                    key: 'left3', //animation identifier
+                    //frames to play in animation 
+                    //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+                    frames: this.scene.anims.generateFrameNumbers("z3", { start: 1, end: 1 })
+                });
+                this.scene.anims.create({
+                    key: 'right3', //animation identifier
+                    //frames to play in animation 
+                    //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+                    frames: this.scene.anims.generateFrameNumbers("z3", { start: 2, end: 2 })
+                });
+                }
+    
+            //executes animation
+            if(id==1){
+                this.play('down');
+            }else if(id==2){
+                this.play('down2');
+            }else{
+                this.play('down3');
+            }
+    
 
         //executes animation
         this.play('ddown');

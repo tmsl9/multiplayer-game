@@ -4,7 +4,6 @@ import Explosion from "./Explosion.js";
 export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     constructor(scene, x, y, id) {
-        console.log("Id",id)
         
         var img;
 
@@ -13,8 +12,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }else{
             img = "player2";
         }
-
-        console.log(img)
 
         super(scene, x, y,img);
 
