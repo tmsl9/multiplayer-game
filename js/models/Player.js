@@ -4,9 +4,12 @@ import Explosion from "./Explosion.js";
 export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     constructor(scene, x, y, id) {
-        super(scene, x, y, "player");
+        var img = "player" + id;
+
+        super(scene, x, y, img);
 
         this.id = id
+        this.img = img
         
         this.scene.add.existing(this);
 
@@ -29,28 +32,29 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.timeToShoot = 0;
 
-        
-
         this.bullets = this.scene.physics.add.group({
             maxSize: this.bulletsMaxsize,
             classType: Bullet
         });
 
-
-        //creates animation from spritesheet
-        //https://photonstorm.github.io/phaser3-docs/Phaser.Scene.html#anims__anchor
-        //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html
         this.scene.anims.create({
-            key: 'flap', //animation identifier
-            //frames to play in animation 
-            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers('player', { start: 0, end: 2 }),
-            frameRate: 1,
-            repeat: -1 //animation repetition (-1 = infinity)
+            key: 'up' + this.img,
+            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 3, end: 3 })
+        });
+        this.scene.anims.create({
+            key: 'down' + this.img,
+            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 0 })
+        });
+        this.scene.anims.create({
+            key: 'left' + this.img,
+            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 1, end: 1 })
+        });
+        this.scene.anims.create({
+            key: 'right' + this.img,
+            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 2, end: 2 })
         });
 
-        //executes animation
-        this.play('flap');
+        this.play('down' + this.img)
 
     }
 
@@ -61,24 +65,28 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if(this.id == id){
             this.setVelocity(0)
             if (cursors.up.isDown && this.y > this.frame.halfHeight + 6) {///se mudar pra 7 fica um espacinho de sobra
+                this.play('up' + this.img)
                 this.setVelocityY(-this.velocity);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'up' + this.img});
             }
             if (cursors.down.isDown && this.y < this.sceneHeight - this.frame.halfHeight - 6) {
+                this.play('down' + this.img)
                 this.setVelocityY(this.velocity);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'down' + this.img});
             }
             if (cursors.left.isDown && this.x > this.frame.halfWidth + 6) {/////funciona se mandarmos vetor com teclas a false ou true
+                this.play('left' + this.img)
                 this.setVelocityX(-this.velocity);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'left' + this.img});
             }
             if (cursors.right.isDown && this.x < this.sceneWidth - this.frame.halfWidth - 6) {
+                this.play('right' + this.img)
                 this.setVelocityX(this.velocity);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'right' + this.img});
             }
             if (cursors.fight.isDown) {
-                this.fire(id, time);
-                socket.emit('keyPress',{input:'fight',state:true});
+                this.fire(time);
+                socket.emit('keyPress',{input:'fight',state:true, time: time});
             }
 
             /////////////////////////////////pode nao ser preciso pois em cima tem o setVelocity(0)
@@ -124,7 +132,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
           }, this);
     }
 
-    fire(id, time){
+    fire(time){
         if (this.timeToShoot < time) {
             let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
             console.log("player new bullet", this.numBullets)

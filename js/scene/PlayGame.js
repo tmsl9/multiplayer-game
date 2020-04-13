@@ -57,30 +57,7 @@ export default class playGame extends Phaser.Scene {
             }
         }, this);
 
-        //this.physics.add.collider(this.players, front);
-        this.physics.add.collider(this.players, front, (player, front) =>{
-            this.add.text(300, 300, "collide", {
-                font: "30px Cambria",
-                fill: "#f3f3f3"
-            });
-        });
-
-        
-
-        /*this.lifeLabels = this.physics.add.group({
-            maxSize: 2,
-            classType: Phaser.GameObjects.Text
-        });
-
-        this.lifeLabels.getFirst(this, 20, 20, "Player 1: 100", {
-            font: "30px Cambria",
-            fill: "#ffffff"
-        });
-
-        this.lifeLabels.getLast(this, this.game.config.width - 20, 20, "Player 2: 100", {
-            font: "30px Cambria",
-            fill: "#ffffff"
-        });*/
+        this.physics.add.collider(this.players, front)
 
         this.lifeLabel1 = this.add.text(20, 20, "Player 1: 100", {
             font: "30px Cambria",
@@ -114,10 +91,12 @@ export default class playGame extends Phaser.Scene {
         });
 
         this.socket.on('newPositions',(data)=>{
-            this.player2.x = data[0].x
-            this.player2.y = data[0].y
-            if(data[0].fight){
-                this.player2.fire(this.id, this.time.now)
+            this.player2.x = data.x
+            this.player2.y = data.y
+            console.log(data.pos)
+            this.player2.play(data.pos)
+            if(data.fight){
+                this.player2.fire(data.time)
             }
         });
 
@@ -190,6 +169,14 @@ export default class playGame extends Phaser.Scene {
             }, this)
         })
 
+        this.socket.on('enemyShoot', (data) =>{
+            this.enemies.children.iterate(function (enemy) {
+                if(enemy.id == data.id){
+                    enemy.attack(data.time, this.players)
+                }
+            }, this)
+        })
+
         this.cursors = this.defCursors()
     }
 
@@ -222,9 +209,6 @@ export default class playGame extends Phaser.Scene {
         
         }, this);
 
-    
-
-        
     }
     
     defCursors(){

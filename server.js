@@ -10,6 +10,7 @@ app.use('/',express.static(__dirname));
 serv.listen(5500, '192.168.131.1');
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
+var start = Date.now()
 
 var SOCKET_LIST = {};
 var PLAYER_LIST = {};
@@ -29,6 +30,7 @@ var Player = function(id){
         life:100,
         id:id, //important information
         number:total_players,
+        pos:"downplayer" + id,
         ready:false,
         maxSpd:10
     }
@@ -114,6 +116,7 @@ io.sockets.on('connection', function(socket){
         if(data.input === 'xy'){
             player.x = data.x;
             player.y = data.y;
+            data.pos ? player.pos = data.pos : player.pos = player.pos
         }else if(data.input === 'fight'){
             player.pressingFight = data.state;
         }
@@ -123,12 +126,14 @@ io.sockets.on('connection', function(socket){
         for(var i in PLAYER_LIST){
             var player2 = PLAYER_LIST[i];
             if(player2.id != player.id){
-                pack.push({
+                pack = {
                     x:player.x,
                     y:player.y,
                     fight:player.pressingFight,
-                    id:player.id///////////
-                });
+                    id:player.id,
+                    pos:player.pos,
+                    time:data.time ? data.time : 0
+                }
                 //console.log("pack n",player2.id,"->",pack);
                 SOCKET_LIST[player2.id].emit('newPositions',pack);
             }
@@ -219,8 +224,40 @@ setInterval(function(){//mover o inimigo
     }
 }, 10);
 
+setInterval(function(){//range o inimigo
+    if(players_ready == 2){
+        for(var ei in ENEMY_LIST){
+            var enemy = ENEMY_LIST[ei]
+            for(var i in SOCKET_LIST){
+                var socketEmit = SOCKET_LIST[i];
+                socketEmit.emit('enemyShoot', {id: enemy.id, time: Date.now() - start});
+            }
+        }
+    }
+}, 10);
 
-
+/*setInterval(function(){//mover o inimigo
+    if(players_ready == 2){
+        for(var ei in ENEMY_LIST){
+            var enemy = ENEMY_LIST[ei]
+            
+            var plCloser
+            var minor = 100000
+            for(var pi in PLAYER_LIST){
+                var player = PLAYER_LIST[pi]
+                var dist = Math.sqrt(Math.pow(enemy.x - player.x, 2) + Math.pow(enemy.y - player.y, 2))
+                if(minor > dist){
+                    plCloser = player
+                    minor = dist
+                }
+            }
+            for(var i in SOCKET_LIST){
+                var socketEmit = SOCKET_LIST[i];
+                socketEmit.emit('attackEnemy', {idPlayer:plCloser.id, idEnemy: enemy.id});
+            }
+        }
+    }
+}, 4000);*/
 
 
 
