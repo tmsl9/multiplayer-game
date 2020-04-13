@@ -101,7 +101,7 @@ export default class playGame extends Phaser.Scene {
             }, this);
         })
 
-        this.physics.add.collider(this.bird, this.enemies, (bird, enemy) =>{///colisão inimigos e eu
+        this.physics.add.overlap(this.bird, this.enemies, (bird, enemy) =>{///colisão inimigos e eu
             if(enemy.meeleeAttack(this.time.now, bird)){
                 if(bird.id == 1){
                     this.lifeLabel1.setText("Player 1: " + bird.life)

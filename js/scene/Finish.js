@@ -36,17 +36,17 @@ export default class finish extends Phaser.Scene {
     }
     composeHUD() {
         //add the background in the center of screen (could set anchor point to left up using .setOrigin(0,0))
-        this.bg = this.add.image(this.width / 2, this.height / 2, "bg");
+       // this.bg = this.add.image(this.width / 2, this.height / 2, "bg");
         //scale background
-        this.bg.setDisplaySize(this.width, this.height);
+       // this.bg.setDisplaySize(this.width, this.height);
 
         this.add.text(230, 200, this.result, {
             font: "50px Cambria",
-            fill: "#ff0000"
+            fill: this.id == this.loserID ? "#ff0000" : "#0f0"
         });
         this.add.text(150, 300, "Press space to restart", {
             font: "40px Cambria",
-            fill: "#ff0000"
+            fill: this.id == this.loserID ? "#ff0000" : "#0f0"
         });
 
     }
