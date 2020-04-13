@@ -8,9 +8,11 @@ export default class playGame extends Phaser.Scene {
 
     init(data){
         console.log("PlayGame scene: ", data)
-
+        this.data = data
         this.socket = data.socket
         this.id = data.id
+        this.volume = data.volume
+        console.log("volume",this.volume)
     }
 
     preload(){
@@ -28,31 +30,43 @@ export default class playGame extends Phaser.Scene {
     
         front.setCollisionByProperty({ "collides": true }, true);
         
-        this.cursors = this.input.keyboard.createCursorKeys()
-        
-        this.players = this.physics.add.group({
+        this.birds = this.physics.add.group({
             maxSize: 2,
             classType: Player
         });
 
-        //this.player1 = new player1(this, 200, 400, 1)
-        //this.player2 = new player1(this, 400, 400, 2)
+        this.enemies = this.physics.add.group({
+            maxSize: 10,
+            classType: Enemy
+        });
 
-        this.players.getFirstDead(true, 200, 400, 1);
-        this.players.getFirstDead(true, 400, 400, 2);
-        this.enemy = new Enemy(this, 400, 370);
-        //this.enemy.setVelocityX(-200);
         
-        //this.physics.add.collider(this.players, front);
-        
+        //this.bird = new Bird(this, 200, 400, 1)
+        //this.bird2 = new Bird(this, 400, 400, 2)
 
+        this.birds.getFirstDead(true, 200, 400, 1);
+        this.birds.getFirstDead(true, 400, 400, 2);
 
-        this.physics.add.collider(this.players, front, (enemy, front) =>{
+        this.bird;
+        this.bird2;
+        this.birds.children.iterate(function (bird) {
+            if(bird.id == this.id){
+                this.bird = bird;
+            }else{
+                this.bird2 = bird;
+            }
+        }, this);
+
+        //this.physics.add.collider(this.birds, front);
+        this.physics.add.collider(this.birds, front, (bird, front) =>{
             this.add.text(300, 300, "collide", {
                 font: "30px Cambria",
                 fill: "#f3f3f3"
             });
         });
+
+        
+
         /*this.lifeLabels = this.physics.add.group({
             maxSize: 2,
             classType: Phaser.GameObjects.Text
@@ -78,46 +92,54 @@ export default class playGame extends Phaser.Scene {
             fill: "#ffffff"
         });
 
-        this.player1;
-        this.player2;
+        this.socket.on('enemyPositionCollider', (data) =>{
+            this.enemies.children.iterate(function (enemy) {
+                if(enemy.id == data.id){
+                    enemy.x = data.x
+                    enemy.y = data.y
+                }
+            }, this);
+        })
 
-        this.players.children.iterate(function (player1) {
-            if(player1.id == this.id){
-                this.player1 = player1;
-            }else{
-                this.player2 = player1;
-            }
-        }, this);
+        this.physics.add.overlap(this.bird, this.enemies, (bird, enemy) =>{///colisão inimigos e eu
+            if(enemy.meeleeAttack(this.time.now, bird)){
+                if(bird.id == 1){
+                    this.lifeLabel1.setText("Player 1: " + bird.life)
+                }else{
+                    this.lifeLabel2.setText("Player 2: " + bird.life)
+                }
+                this.socket.emit('life', {id:bird.id, life:bird.life})
+            }/////ver se o enemy bate nas arvores
+            this.socket.emit('enemyPosition', {id: enemy.id, x: enemy.x, y: enemy.y, collider: true})
+        });
 
         this.socket.on('newPositions',(data)=>{
-            this.player2.x = data.x
-            this.player2.y = data.y
-            this.player2.play(data.pos)
-            if(data.space){
-                this.player2.fire(this.time.now)
+            this.bird2.x = data[0].x
+            this.bird2.y = data[0].y
+            if(data[0].fight){
+                this.bird2.fire(this.id, this.time.now)
             }
         });
 
-        this.themeSound = this.sound.add("theme", { volume: 0.1 });
+        this.themeSound = this.sound.add("theme", { volume: this.volume });
 
         //this.themeSound.play();
 
         let fireSound = this.sound.add("fire", {
-            volume: 0.1
+            volume: this.volume
         });
 
-        this.players.children.iterate(function (player1) {
-            player1.fireSound = fireSound;
+        this.birds.children.iterate(function (bird) {
+            //bird.fireSound = fireSound;
         }, this);
 
-        this.physics.add.overlap(this.player2, this.player1.bullets, (player1, bullet) => {
+        this.physics.add.overlap(this.bird, this.bird2.bullets, (bird, bullet) => {//eu levar com bala
         
-            this.player1.bullets.killAndHide(bullet);
+            var idBullet = bullet.id
 
-            //prevent collision with multiple enemies by removing the bullet from screen and stoping it
-            bullet.removeFromScreen();
-
-            player1.life -= bullet.power;
+            this.bird2.removeBullet(bullet.id);
+            
+            bird.life -= bullet.power;
             
             //update the score text
             if(player1.id == 1){
@@ -125,30 +147,61 @@ export default class playGame extends Phaser.Scene {
             }else{
                 this.lifeLabel2.setText("Player 2: " + player1.life)
             }
-            this.socket.emit('life', {id:player1.id, life:player1.life})
+            this.socket.emit('life', {id:bird.id, life:bird.life, idBullet:idBullet})// o outro bird mexe-se ahahha
+
         });
 
-        this.socket.on('id', (data)=>{
+        //recomeçar o jogo quando servidor desligar e voltar a ligar, mas nao funciona bem por causa do servidor
+        /*this.socket.on('id', (data)=>{
             this.scene.stop()
             this.scene.start("Play")
-        })
+        })*/
         
-        this.socket.on('life', (data)=>{///workiiiiing
-            if(data.life < this.player1.life){
-                this.player1.life = data.life
-                if(this.player1.id == 1){
-                    this.lifeLabel1.setText("Player 1: " + this.player1.life)
-                }else{
-                    this.lifeLabel2.setText("Player 2: " + this.player1.life)
-                }
+        this.socket.on('life', (data)=>{//se o outro player tiver sido atingido, eu atualizo a vida dele
+            this.bird2.life = data.life
+            if(data.idBullet){
+                this.bird.removeBullet(data.idBullet)
+            }
+            if(this.bird2.id == 1){
+                this.lifeLabel1.setText("Player 1: " + this.bird2.life)
+            }else{
+                this.lifeLabel2.setText("Player 2: " + this.bird2.life)
             }
         })
+
+        this.socket.on('createEnemy', (data) =>{
+            let enemy = this.enemies.getFirstDead(true, data.x, data.y, data.type, data.idEnemy);
+            if(enemy){
+                enemy.spawn()
+            }
+        })
+
+        this.physics.add.collider(this.enemies, front)
+
+        this.socket.on('moveEnemy', (data) =>{
+            this.enemies.children.iterate(function (enemy) {
+                if(enemy.id == data.idEnemy){
+                    this.birds.children.iterate(function (bird) {
+                        if(bird.id == data.idPlayer){
+                            enemy.move(bird, this.socket)
+                        }
+                    }, this)
+                }
+            }, this)
+        })
+
+        this.cursors = this.defCursors()
     }
 
     update(time) {
-        this.players.children.iterate(function (player1) {
-            if(player1.life > 0){
-                player1.update(time, this.cursors, this.socket, this.id, this.player2)
+
+        /*if(this.cursors.shop.isDown){
+            this.scene.launch("menu", this.data)
+        }*/
+        
+        this.birds.children.iterate(function (bird) {
+            if(bird.life > 0){
+                bird.update(time, this.data)
             }else{
                 player1.dead()
                 //stops this scene
@@ -156,11 +209,33 @@ export default class playGame extends Phaser.Scene {
 
                 this.themeSound.stop();
 
+                this.socket.emit('Finish')
+
                 //starts the game over scene and passes the actual score to render at that scene
-                this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player1.id})
-            } 
+                this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: bird.id})
+            }
         }, this);
+
+        this.enemies.children.iterate(function (enemies) {
+
+          enemies.update(time,this.birds);
         
+        }, this);
+
+    
+
+        
+    }
+    
+    defCursors(){
+        return {
+            up: this.input.keyboard.addKey(this.data.cursors.up.keyCode),
+            down: this.input.keyboard.addKey(this.data.cursors.down.keyCode),
+            left: this.input.keyboard.addKey(this.data.cursors.left.keyCode),
+            right: this.input.keyboard.addKey(this.data.cursors.right.keyCode),
+            fight: this.input.keyboard.addKey(this.data.cursors.fight.keyCode),
+            shop: this.input.keyboard.addKey(this.data.cursors.shop.keyCode)
+        }
     }
     
 

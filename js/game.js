@@ -2,6 +2,10 @@ import bootGame from './scene/BootGame.js';
 import playGame from './scene/PlayGame.js';
 import play from './scene/Play.js';
 import waitingOpponent from './scene/WaitingOpponent.js';
+import menu from './scene/Menu.js';
+import soundAdjustment from './scene/SoundAdjustment.js';
+import controlsConfiguration from './scene/ControlsConfiguration.js';
+import shop from './scene/Shop.js';
 import finish from './scene/Finish.js';
 
 var game;
@@ -10,7 +14,7 @@ window.onload = function () {
         width: 640,
         height: 640,
         backgroundColor: 0x000000,
-        scene: [bootGame, playGame, finish, play, waitingOpponent],
+        scene: [bootGame, playGame, finish, play, waitingOpponent, menu, shop, soundAdjustment, controlsConfiguration],
         physics: {
             default: "arcade",
             arcade: {

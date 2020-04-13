@@ -2,6 +2,7 @@ export default class bootGame extends Phaser.Scene {
     constructor() {
         super("BootGame");
     }
+    
     preload() {
         this.load.spritesheet("player1", "assets/player1.png", {
             frameWidth: 37.5,
@@ -37,14 +38,31 @@ export default class bootGame extends Phaser.Scene {
 
         this.load.image("bg", "assets/background.png");
 
-        this.load.audio("fire", "assets/fireball.mp3");
+        this.load.image("volume", "assets/volume.png");
+
+        this.load.audio("fire", "assets/fire-sound.mp3");
         this.load.audio("theme", "assets/overworld.mp3");
         this.load.audio("gameover", "assets/gameover.mp3");
 
     }
     create() {
         console.log("BootGame")
-        this.scene.stop()
-        this.scene.start("Play");
+        
+        var cursors = {
+            up: this.input.keyboard.addKey('W'),
+            down: this.input.keyboard.addKey('S'),
+            left: this.input.keyboard.addKey('A'),
+            right: this.input.keyboard.addKey('D'),
+            fight: this.input.keyboard.addKey('SPACE'),
+            shop: this.input.keyboard.addKey('Q')
+        }
+
+        var socket = io();
+        socket.on('id',(data)=>{
+            var id = data
+            console.log("id received:", id)
+            this.scene.stop()
+            this.scene.start("Play", {socket: socket, id: id, volume: 1, cursors: cursors});
+        });
     }
 }
