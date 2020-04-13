@@ -50,7 +50,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     update(time,birds){
         //console.log("id-",this.id,"x-",this.x,"y-",this.y)
        this.move(birds);
-       this.attack(time,birds);
+       this.attack(time,birds);/////attack fazer no server
        
     }
 

@@ -25,7 +25,7 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
 
         this.bulletsMaxsize = 5;
 
-        
+        this.numBullets = 0
 
         this.timeToShoot = 0;
 
@@ -77,7 +77,7 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
                 socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
             }
             if (cursors.fight.isDown) {
-                this.fire(time);
+                this.fire(id, time);
                 socket.emit('keyPress',{input:'fight',state:true});
             }
 
@@ -114,12 +114,23 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    fire(time){
+    removeBullet(idBullet){
+        this.bullets.children.iterate(function (bullet) {
+            if(bullet.id == idBullet){
+                console.log("bullet removed", idBullet)
+                this.bullets.killAndHide(bullet);
+                bullet.removeFromScreen();
+            }
+          }, this);
+    }
+
+    fire(id, time){
         if (this.timeToShoot < time) {
-            let bullet  = this.bullets.getFirstDead(true, this.x, this.y)
+            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
+            console.log("bird new bullet", this.numBullets)
             if (bullet) {
                 if(this.id == 1){
-                    this.atacklvl=bullet.power*2;
+                    //this.atacklvl=bullet.power*2;
                     bullet.setVelocityX(bullet.baseVelocity);
                 }else{
                     bullet.setVelocityX(-bullet.baseVelocity);

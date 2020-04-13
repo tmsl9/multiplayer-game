@@ -7,7 +7,7 @@ app.get('/',function(req, res) {
 });
 app.use('/',express.static(__dirname));
 
-serv.listen(5500, '192.168.1.99');
+serv.listen(5500, '192.168.131.1');
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
 
@@ -15,6 +15,11 @@ var SOCKET_LIST = {};
 var PLAYER_LIST = {};
 var total_players = 0;
 var players_ready = 0;
+const enemyTimerDelay = 5000;
+const width = 640
+const height = 640
+let idEnemy = 1;
+let enemyCreatedSuccessfully = 0
 
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
@@ -65,15 +70,29 @@ io.sockets.on('connection', function(socket){
         console.log("Player id", socket.id, "ready")
         PLAYER_LIST[socket.id].ready = true
         players_ready++
+        if(players_ready == 2){
+            for(var i in SOCKET_LIST){
+                var socketEmit = SOCKET_LIST[i];
+                socketEmit.emit('2players_ready');
+            }
+            console.log('Both players are ready!')
+        }
     });
         
     socket.on('life',function(data){
         for(var i in PLAYER_LIST){
             var player2 = PLAYER_LIST[i];
-            if(player2.id != player.id && player2.life > data.life){
-                player2.life = data.life
-                SOCKET_LIST[player2.id].emit('life', {life:player2.life})
+            if(player2.id != player.id){
+                player.life = data.life
+                SOCKET_LIST[player2.id].emit('life', {life:player.life, idBullet:data.idBullet})
             }
+        }
+    });
+
+    socket.on('enemyCreationSuccess',function(){
+        enemyCreatedSuccessfully++
+        if(enemyCreatedSuccessfully % 2 == 0){
+            idEnemy++
         }
     });
 
@@ -105,11 +124,40 @@ io.sockets.on('connection', function(socket){
 
 setInterval(function(){
     if(players_ready == 2){
-        for(var i in SOCKET_LIST){
-            var socket = SOCKET_LIST[i];
-            socket.emit('2players_ready');
+        let idNumber;
+        console.log("enemy id:", idEnemy)
+        let margin = 300;
+        let x ;
+        let y ;
+        let randNum= Math.floor(Math.random() *3);
+        //console.log("RandomNumber",randNum);
+        if(randNum==0){
+            x = 0;
+            y = Math.floor(Math.random() * (height - margin)) + margin;
+        }else if( randNum == 1){
+            x= width;
+            y= Math.floor(Math.random() * (height - margin)) + margin;
+        }else if(randNum ==2){
+            x=Math.floor(Math.random() * (width - margin)) + margin;
+            y=height;
         }
-        console.log('Both players are ready!')
-        players_ready = 3
+        //now it does not need to create a new Enemy object (false argument) because they are created with the scene creation
+        let prob = Math.floor(Math.random() * 100+1);
+        //console.log("idEnemy",idEnemy);
+        if(prob<=40){
+            idNumber=1;
+        }else if(prob<=80){
+            idNumber=2;
+        }else if(prob<=100){
+            idNumber=3;
+        }
+        // console.log("x-", x, "y-", y,"idNumber",idNumber);
+        // até aqui  
+
+        
+        for(var i in SOCKET_LIST){
+            var socketEmit = SOCKET_LIST[i];
+            socketEmit.emit('createEnemy', {x: x, y: y, idNumber: idNumber, idEnemy: idEnemy});
+        }
     }
-}, 20);//total_players > 0 && total_players % 2 == 0 ? 1000/25 : 0);
+}, enemyTimerDelay);////////////fazer o mover e o ataque aqui no server
