@@ -49,10 +49,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         return this.x > width || this.y > height || this.x < 0 || this.y < 0;
     }
-    update(time,birds){
+    update(time,players){
         //console.log("id-",this.id,"x-",this.x,"y-",this.y)
-       //this.move(birds);
-       //this.attack(time,birds);/////attack fazer no server
+       //this.move(players);
+       //this.attack(time,players);/////attack fazer no server
        
     }
 
@@ -76,26 +76,26 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         }, this);
     }
 
-    attack(time, birds){
+    attack(time, players){
         if(this.type==1){
-            this.rangedAttack(birds,time);
+            this.rangedAttack(players,time);
         }else if(this.type==2){
-            this.meeleeAttack(birds);
+            this.meeleeAttack(players);
         }else if(this.type==3){
-            this.bonusEnemy(birds);
+            this.bonusEnemy(players);
         }
     }
 
-    rangedAttack(birds,time){
+    rangedAttack(players,time){
         console.log(this.timeToShoot, "----", time)
         if (this.timeToShoot < time) {
             var pl
             var minor = 100000
-            birds.children.iterate(function (bird ) {
-            var dist = Phaser.Math.Distance.Between(bird.x, bird.y, this.x, this.y)
-            console.log("dist-> ", dist, ", id-> ", bird.id)
+            players.children.iterate(function (player ) {
+            var dist = Phaser.Math.Distance.Between(player.x, player.y, this.x, this.y)
+            console.log("dist-> ", dist, ", id-> ", player.id)
             if(dist < minor){
-                pl = bird
+                pl = player
                 minor = dist
             }
         }, this);
@@ -119,9 +119,6 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
                 this.fireSound.play();
             }
         }
-        
-
-
     }
 
     meeleeAttack(time, player){

@@ -4,7 +4,7 @@ export default class bootGame extends Phaser.Scene {
     }
     
     preload() {
-        this.load.spritesheet("bird", "assets/bird.png", {
+        this.load.spritesheet("player", "assets/player1.png", {
             frameWidth: 34,
             frameHeight: 24
         });

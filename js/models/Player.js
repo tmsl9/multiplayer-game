@@ -1,10 +1,10 @@
 import Bullet from "./Bullet.js";
 import Explosion from "./Explosion.js";
 
-export default class Bird extends Phaser.Physics.Arcade.Sprite {
+export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     constructor(scene, x, y, id) {
-        super(scene, x, y, "bird");
+        super(scene, x, y, "player");
 
         this.id = id
         
@@ -44,7 +44,7 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
             key: 'flap', //animation identifier
             //frames to play in animation 
             //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers('bird', { start: 0, end: 2 }),
+            frames: this.scene.anims.generateFrameNumbers('player', { start: 0, end: 2 }),
             frameRate: 1,
             repeat: -1 //animation repetition (-1 = infinity)
         });
@@ -127,7 +127,7 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
     fire(id, time){
         if (this.timeToShoot < time) {
             let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
-            console.log("bird new bullet", this.numBullets)
+            console.log("player new bullet", this.numBullets)
             if (bullet) {
                 if(this.id == 1){
                     //this.atacklvl=bullet.power*2;
@@ -152,7 +152,7 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
     }
 
     /**
-     * create an explosion, decrease one life, prevent a new collision and put the bird off-screen
+     * create an explosion, decrease one life, prevent a new collision and put the player off-screen
      */
     dead() {
         new Explosion(this.scene, this.x, this.y);
@@ -164,7 +164,7 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
     }
 
     /**
-     * replace the bird on-screen, change the bird color (tint) and re-enable collisions
+     * replace the player on-screen, change the player color (tint) and re-enable collisions
      */
     /*revive() {
 
@@ -176,7 +176,7 @@ export default class Bird extends Phaser.Physics.Arcade.Sprite {
         let changeTint = true;*/
 
         /**
-         * timer to change the bird's color/tint 
+         * timer to change the player's color/tint 
          */
         /*this.scene.time.addEvent({
             repeat: repetition,
