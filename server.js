@@ -51,12 +51,6 @@ var Enemy = function(x, y, id, type){
         id:id,
         type:type
     }
-    
-    self.emitId = function(){
-        var socket = SOCKET_LIST[self.id]
-        socket.emit('id', self.id);
-        console.log("-->", self.id)
-    }
 
     return self;
 }
@@ -132,9 +126,19 @@ io.sockets.on('connection', function(socket){
             }
         }
     });
+
+    socket.on('enemyPosition',function(data){
+        for(var i in ENEMY_LIST){
+            var enemy = ENEMY_LIST[i];
+            if(enemy.id == data.id){
+                enemy.x = data.x
+                enemy.y = data.y
+            }
+        }
+    });
 });
 
-setInterval(function(){
+setInterval(function(){//criação do inimigo
     if(players_ready == 2){
         let type;
         console.log("enemy id:", idEnemy)
@@ -142,7 +146,7 @@ setInterval(function(){
         let x ;
         let y ;
         let randNum= Math.floor(Math.random() *3);
-        //console.log("RandomNumber",randNum);
+        
         if(randNum==0){
             x = 0;
             y = Math.floor(Math.random() * (height - margin)) + margin;
@@ -153,9 +157,9 @@ setInterval(function(){
             x=Math.floor(Math.random() * (width - margin)) + margin;
             y=height;
         }
-        //now it does not need to create a new Enemy object (false argument) because they are created with the scene creation
+        
         let prob = Math.floor(Math.random() * 100+1);
-        //console.log("idEnemy",idEnemy);
+        
         if(prob<=40){
             type=1;
         }else if(prob<=80){
@@ -163,7 +167,7 @@ setInterval(function(){
         }else if(prob<=100){
             type=3;
         }
-        // console.log("x-", x, "y-", y,"type",type);
+        
         idEnemy++
 
         var enemy = Enemy(x, y, idEnemy, type);
@@ -171,9 +175,39 @@ setInterval(function(){
         
         for(var i in SOCKET_LIST){
             var socketEmit = SOCKET_LIST[i];
-            socketEmit.emit('createEnemy', {x: x, y: y, type: type, idEnemy: idEnemy});
+            socketEmit.emit('createEnemy', {x: x, y: y, idEnemy: idEnemy, type: type});
         }
     }
-}, enemyTimerDelay);////////////fazer o mover e o ataque aqui no server
+}, enemyTimerDelay);
+
+setInterval(function(){//mover o inimigo
+    if(players_ready == 2){
+        for(var ei in ENEMY_LIST){
+            var enemy = ENEMY_LIST[ei]
+            
+            var plCloser
+            var minor = 100000
+            for(var pi in PLAYER_LIST){
+                var player = PLAYER_LIST[pi]
+                var dist = Math.sqrt(Math.pow(enemy.x - player.x, 2) + Math.pow(enemy.y - player.y, 2))
+                if(minor > dist){
+                    plCloser = player
+                    minor = dist
+                }
+            }
+            for(var i in SOCKET_LIST){
+                var socketEmit = SOCKET_LIST[i];
+                socketEmit.emit('moveEnemy', {idPlayer:plCloser.id, idEnemy: enemy.id});
+            }
+        }
+    }
+}, 10);
+
+
+
+
+
+
+////////////fazer o mover e o ataque aqui no server
 ////inicialmente fazer dist aqui, depois dist sempre nos jogadores, quando um dos jogadores enviar info que o player mais proximo mudou, fazer dist aqui
 /// mover vai ser um problema vamos ter que saber as posiçoes exatas dos inimigos aqui no servidor

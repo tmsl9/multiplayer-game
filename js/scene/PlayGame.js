@@ -50,7 +50,7 @@ export default class playGame extends Phaser.Scene {
         //this.enemy.setVelocityX(-200);
         
         //this.physics.add.collider(this.birds, front);
-        this.physics.add.collider(this.birds, front, (enemy, front) =>{
+        this.physics.add.collider(this.birds, front, (bird, front) =>{
             this.add.text(300, 300, "collide", {
                 font: "30px Cambria",
                 fill: "#f3f3f3"
@@ -147,8 +147,26 @@ export default class playGame extends Phaser.Scene {
 
         this.socket.on('createEnemy', (data) =>{
             let enemy = this.enemies.getFirstDead(true, data.x, data.y, data.type, data.idEnemy);
-            enemy.spawn()
+            if(enemy){
+                enemy.spawn()
+            }
         })
+
+        this.socket.on('moveEnemy', (data) =>{
+            this.enemies.children.iterate(function (enemy) {
+                if(enemy.id == data.idEnemy){
+                    this.birds.children.iterate(function (bird) {
+                        if(bird.id == data.idPlayer){
+                            enemy.move(bird, this.socket)
+                        }
+                    }, this)
+                }
+            }, this)
+        })
+
+        this.physics.add.collider(this.enemies, this.front, (enemy, front) => {//eu levar com bala
+            console.log("collideeeeeeeeeeeeeeeeeeeee")
+        });
 
         this.cursors = this.defCursors()
     }
