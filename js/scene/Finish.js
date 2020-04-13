@@ -13,6 +13,7 @@ export default class finish extends Phaser.Scene {
         this.id = data.id
         this.socket = data.socket
         this.loserID = data.loserID
+        this.volume = data.volume
 
     }
 
@@ -28,9 +29,9 @@ export default class finish extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.composeHUD();
 
-        this.gameOverSound = this.sound.add("gameover", { volume: 0.1 });
+        this.gameOverSound = this.sound.add("gameover", { volume: this.volume });
 
-        this.gameOverSound.play();
+        //this.gameOverSound.play();
 
     }
     composeHUD() {
