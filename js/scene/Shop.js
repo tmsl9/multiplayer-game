@@ -1,4 +1,4 @@
-import Bird from "../models/Bird.js";
+import Player from "../models/Player.js";
 
 export default class shop extends Phaser.Scene {
     constructor() {
@@ -18,9 +18,9 @@ export default class shop extends Phaser.Scene {
         this.min = 200
         this.max = 300
         this.mouseX = this.game.input.mousePointer.x
-        this.bird1 = new Bird(this, this.min, 400, 1)
-        this.bird = new Bird(this, this.volume, 400, 1)
-        this.bird2 = new Bird(this, this.max, 400, 1)
+        this.bird1 = new Player(this, this.min, 400, 1)
+        this.bird = new Player(this, this.volume, 400, 1)
+        this.bird2 = new Player(this, this.max, 400, 1)
         this.bird.setInteractive()
         this.bird.on('pointerdown', () => {
            

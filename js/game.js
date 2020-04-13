@@ -8,6 +8,7 @@ import controlsConfiguration from './scene/ControlsConfiguration.js';
 import shop from './scene/Shop.js';
 import finish from './scene/Finish.js';
 
+
 var game;
 window.onload = function () {
     var gameConfig = {
