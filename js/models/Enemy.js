@@ -3,7 +3,7 @@ import Bullet from "./Bullet.js";
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
-    constructor(scene, x, y, type, id) {
+    constructor(scene, x, y, type,id) {
         super(scene, x, y, "enemy"); // depois fazer if para escolher 1 dos 3 inimigos
 
         this.scene.add.existing(this);
@@ -20,9 +20,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.baseVelocity=5;
         this.fireRate=350;
         this.timeToShoot = 0;
-        this.timeToMeelee = 0;
-        this.enemyTimerDelay = 2000;
-
+        
         this.bullets = this.scene.physics.add.group({
             maxSize: this.bulletsMaxsize,
             classType: Bullet
@@ -57,14 +55,16 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     move(pl, socket){
+        
         const dx = pl.x - this.x;
         const dy = pl.y - this.y;
         const alpha = Math.atan2(dy, dx);
         const vx = this.baseVelocity * Math.cos(alpha);
         const vy = this.baseVelocity * Math.sin(alpha);
+        
         this.setVelocityX(vx);
         this.setVelocityY(vy);
-        socket.emit('enemyPosition', {id: this.id, x: this.x, y: this.y})
+        socket.emit('enemyPosition', {id:this.id, x: this.x, y: this.y})
     }
 
     killbullets(){
@@ -124,13 +124,9 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    meeleeAttack(time, player){
-        if (this.timeToMeelee < time) {
-            player.life -= this.meeleDamage
-            this.timeToMeelee = time + this.enemyTimerDelay;
-            return true
-        }
-        return false
+    meeleeAttack(player,player2){
+
+
     }
 
     bonusEnemy(player,player2){
