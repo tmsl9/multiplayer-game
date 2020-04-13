@@ -7,12 +7,12 @@ export default class playGame extends Phaser.Scene {
     }
 
     init(data){
-        console.log("PlayGame scene: ", data)
+        //console.log("PlayGame scene: ", data)
         this.data = data
         this.socket = data.socket
         this.id = data.id
         this.volume = data.volume
-        console.log("volume",this.volume)
+        //console.log("volume",this.volume)
     }
 
     preload(){
@@ -21,7 +21,7 @@ export default class playGame extends Phaser.Scene {
     }
 
     create() {
-        console.log("Starting game");
+        //console.log("Starting game");
         
         this.map = this.make.tilemap({ key: "map1" });
         const tileset = this.map.addTilesetImage("tile-map", "tiles");
@@ -57,8 +57,6 @@ export default class playGame extends Phaser.Scene {
             }
         }, this);
 
-        this.physics.add.collider(this.players, front)
-
         this.lifeLabel1 = this.add.text(20, 20, "Player 1: 100", {
             font: "30px Cambria",
             fill: "#ffffff"
@@ -93,7 +91,7 @@ export default class playGame extends Phaser.Scene {
         this.socket.on('newPositions',(data)=>{
             this.player2.x = data.x
             this.player2.y = data.y
-            console.log(data.pos)
+            //console.log(data.pos)
             this.player2.play(data.pos)
             if(data.fight){
                 this.player2.fire(data.time)
@@ -112,6 +110,8 @@ export default class playGame extends Phaser.Scene {
             //player.fireSound = fireSound;
         }, this);
 
+        this.physics.add.collider(this.players, front)
+        
         this.physics.add.overlap(this.player, this.player2.bullets, (player, bullet) => {//eu levar com bala
         
             var idBullet = bullet.id
@@ -129,6 +129,18 @@ export default class playGame extends Phaser.Scene {
             this.socket.emit('life', {id:player.id, life:player.life, idBullet:idBullet})// o outro player mexe-se ahahha
 
         });
+
+        this.players.children.iterate(function (player) {//colisao balas com arvores
+            this.physics.add.collider(player.bullets, front, (bullet, front) =>{
+                player.removeBullet(bullet.id)
+            })
+        }, this);
+
+        this.enemies.children.iterate(function (enemy) {//colisao balas com arvores
+            this.physics.add.collider(enemy.bullets, front, (bullet, front) =>{
+                enemy.removeBullet(bullet);//console.log("olaaaaaaaaa")
+            })
+        }, this);
 
         //recomeçar o jogo quando servidor desligar e voltar a ligar, mas nao funciona bem por causa do servidor
         /*this.socket.on('id', (data)=>{

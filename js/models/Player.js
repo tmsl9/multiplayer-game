@@ -125,7 +125,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     removeBullet(idBullet){
         this.bullets.children.iterate(function (bullet) {
             if(bullet.id == idBullet){
-                console.log("bullet removed", idBullet)
+                //console.log("bullet removed", idBullet)
                 this.bullets.killAndHide(bullet);
                 bullet.removeFromScreen();
             }
@@ -135,7 +135,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     fire(time){
         if (this.timeToShoot < time) {
             let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
-            console.log("player new bullet", this.numBullets)
+            //console.log("player new bullet", this.numBullets)
             if (bullet) {
                 if(this.id == 1){
                     //this.atacklvl=bullet.power*2;
@@ -150,7 +150,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.timeToShoot = time + this.fireRate;
 
             if (this.bullets.children.size > this.bulletsMaxsize) {
-                console.log("Group size failed")
+                //console.log("Group size failed")
             }
 
             if (this.fireSound) {

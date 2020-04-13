@@ -72,7 +72,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
     update(time,players){
        this.rangedAttack(players, time);/////attack fazer no server
-       
+       this.bulletOutsideCanvas()
     }
 
     move(pl, socket){
@@ -91,13 +91,17 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         socket.emit('enemyPosition', {id: this.id, x: this.x, y: this.y})
     }
 
-    killBullets(){
+    bulletOutsideCanvas(){
         this.bullets.children.iterate(function (bullet) {
             if (bullet.isOutsideCanvas()) {
-                //bullet.active = false;
                 this.bullets.killAndHide(bullet);
             }
         }, this);
+    }
+
+    removeBullet(bullet){
+        this.bullets.killAndHide(bullet);
+        bullet.removeFromScreen();
     }
 
     attack(time, players){
@@ -111,13 +115,13 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     rangedAttack(players,time){
-        //console.log(this.timeToShoot, "----", time)
+        ////console.log(this.timeToShoot, "----", time)
         if (this.timeToShoot < time) {
             var pl
             var minor = 100000
             players.children.iterate(function (player ) {
                 var dist = Phaser.Math.Distance.Between(player.x, player.y, this.x, this.y)
-                //console.log("dist-> ", dist, ", id-> ", player.id)
+                ////console.log("dist-> ", dist, ", id-> ", player.id)
                 if(dist < minor){
                     pl = player
                     minor = dist
@@ -131,12 +135,12 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
                 bullet.visible = true;
             }
 
-            console.log("pl.id = ", pl.id, "minor: ", minor)
+            //console.log("pl.id = ", pl.id, "minor: ", minor)
         
             this.timeToShoot = time + this.fireRate;
 
             if (this.bullets.children.size > this.bulletsMaxsize) {
-                console.log("Group size failed")
+                //console.log("Group size failed")
             }
 
             if (this.fireSound) {
