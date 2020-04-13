@@ -72,6 +72,10 @@ io.sockets.on('connection', function(socket){
     PLAYER_LIST[socket.id] = player;
     player.emitId();
     
+    socket.on('Finish',function(){
+        players_ready = 0
+    })
+
     socket.on('disconnect',function(){
         delete SOCKET_LIST[socket.id];
         delete PLAYER_LIST[socket.id];
@@ -97,7 +101,11 @@ io.sockets.on('connection', function(socket){
             var player2 = PLAYER_LIST[i];
             if(player2.id != player.id){
                 player.life = data.life
-                SOCKET_LIST[player2.id].emit('life', {life:player.life, idBullet:data.idBullet})
+                if(data.idBullet){
+                    SOCKET_LIST[player2.id].emit('life', {life:player.life, idBullet:data.idBullet})
+                }else{
+                    SOCKET_LIST[player2.id].emit('life', {life:player.life})
+                }
             }
         }
     });
@@ -133,6 +141,14 @@ io.sockets.on('connection', function(socket){
             if(enemy.id == data.id){
                 enemy.x = data.x
                 enemy.y = data.y
+                if(data.collider){
+                    for(var i in PLAYER_LIST){
+                        var player2 = PLAYER_LIST[i];
+                        if(player2.id != player.id){
+                            SOCKET_LIST[player2.id].emit('enemyPositionCollider', {id:enemy.id, x:enemy.x, y:enemy.y})
+                        }
+                    }
+                }
             }
         }
     });
