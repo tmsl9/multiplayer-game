@@ -26,7 +26,6 @@ const enemyTimerDelay = 5000;
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
     var self = {
-        pos:"down",
         x:id % 2 != 0 ? 200 : 400,///////
         y:400,
         life:100,
@@ -123,7 +122,7 @@ io.sockets.on('connection', function(socket){
             player.pressingFight = data.state;
         }
         
-        var pack;
+        var pack = [];
     
         for(var i in PLAYER_LIST){
             var player2 = PLAYER_LIST[i];

@@ -19,12 +19,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.sceneHeight = this.scene.game.config.height;
 
         this.life = 100;
+        this.atacklvl = 1;
+        this.velocity = 200;
+        this.fireRate = 350;
+        this.money = 0;
 
         this.canBeKilled = true;
 
         this.bulletsMaxsize = 5;
 
-        this.fireRate = 350;
+        this.numBullets = 0
 
         this.timeToShoot = 0;
 
@@ -49,23 +53,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             key: 'right' + this.img,
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 2, end: 2 })
         });
-        this.scene.anims.create({
-            key: 'right2', //animation identifier
-            //frames to play in animation 
-            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
-            frames: this.scene.anims.generateFrameNumbers("player2", { start: 2, end: 2 })
-        });
-        }
 
         this.play('down' + this.img)
 
     }
 
-    update(time,data) {
+    update(time, data) {
         var id = data.id
         var socket = data. socket
         var cursors = this.defCursors(data)
-
         if(this.id == id){
             this.setVelocity(0)
             if (cursors.up.isDown && this.y > this.frame.halfHeight + 6) {///se mudar pra 7 fica um espacinho de sobra
@@ -96,11 +92,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             /////////////////////////////////pode nao ser preciso pois em cima tem o setVelocity(0)
             if (cursors.up.isUp && cursors.down.isUp) {
                 this.setVelocityY(0);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
             }
             if (cursors.left.isUp && cursors.right.isUp) {/////funciona se mandarmos vetor com teclas a false ou true
                 this.setVelocityX(0);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
+                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
             }
             if (cursors.fight.isUp) {
                 socket.emit('keyPress',{input:'fight',state:false});
@@ -142,6 +138,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             //console.log("player new bullet", this.numBullets)
             if (bullet) {
                 if(this.id == 1){
+                    //this.atacklvl=bullet.power*2;
                     bullet.setVelocityX(bullet.baseVelocity);
                 }else{
                     bullet.setVelocityX(-bullet.baseVelocity);
@@ -214,6 +211,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
         });
     }*/
-    
+
 
 }

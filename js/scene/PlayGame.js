@@ -1,5 +1,5 @@
+import player from "../models/Player.js";
 import Enemy from "../models/Enemy.js";
-import Player from "../models/Player.js";
 
 export default class playGame extends Phaser.Scene {
     constructor() {
@@ -32,7 +32,7 @@ export default class playGame extends Phaser.Scene {
         
         this.players = this.physics.add.group({
             maxSize: 2,
-            classType: Player
+            classType: player
         });
 
         this.enemies = this.physics.add.group({
@@ -121,10 +121,10 @@ export default class playGame extends Phaser.Scene {
             player.life -= bullet.power;
             
             //update the score text
-            if(player1.id == 1){
-                this.lifeLabel1.setText("Player 1: " + player1.life)
+            if(player.id == 1){
+                this.lifeLabel1.setText("Player 1: " + player.life)
             }else{
-                this.lifeLabel2.setText("Player 2: " + player1.life)
+                this.lifeLabel2.setText("Player 2: " + player.life)
             }
             this.socket.emit('life', {id:player.id, life:player.life, idBullet:idBullet})// o outro player mexe-se ahahha
 
@@ -202,7 +202,7 @@ export default class playGame extends Phaser.Scene {
             if(player.life > 0){
                 player.update(time, this.data)
             }else{
-                player1.dead()
+                player.dead()
                 //stops this scene
                 this.scene.stop();
 

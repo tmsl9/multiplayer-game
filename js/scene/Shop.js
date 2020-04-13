@@ -1,4 +1,4 @@
-import Player from "../models/Player.js";
+import player from "../models/Player.js";
 
 export default class shop extends Phaser.Scene {
     constructor() {
