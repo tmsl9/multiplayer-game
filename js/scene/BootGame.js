@@ -15,6 +15,8 @@ export default class bootGame extends Phaser.Scene {
         });
 
         this.load.image("bullet", "assets/bullet.png");
+        
+        this.load.image("bulletz", "assets/bulletz.png");
 
         this.load.spritesheet("z1", "assets/z1.png", {
             frameHeight: 33,

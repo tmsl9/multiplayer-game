@@ -84,7 +84,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         if(Math.abs(vx) > Math.abs(vy)){
             vx < 0 ? this.play('left'+this.img) : this.play('right'+this.img)
         }else{
-            vy < 0 ? this.play('down'+this.img) : this.play('up'+this.img)
+            vy > 0 ? this.play('down'+this.img) : this.play('up'+this.img)
         }
         this.setVelocityX(vx);
         this.setVelocityY(vy);
@@ -116,13 +116,13 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             var pl
             var minor = 100000
             players.children.iterate(function (player ) {
-            var dist = Phaser.Math.Distance.Between(player.x, player.y, this.x, this.y)
-            //console.log("dist-> ", dist, ", id-> ", player.id)
-            if(dist < minor){
-                pl = player
-                minor = dist
-            }
-        }, this);
+                var dist = Phaser.Math.Distance.Between(player.x, player.y, this.x, this.y)
+                //console.log("dist-> ", dist, ", id-> ", player.id)
+                if(dist < minor){
+                    pl = player
+                    minor = dist
+                }
+            }, this);
             let bullet  = this.bullets.getFirstDead(true, this.x, this.y, 0)
             if (bullet) {
                 this.power=this.rangedDamage;
