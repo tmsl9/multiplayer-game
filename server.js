@@ -10,6 +10,7 @@ app.use('/',express.static(__dirname));
 serv.listen(5500, '192.168.137.1');
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
+var start = Date.now();
 
 var SOCKET_LIST = {};
 var PLAYER_LIST = {};
