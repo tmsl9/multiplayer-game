@@ -1,4 +1,4 @@
-import player from "../models/Player.js";
+import Player from "../models/Player.js";
 import Enemy from "../models/Enemy.js";
 
 export default class playGame extends Phaser.Scene {
@@ -32,11 +32,11 @@ export default class playGame extends Phaser.Scene {
         
         this.players = this.physics.add.group({
             maxSize: 2,
-            classType: player
+            classType: Player
         });
 
         this.enemies = this.physics.add.group({
-            maxSize: 10,
+            maxSize: 5,
             classType: Enemy
         });
 
@@ -195,6 +195,15 @@ export default class playGame extends Phaser.Scene {
             }, this)
         })
 
+        this.socket.on('lifeEnemy', (data) =>{
+            this.enemies.children.iterate(function (enemy) {
+                if(enemy.id == data.idEnemy){
+                    enemy.life = data.life;
+                    this.player2.removeBullet(data.idBullet);
+                }
+            }, this)
+        })
+
         this.cursors = this.defCursors()
     }
 
@@ -223,6 +232,7 @@ export default class playGame extends Phaser.Scene {
 
         this.enemies.children.iterate(function (enemy) {
           enemy.update(time,this.players);
+
             this.physics.add.collider(enemy.bullets, this.front, (bulletz, front) =>{
                 enemy.removeBulletz(bulletz.id);
             })
@@ -242,6 +252,18 @@ export default class playGame extends Phaser.Scene {
                 this.socket.emit('life', {idEnemy:enemy.id,idBullet:bullet.id, life:player.life})// o outro player mexe-se ahahha
     
             });
+
+            this.physics.add.overlap(enemy, this.player.bullets, (enemy, bullet) =>{
+                this.player.removeBullet(bullet.id);
+
+                enemy.life -= bullet.power;
+                
+                this.socket.emit('lifeEnemy', {idEnemy:enemy.id, idBullet:bullet.id, life:enemy.life})
+            })
+
+            if(enemy.life <= 0){
+                enemy.dead();
+            }
         
         }, this);
 

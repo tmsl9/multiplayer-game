@@ -16,7 +16,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         
         this.id=id;
         this.type=type;
-        this.hp = 100;
+        this.life = 100;
         this.rangedDamage=20;
         this.meeleDamage=10;
         this.baseVelocity=5;
@@ -168,6 +168,14 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     bonusEnemy(player,player2){
 
+    }
+
+    dead() {
+        new Explosion(this.scene, this.x, this.y);
+
+        //prevents new collision
+        this.x = -100;
+        this.y = -100;
     }
 
 

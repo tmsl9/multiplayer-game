@@ -19,7 +19,7 @@ var players_ready = 0;
 const width = 640
 const height = 640
 var ENEMY_LIST = {};
-var max_enemies = 10;
+var max_enemies = 5;
 let idEnemy = 1;
 const enemyTimerDelay = 5000;
 
@@ -111,6 +111,20 @@ io.sockets.on('connection', function(socket){
                     SOCKET_LIST[player2.id].emit('life', {life:player.life, idBullet:data.idBullet})
                 }else{
                     SOCKET_LIST[player2.id].emit('life', {life:player.life})
+                }
+            }
+        }
+    });
+
+    socket.on('lifeEnemy',function(data){
+        for(var i in ENEMY_LIST){
+            var enemy = ENEMY_LIST[i];
+            if(enemy.id != data.idEnemy){
+                enemy.life = data.life
+                for(var j in SOCKET_LIST){
+                    if(j!=player.id){
+                        SOCKET_LIST[j].emit('lifeEnemy', {idEnemy:data.idEnemy, idBullet:data.idBullet, life:data.life})
+                    }
                 }
             }
         }
