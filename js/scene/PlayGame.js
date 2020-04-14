@@ -113,6 +113,7 @@ export default class playGame extends Phaser.Scene {
         this.physics.add.collider(this.players, this.front)
 
         this.physics.add.collider(this.enemies, this.front)
+
         
         this.physics.add.collider(this.player, this.player2.bullets, (player, bullet) => {//eu levar com bala
         
@@ -164,6 +165,7 @@ export default class playGame extends Phaser.Scene {
 
         this.socket.on('createEnemy', (data) =>{
             let enemy = this.enemies.getFirstDead(true, data.x, data.y, data.type, data.idEnemy);
+            enemy.life = data.life;
             if(enemy){
                 enemy.spawn()
             }
@@ -232,7 +234,7 @@ export default class playGame extends Phaser.Scene {
         }, this);
 
         this.enemies.children.iterate(function (enemy) {
-          enemy.update(time,this.players);
+            enemy.update(time,this.players);
 
             this.physics.add.collider(enemy.bullets, this.front, (bulletz, front) =>{
                 enemy.removeBulletz(bulletz.id);
@@ -254,16 +256,18 @@ export default class playGame extends Phaser.Scene {
     
             });
 
-            this.physics.add.overlap(enemy, this.player.bullets, (enemy, bullet) =>{
+            this.physics.add.overlap(enemy, this.player.bullets, (enemyz, bullet) =>{
+                console.log(enemyz.id);
                 this.player.removeBullet(bullet.id);
 
-                enemy.life -= bullet.power;
+                enemyz.life -= bullet.power;
                 
-                this.socket.emit('lifeEnemy', {idEnemy:enemy.id, idBullet:bullet.id, life:enemy.life})
+                this.socket.emit('lifeEnemy', {idEnemy:enemyz.id, idBullet:bullet.id, life:enemyz.life})
             })
 
             if(enemy.life <= 0){
                 enemy.dead();
+                this.enemies.killAndHide(enemy);
             }
         
         }, this);

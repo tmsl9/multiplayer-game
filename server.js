@@ -20,6 +20,7 @@ const width = 640
 const height = 640
 var ENEMY_LIST = {};
 var max_enemies = 5;
+var num_enemies = 0;
 let idEnemy = 1;
 const enemyTimerDelay = 5000;
 
@@ -119,12 +120,18 @@ io.sockets.on('connection', function(socket){
     socket.on('lifeEnemy',function(data){
         for(var i in ENEMY_LIST){
             var enemy = ENEMY_LIST[i];
-            if(enemy.id != data.idEnemy){
+            if(enemy.id == data.idEnemy){
                 enemy.life = data.life
-                for(var j in SOCKET_LIST){
-                    if(j!=player.id){
-                        SOCKET_LIST[j].emit('lifeEnemy', {idEnemy:data.idEnemy, idBullet:data.idBullet, life:data.life})
+                for(var j in PLAYER_LIST){
+                    if(PLAYER_LIST[j].id != player.id){
+                        var player2 = PLAYER_LIST[j]
+                        SOCKET_LIST[player2.id].emit('lifeEnemy', {idEnemy:data.idEnemy, idBullet:data.idBullet, life:data.life})
                     }
+                }
+                if(enemy.life<=0){
+                    num_enemies--;
+                    console.log(enemy.id,enemy.life,num_enemies);
+                    delete ENEMY_LIST[enemy.id];
                 }
             }
         }
@@ -177,25 +184,24 @@ io.sockets.on('connection', function(socket){
 });
 
 setInterval(function(){//criação do inimigo
-    if(players_ready == 2 && idEnemy < max_enemies){
+    if(players_ready == 2 && num_enemies < max_enemies){
         let type;
         //console.log("enemy id:", idEnemy)
-        let margin = 300;
         let x ;
         let y ;
         let randNum= Math.floor(Math.random() *3);
         
         if(randNum==0){
             x = 0;
-            y = Math.floor(Math.random() * (height - margin)) + margin;
+            y = Math.floor(Math.random() * (height));
         }else if( randNum == 1){
             x= width;
-            y= Math.floor(Math.random() * (height - margin)) + margin;
+            y= Math.floor(Math.random() * (height));
         }else if(randNum ==2){
-            x=Math.floor(Math.random() * (width - margin)) + margin;
+            x=Math.floor(Math.random() * (width));
             y=height;
         }
-        
+        console.log("ENEMY",x,y);
         let prob = Math.floor(Math.random() * 100+1);
         
         if(prob<=40){
@@ -206,14 +212,15 @@ setInterval(function(){//criação do inimigo
             type=3;
         }
         
-        idEnemy++
+        idEnemy++;
+        num_enemies++;
 
         var enemy = Enemy(x, y, idEnemy, type);
         ENEMY_LIST[idEnemy] = enemy;
         
         for(var i in SOCKET_LIST){
             var socketEmit = SOCKET_LIST[i];
-            socketEmit.emit('createEnemy', {x: x, y: y, idEnemy: idEnemy, type: type});
+            socketEmit.emit('createEnemy', {x: x, y: y, idEnemy: idEnemy, type: type, life:enemy.life});
         }
     }
 }, enemyTimerDelay);
@@ -238,7 +245,7 @@ setInterval(function(){//mover o inimigo
                     var socketEmit = SOCKET_LIST[i];
                     socketEmit.emit('moveEnemy', {idPlayer:plCloser.id, idEnemy: enemy.id});
                 }
-            }else{
+            }else{ // se for so tipo 1 e tiver a 200 não anda
                 for(var i in SOCKET_LIST){
                     var socketEmit = SOCKET_LIST[i];
                     socketEmit.emit('moveEnemy', {idEnemy: enemy.id});
