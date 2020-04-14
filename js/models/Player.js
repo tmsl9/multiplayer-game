@@ -60,52 +60,45 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     update(time, data) {
         var id = data.id
-        var socket = data. socket
+        this.socket = data.socket
         var cursors = this.defCursors(data)
+        this.time = time
         if(this.id == id){
             this.setVelocity(0)
             if (cursors.up.isDown && this.y > this.frame.halfHeight + 6) {///se mudar pra 7 fica um espacinho de sobra
                 this.play('up' + this.img)
                 this.setVelocityY(-this.velocity);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'up' + this.img});
+                this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'up' + this.img});
             }
             if (cursors.down.isDown && this.y < this.sceneHeight - this.frame.halfHeight - 6) {
                 this.play('down' + this.img)
                 this.setVelocityY(this.velocity);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'down' + this.img});
+                this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'down' + this.img});
             }
             if (cursors.left.isDown && this.x > this.frame.halfWidth + 6) {/////funciona se mandarmos vetor com teclas a false ou true
                 this.play('left' + this.img)
                 this.setVelocityX(-this.velocity);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'left' + this.img});
+                this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'left' + this.img});
             }
             if (cursors.right.isDown && this.x < this.sceneWidth - this.frame.halfWidth - 6) {
                 this.play('right' + this.img)
                 this.setVelocityX(this.velocity);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'right' + this.img});
-            }
-            if (cursors.fight.isDown) {
-                this.fire(time);
-                socket.emit('keyPress',{input:'fight',state:true, time: time});
+                this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'right' + this.img});
             }
 
-            /////////////////////////////////pode nao ser preciso pois em cima tem o setVelocity(0)
+            this.scene.input.on("pointerdown", this.fire, this)
+
+            
             if (cursors.up.isUp && cursors.down.isUp) {
                 this.setVelocityY(0);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
-            }
-            if (cursors.left.isUp && cursors.right.isUp) {/////funciona se mandarmos vetor com teclas a false ou true
+                }
+            if (cursors.left.isUp && cursors.right.isUp) {
                 this.setVelocityX(0);
-                socket.emit('keyPress',{input:'xy', x:this.x, y:this.y});
-            }
-            if (cursors.fight.isUp) {
-                socket.emit('keyPress',{input:'fight',state:false});
-            }
+                }
         }
 
         this.bullets.children.iterate(function (bullet) {
             if (bullet.isOutsideCanvas()) {
-                //bullet.active = false;
                 this.bullets.killAndHide(bullet);
             }
         }, this);
@@ -132,22 +125,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
           }, this);
     }
 
-    fire(time){
-        if (this.timeToShoot < time) {
-            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
-            //console.log("player new bullet", this.numBullets)
+    fire(pointer){
+        var mouseX = Math.floor(pointer.x)
+        var mouseY = Math.floor(pointer.y)
+        //console.log(mouseX, mouseY)
+
+        if (this.timeToShoot < this.time) {
+            let bullet = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
+            
             if (bullet) {
-                if(this.id == 1){
-                    //this.atacklvl=bullet.power*2;
-                    bullet.setVelocityX(bullet.baseVelocity);
-                }else{
-                    bullet.setVelocityX(-bullet.baseVelocity);
-                }
-                bullet.active = true;
-                bullet.visible = true;
+                bullet.fire(mouseX, mouseY)
             }
         
-            this.timeToShoot = time + this.fireRate;
+            this.timeToShoot = this.time + this.fireRate;
 
             if (this.bullets.children.size > this.bulletsMaxsize) {
                 //console.log("Group size failed")
@@ -156,6 +146,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if (this.fireSound) {
                 this.fireSound.play();
             }
+
+            this.socket.emit('keyPress',{input:'fight',state:true, mouseX: mouseX, mouseY: mouseY});
+        }
+    }
+
+    fire2(x, y){
+        let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
+        
+        if (bullet) {
+            bullet.fire(x, y)
+        }
+    
+        if (this.fireSound) {
+            this.fireSound.play();
         }
     }
 
