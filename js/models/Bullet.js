@@ -14,9 +14,9 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
         this.power = 10
     }
 
-    fire(enemy) {
-        const dx = enemy.x - this.x;
-        const dy = enemy.y - this.y;
+    fire(x, y) {
+        const dx = x - this.x;
+        const dy = y - this.y;
         const alpha = Math.atan2(dy, dx);
         const vx = this.baseVelocity * Math.cos(alpha);
         const vy = this.baseVelocity * Math.sin(alpha);
@@ -24,7 +24,6 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
         this.setVelocityY(vy);
         this.active = true;
         this.visible = true;
-
     }
 
     removeFromScreen() {

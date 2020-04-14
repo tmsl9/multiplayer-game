@@ -69,8 +69,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         return this.x > width || this.y > height || this.x < 0 || this.y < 0;
     }
-    update(time,players){
-       this.rangedAttack(players, time);/////attack fazer no server
+    update(){
        this.bulletOutsideCanvas()
     }
 
@@ -105,7 +104,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     attack(time, players){
         if(this.type==1){
-            this.rangedAttack(players,time);
+            this.rangedAttack(time, players);
         }else if(this.type==2){
             this.meeleeAttack(players);
         }else if(this.type==3){
@@ -113,8 +112,8 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    rangedAttack(players,time){
-        ////console.log(this.timeToShoot, "----", time)
+    rangedAttack(time, players){
+        //console.log(this.timeToShoot, "----", time)
         if (this.timeToShoot < time) {
             var pl
             var minor = 100000
@@ -129,7 +128,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             let bullet  = this.bullets.getFirstDead(true, this.x, this.y, 0)
             if (bullet) {
                 this.power=this.rangedDamage;
-                bullet.fire(pl);
+                bullet.fire(pl.x, pl.y);
                 bullet.active = true;
                 bullet.visible = true;
             }
