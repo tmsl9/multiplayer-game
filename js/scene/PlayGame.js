@@ -165,10 +165,10 @@ export default class playGame extends Phaser.Scene {
 
         this.socket.on('createEnemy', (data) =>{
             let enemy = this.enemies.getFirstDead(true, data.x, data.y, data.type, data.idEnemy);
-            enemy.life = data.life;
             if(enemy){
                 enemy.spawn()
             }
+            console.log("lifeeeeeee-> ", enemy.life)// = data.life;
         })
 
         
@@ -201,13 +201,13 @@ export default class playGame extends Phaser.Scene {
             this.enemies.children.iterate(function (enemy) {
                 if(enemy.id == data.idEnemy){
                     enemy.life = data.life;
-                    this.player2.removeBullet(data.idBullet);
+                    //this.player2.removeBullet(data.idBullet);
                 }
             }, this)
         })
 
         this.cursors = this.defCursors()
-        
+
     }
 
     update(time) {
@@ -256,8 +256,14 @@ export default class playGame extends Phaser.Scene {
     
             });
 
-            this.physics.add.overlap(enemy, this.player.bullets, (enemyz, bullet) =>{
-                console.log(enemyz.id);
+            this.physics.add.collider(enemy, this.player2.bullets, (enemyz, bullet) =>{
+                //console.log(enemyz.id);
+                this.player2.removeBullet(bullet.id);
+            })
+
+            this.physics.add.collider(enemy, this.player.bullets, (enemyz, bullet) =>{
+                //console.log(enemyz.id);
+                bullet.destroy()
                 this.player.removeBullet(bullet.id);
 
                 enemyz.life -= bullet.power;
