@@ -52,6 +52,7 @@ var Enemy = function(x, y, id, type){
         y:y,
         life:100,/////
         id:id,
+        dist:200,
         type:type
     }
 
@@ -104,7 +105,9 @@ io.sockets.on('connection', function(socket){
             var player2 = PLAYER_LIST[i];
             if(player2.id != player.id){
                 player.life = data.life
-                if(data.idBullet){
+                if(data.idBullet && data.idEnemy){
+                    SOCKET_LIST[player2.id].emit('life', {life:player.life, idBullet:data.idBullet, idEnemy:data.idEnemy})
+                }else if(data.idBullet){
                     SOCKET_LIST[player2.id].emit('life', {life:player.life, idBullet:data.idBullet})
                 }else{
                     SOCKET_LIST[player2.id].emit('life', {life:player.life})
@@ -217,10 +220,18 @@ setInterval(function(){//mover o inimigo
                     minor = dist
                 }
             }
-            for(var i in SOCKET_LIST){
-                var socketEmit = SOCKET_LIST[i];
-                socketEmit.emit('moveEnemy', {idPlayer:plCloser.id, idEnemy: enemy.id});
+            if((enemy.type == 1 && enemy.dist < minor) || (enemy.type!=1)){
+                for(var i in SOCKET_LIST){
+                    var socketEmit = SOCKET_LIST[i];
+                    socketEmit.emit('moveEnemy', {idPlayer:plCloser.id, idEnemy: enemy.id});
+                }
+            }else{
+                for(var i in SOCKET_LIST){
+                    var socketEmit = SOCKET_LIST[i];
+                    socketEmit.emit('moveEnemy', {idEnemy: enemy.id});
+                }
             }
+            
         }
     }
 }, 10);

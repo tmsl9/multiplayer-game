@@ -28,7 +28,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.bulletsMaxsize = 5;
 
-        this.numBullets = 0
+        this.numBullets = 0;
 
         this.timeToShoot = 0;
 

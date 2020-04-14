@@ -25,6 +25,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.timeToMeelee = 0;
         this.enemyTimerDelay = 2000;
 
+        this.numBullets = 5;
+
+        this.bulletsMaxsize = 10;
+
         this.bullets = this.scene.physics.add.group({
             maxSize: this.bulletsMaxsize,
             classType: Bullet
@@ -98,9 +102,14 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         }, this);
     }
 
-    removeBullet(bullet){
-        this.bullets.killAndHide(bullet);
-        bullet.removeFromScreen();
+    removeBulletz(idBullet){
+        this.bullets.children.iterate(function (bullet) {
+            if(bullet.id == idBullet){
+                //console.log("bullet removed", idBullet)
+                this.bullets.killAndHide(bullet);
+                bullet.removeFromScreen();
+            }
+          }, this);
     }
 
     attack(time, players){
@@ -126,7 +135,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
                     minor = dist
                 }
             }, this);
-            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, 0)
+            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
             if (bullet) {
                 this.power=this.rangedDamage;
                 bullet.fire(pl);
