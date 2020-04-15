@@ -8,15 +8,16 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         
         super(scene, x, y, img);
 
+        this.scene = scene
         this.img = img;
         this.scene.add.existing(this);
-
+        //this.scene.physics.add.existing(this);
         //enable physics to sprite
         this.scene.physics.world.enable(this);
         
         this.id=id;
         this.type=type;
-        this.hp = 100;
+        this.life = 100;
         this.rangedDamage=20;
         this.meeleDamage=10;
         this.baseVelocity=5;
@@ -24,6 +25,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.timeToShoot = 0;
         this.timeToMeelee = 0;
         this.enemyTimerDelay = 2000;
+
+        this.numBullets = 5;
+
+        this.bulletsMaxsize = 10;
 
         this.bullets = this.scene.physics.add.group({
             maxSize: this.bulletsMaxsize,
@@ -46,6 +51,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             key: 'right'+this.img,
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 2, end: 2 })
         });
+
         this.scene.anims.create({
             key: 'coin',
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 5 })
@@ -63,6 +69,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     spawn() {
+        this.life = 100
         this.visible = true;
         this.active = true;
     }
@@ -101,9 +108,14 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         }, this);
     }
 
-    removeBullet(bullet){
-        this.bullets.killAndHide(bullet);
-        bullet.removeFromScreen();
+    removeBulletz(idBullet){
+        this.bullets.children.iterate(function (bullet) {
+            if(bullet.id == idBullet){
+                //console.log("bullet removed", idBullet)
+                this.bullets.killAndHide(bullet);
+                bullet.removeFromScreen();
+            }
+          }, this);
     }
 
     attack(time, players){
@@ -129,7 +141,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
                     minor = dist
                 }
             }, this);
-            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, 0)
+            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
             if (bullet) {
                 this.power=this.rangedDamage;
                 bullet.fire(pl.x, pl.y);
@@ -166,11 +178,11 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     dead() {
         new Explosion(this.scene, this.x, this.y);
-
+        this.play('coin')
         //prevents new collision
         this.x = -100;
         this.y = -100;
-        this.play('coin');
+        
     }
 
 
