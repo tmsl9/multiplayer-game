@@ -1,5 +1,6 @@
 import Explosion from './Explosion.js'
 import Bullet from "./Bullet.js";
+import Coin from './Coin.js'
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
@@ -50,11 +51,6 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.scene.anims.create({
             key: 'right'+this.img,
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 2, end: 2 })
-        });
-
-        this.scene.anims.create({
-            key: 'coin',
-            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 5 })
         });
 
         //executes animation
@@ -177,12 +173,11 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     dead() {
-        new Explosion(this.scene, this.x, this.y);
-        this.play('coin')
+       // new Explosion(this.scene, this.x, this.y);
+        
         //prevents new collision
         this.x = -100;
         this.y = -100;
-        
     }
 
 

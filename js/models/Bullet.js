@@ -1,16 +1,16 @@
 export default class Bullet extends Phaser.Physics.Arcade.Image {
     constructor(scene, x, y, id) {
-        super(scene, x, y, id == 0 ? "bulletz" : "bullet");
+        super(scene, x, y, id > 5 ? "bulletz" : "bullet");
 
         //console.log("id da bullet", id)
         //console.log("-",id == 0 ? "bulletz" : "bullet","-")
-        this.scene.add.existing(this);
+        //this.scene.add.existing(this);
 
         //enable physics to sprite
-        this.scene.physics.world.enable(this);
+        //this.scene.physics.world.enable(this);
         this.id=id;
         this.baseVelocity = 350;
-
+        
         this.power = 10
     }
 

@@ -67,6 +67,15 @@ export default class playGame extends Phaser.Scene {
             fill: "#ffffff"
         });
 
+        
+        this.add.image(30,75,"coin",0).setScale(0.1)
+         
+        
+        this.coin = this.add.text(45, 58, this.player.money, {
+            font: "30px Cambria",
+            fill: "#ffffff"
+        });
+
         this.socket.on('enemyPositionCollider', (data) =>{
             this.enemies.children.iterate(function (enemy) {
                 if(enemy.id == data.id){
@@ -168,7 +177,7 @@ export default class playGame extends Phaser.Scene {
             if(enemy){
                 enemy.spawn()
             }
-            console.log("lifeeeeeee-> ", enemy.life)// = data.life;
+            //console.log("lifeeeeeee-> ", enemy.life)// = data.life;
         })
 
         
@@ -256,26 +265,25 @@ export default class playGame extends Phaser.Scene {
     
             });
 
-            this.physics.add.collider(enemy, this.player2.bullets, (enemyz, bullet) =>{
-                //console.log(enemyz.id);
-                this.player2.removeBullet(bullet.id);
-            })
-
             this.physics.add.collider(enemy, this.player.bullets, (enemyz, bullet) =>{
                 //console.log(enemyz.id);
                 bullet.destroy()
                 this.player.removeBullet(bullet.id);
-                
+
                 enemyz.life -= bullet.power;
-                
+                if(enemyz.life<=0){
+                    this.player.earnmoney(enemyz.type)
+                    this.coin.setText(this.player.money)
+                }
+              H
                 this.socket.emit('lifeEnemy', {idEnemy:enemyz.id, idBullet:bullet.id, life:enemyz.life})
             })
 
             if(enemy.life <= 0){
                 enemy.dead();
                 this.enemies.killAndHide(enemy);
-                
             }
+
         
         }, this);
 

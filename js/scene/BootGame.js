@@ -28,14 +28,14 @@ export default class bootGame extends Phaser.Scene {
             frameWidth: 33
         });
 
-        this.load.spritesheet("coin", "assets/coin.png", {
-            frameHeight: 549/2,
-            frameWidth: 802/3
-        });
-
         this.load.spritesheet("z3", "assets/z3.png", {
             frameHeight: 33,
             frameWidth: 33
+        });
+
+        this.load.spritesheet("coin", "assets/coin.png", {
+            frameWidth: 802/3,
+            frameHeight: 549/2,
         });
 
         this.load.spritesheet("explosion", "assets/explosion.png", {
@@ -63,7 +63,8 @@ export default class bootGame extends Phaser.Scene {
             shop: this.input.keyboard.addKey('Q')
         }
 
-        var socket = io();
+
+       var socket = io();
         socket.on('id',(data)=>{
             var id = data
             console.log("id received:", id)

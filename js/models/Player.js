@@ -23,11 +23,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.velocity = 200;
         this.fireRate = 350;
         this.money = 0;
+
         this.canBeKilled = true;
 
         this.bulletsMaxsize = 5;
 
-        this.numBullets = 0
+        this.numBullets = 0;
 
         this.timeToShoot = 0;
 
@@ -55,6 +56,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.play('down' + this.img)
 
+    }
+
+    earnmoney(type){
+        if(type==3)
+        {
+            this.money+=30
+        }else{
+            this.money+=10
+        }
     }
 
     update(time, data) {
@@ -118,6 +128,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.bullets.children.iterate(function (bullet) {
             if(bullet.id == idBullet){
                 //console.log("bullet removed", idBullet)
+                bullet.active = false
+                bullet.visible = false
                 this.bullets.killAndHide(bullet);
                 bullet.removeFromScreen();
             }
