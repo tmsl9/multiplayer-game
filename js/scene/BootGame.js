@@ -34,8 +34,8 @@ export default class bootGame extends Phaser.Scene {
         });
 
         this.load.spritesheet("coin", "assets/coin.png", {
-            frameWidth: 802/3,
-            frameHeight: 549/2,
+            frameWidth: 260,
+            frameHeight: 270,
         });
 
         this.load.spritesheet("explosion", "assets/explosion.png", {

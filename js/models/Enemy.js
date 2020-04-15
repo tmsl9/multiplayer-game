@@ -53,6 +53,8 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 2, end: 2 })
         });
 
+        
+
         //executes animation
         this.play('down'+this.img);
 

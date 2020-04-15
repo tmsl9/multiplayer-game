@@ -9,8 +9,7 @@ app.use('/',express.static(__dirname));
 
 serv.listen(5500, '192.168.1.99');
 var io = require('socket.io')(serv,{});
-
-//console.log("Server started.");
+console.log("Server started.");
 var start = Date.now()
 
 var SOCKET_LIST = {};
@@ -20,13 +19,13 @@ var players_ready = 0;
 const width = 640
 const height = 640
 var ENEMY_LIST = {};
-var max_enemies = 10;
+var max_enemies = 5;
+var num_enemies = 0;
 let idEnemy = 1;
 const enemyTimerDelay = 5000;
 
-
 var Player = function(id){
-    //console.log("Client entered the game with id: ", id)
+    console.log("Client entered the game with id: ", id)
     var self = {
         x:id % 2 != 0 ? 200 : 400,///////
         y:400,
@@ -41,7 +40,7 @@ var Player = function(id){
     self.emitId = function(){
         var socket = SOCKET_LIST[self.id]
         socket.emit('id', self.id);
-        //console.log("-->", self.id)
+        console.log("-->", self.id)
     }
 
     return self;
@@ -54,22 +53,22 @@ var Enemy = function(x, y, id, type){
         y:y,
         life:100,/////
         id:id,
-        type:type,
-        distRange:200
+        dist:200,
+        type:type
     }
 
     return self;
 }
 
 io.sockets.on('connection', function(socket){
-    //console.log("total --> ",total_players)////os dois ficam com id 2
+    console.log("total --> ",total_players)////os dois ficam com id 2
     if(total_players == 2){///está a dar problemas na sincronização
         total_players = 0;
         players_ready = 0;
         SOCKET_LIST = {}
         PLAYER_LIST = {}
     }
-    //console.log("New connection", total_players + 1)
+    console.log("New connection", total_players + 1)
     total_players++;
     socket.id = total_players;
     SOCKET_LIST[socket.id] = socket;
@@ -90,7 +89,7 @@ io.sockets.on('connection', function(socket){
     });
 
     socket.on('ready',function(){
-        //console.log("Player id", socket.id, "ready")
+        console.log("Player id", socket.id, "ready")
         PLAYER_LIST[socket.id].ready = true
         players_ready++
         if(players_ready == 2){
@@ -98,7 +97,7 @@ io.sockets.on('connection', function(socket){
                 var socketEmit = SOCKET_LIST[i];
                 socketEmit.emit('2players_ready');
             }
-            //console.log('Both players are ready!')
+            console.log('Both players are ready!')
         }
     });
         
@@ -107,10 +106,32 @@ io.sockets.on('connection', function(socket){
             var player2 = PLAYER_LIST[i];
             if(player2.id != player.id){
                 player.life = data.life
-                if(data.idBullet){
+                if(data.idBullet && data.idEnemy){
+                    SOCKET_LIST[player2.id].emit('life', {life:player.life, idBullet:data.idBullet, idEnemy:data.idEnemy})
+                }else if(data.idBullet){
                     SOCKET_LIST[player2.id].emit('life', {life:player.life, idBullet:data.idBullet})
                 }else{
                     SOCKET_LIST[player2.id].emit('life', {life:player.life})
+                }
+            }
+        }
+    });
+
+    socket.on('lifeEnemy',function(data){
+        for(var i in ENEMY_LIST){
+            var enemy = ENEMY_LIST[i];
+            if(enemy.id == data.idEnemy){
+                enemy.life = data.life
+                for(var j in PLAYER_LIST){
+                    if(PLAYER_LIST[j].id != player.id){
+                        var player2 = PLAYER_LIST[j]
+                        SOCKET_LIST[player2.id].emit('lifeEnemy', {idEnemy:data.idEnemy, idBullet:data.idBullet, life:data.life})
+                    }
+                }
+                if(enemy.life<=0){
+                    num_enemies--;
+                    console.log(enemy.id,enemy.life,num_enemies);
+                    delete ENEMY_LIST[enemy.id];
                 }
             }
         }
@@ -163,27 +184,26 @@ io.sockets.on('connection', function(socket){
 });
 
 setInterval(function(){//criação do inimigo
-    if(players_ready == 2 && idEnemy < max_enemies){
+    if(players_ready == 2 && num_enemies < max_enemies){
         let type;
         //console.log("enemy id:", idEnemy)
-        let margin = 300;
         let x ;
         let y ;
         let randNum= Math.floor(Math.random() *3);
         
         if(randNum==0){
             x = 0;
-            y = Math.floor(Math.random() * (height - margin)) + margin;
+            y = Math.floor(Math.random() * (height));
         }else if( randNum == 1){
             x= width;
-            y= Math.floor(Math.random() * (height - margin)) + margin;
+            y= Math.floor(Math.random() * (height));
         }else if(randNum ==2){
-            x=Math.floor(Math.random() * (width - margin)) + margin;
+            x=Math.floor(Math.random() * (width));
             y=height;
         }
-        
+        console.log("ENEMY",x,y);
         let prob = Math.floor(Math.random() * 100+1);
-        console.log(prob)
+        
         if(prob<=40){
             type=1;
         }else if(prob<=80){
@@ -192,14 +212,15 @@ setInterval(function(){//criação do inimigo
             type=3;
         }
         
-        idEnemy++
+        idEnemy++;
+        num_enemies++;
 
         var enemy = Enemy(x, y, idEnemy, type);
         ENEMY_LIST[idEnemy] = enemy;
         
         for(var i in SOCKET_LIST){
             var socketEmit = SOCKET_LIST[i];
-            socketEmit.emit('createEnemy', {x: x, y: y, idEnemy: idEnemy, type: type});
+            socketEmit.emit('createEnemy', {x: x, y: y, idEnemy: idEnemy, type: type, life:enemy.life});
         }
     }
 }, enemyTimerDelay);
@@ -219,15 +240,18 @@ setInterval(function(){//mover o inimigo
                     minor = dist
                 }
             }
-            for(var i in SOCKET_LIST){
-               // if((enemy.type==1 && minor>enemy.distRange) || enemy.type!=1)
-             //   {
+            if((enemy.type == 1 && enemy.dist < minor) || (enemy.type!=1)){
+                for(var i in SOCKET_LIST){
                     var socketEmit = SOCKET_LIST[i];
-                   // console.log(enemy.type)
                     socketEmit.emit('moveEnemy', {idPlayer:plCloser.id, idEnemy: enemy.id});
-              //  }
-                
+                }
+            }else{ // se for so tipo 1 e tiver a 200 não anda
+                for(var i in SOCKET_LIST){
+                    var socketEmit = SOCKET_LIST[i];
+                    socketEmit.emit('moveEnemy', {idEnemy: enemy.id});
+                }
             }
+            
         }
     }
 }, 200);
@@ -245,32 +269,3 @@ setInterval(function(){//range o inimigo
         }
     }
 }, 500);
-
-/*setInterval(function(){//mover o inimigo
-    if(players_ready == 2){
-        for(var ei in ENEMY_LIST){
-            var enemy = ENEMY_LIST[ei]
-            
-            var plCloser
-            var minor = 100000
-            for(var pi in PLAYER_LIST){
-                var player = PLAYER_LIST[pi]
-                var dist = Math.sqrt(Math.pow(enemy.x - player.x, 2) + Math.pow(enemy.y - player.y, 2))
-                if(minor > dist){
-                    plCloser = player
-                    minor = dist
-                }
-            }
-            for(var i in SOCKET_LIST){
-                var socketEmit = SOCKET_LIST[i];
-                socketEmit.emit('attackEnemy', {idPlayer:plCloser.id, idEnemy: enemy.id});
-            }
-        }
-    }
-}, 4000);*/
-
-
-
-////////////fazer o mover e o ataque aqui no server
-////inicialmente fazer dist aqui, depois dist sempre nos jogadores, quando um dos jogadores enviar info que o player mais proximo mudou, fazer dist aqui
-/// mover vai ser um problema vamos ter que saber as posiçoes exatas dos inimigos aqui no servidor

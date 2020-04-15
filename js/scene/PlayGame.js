@@ -1,5 +1,6 @@
 import Player from "../models/Player.js";
 import Enemy from "../models/Enemy.js";
+import Coin from "../models/Coin.js";
 
 export default class playGame extends Phaser.Scene {
     constructor() {
@@ -67,11 +68,9 @@ export default class playGame extends Phaser.Scene {
             fill: "#ffffff"
         });
 
+        this.coin=new Coin(this,30,75,0)
         
-        this.add.image(30,75,"coin",0).setScale(0.1)
-         
-        
-        this.coin = this.add.text(45, 58, this.player.money, {
+        this.money = this.add.text(45, 58, this.player.money, {
             font: "30px Cambria",
             fill: "#ffffff"
         });
@@ -265,6 +264,8 @@ export default class playGame extends Phaser.Scene {
     
             });
 
+            
+
             this.physics.add.collider(enemy, this.player.bullets, (enemyz, bullet) =>{
                 //console.log(enemyz.id);
                 bullet.destroy()
@@ -273,9 +274,12 @@ export default class playGame extends Phaser.Scene {
                 enemyz.life -= bullet.power;
                 if(enemyz.life<=0){
                     this.player.earnmoney(enemyz.type)
-                    this.coin.setText(this.player.money)
+                    this.coin.coinplay()
+                    this.money.setText(this.player.money)
+
                 }
-              H
+
+            
                 this.socket.emit('lifeEnemy', {idEnemy:enemyz.id, idBullet:bullet.id, life:enemyz.life})
             })
 
