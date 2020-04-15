@@ -62,7 +62,9 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.setVelocity(0, 0);
     }
 
-    spawn() {
+    spawn(id) {
+        this.life=100;
+        this.id = id;
         this.visible = true;
         this.active = true;
     }

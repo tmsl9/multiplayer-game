@@ -165,9 +165,8 @@ export default class playGame extends Phaser.Scene {
 
         this.socket.on('createEnemy', (data) =>{
             let enemy = this.enemies.getFirstDead(true, data.x, data.y, data.type, data.idEnemy);
-            enemy.life = data.life;
             if(enemy){
-                enemy.spawn()
+                enemy.spawn(data.idEnemy)
             }
         })
 
@@ -206,6 +205,14 @@ export default class playGame extends Phaser.Scene {
             }, this)
         })
 
+        this.physics.add.overlap(this.enemies, this.player.bullets, (enemyz, bullet) =>{
+            this.player.removeBullet(bullet.id);
+
+            enemyz.life -= bullet.power;
+            
+            this.socket.emit('lifeEnemy', {idEnemy:enemyz.id, idBullet:bullet.id, life:enemyz.life})
+        })
+
         this.cursors = this.defCursors()
         
     }
@@ -232,6 +239,7 @@ export default class playGame extends Phaser.Scene {
                 this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player.id})
             }
         }, this);
+        
 
         this.enemies.children.iterate(function (enemy) {
             enemy.update(time,this.players);
@@ -241,7 +249,7 @@ export default class playGame extends Phaser.Scene {
             })
 
             this.physics.add.collider(this.player, enemy.bullets, (player, bullet) => {//eu levar com bala
-        
+    
                 enemy.removeBulletz(bullet.id);
                 
                 player.life -= bullet.power;
@@ -255,15 +263,6 @@ export default class playGame extends Phaser.Scene {
                 this.socket.emit('life', {idEnemy:enemy.id,idBullet:bullet.id, life:player.life})// o outro player mexe-se ahahha
     
             });
-
-            this.physics.add.overlap(enemy, this.player.bullets, (enemyz, bullet) =>{
-                console.log(enemyz.id);
-                this.player.removeBullet(bullet.id);
-
-                enemyz.life -= bullet.power;
-                
-                this.socket.emit('lifeEnemy', {idEnemy:enemyz.id, idBullet:bullet.id, life:enemyz.life})
-            })
 
             if(enemy.life <= 0){
                 enemy.dead();
