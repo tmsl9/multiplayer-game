@@ -20,6 +20,7 @@ var players_ready = 0;
 const width = 640
 const height = 640
 var ENEMY_LIST = {};
+var max_enemies = 10;
 let idEnemy = 1;
 const enemyTimerDelay = 5000;
 
@@ -116,29 +117,28 @@ io.sockets.on('connection', function(socket){
     });
 
     socket.on('keyPress',function(data){
-        if(data.input === 'xy'){
-            player.x = data.x;
-            player.y = data.y;
-            data.pos ? player.pos = data.pos : player.pos = player.pos
-        }else if(data.input === 'fight'){
-            player.pressingFight = data.state;
-        }
-        
         var pack = [];
     
         for(var i in PLAYER_LIST){
             var player2 = PLAYER_LIST[i];
             if(player2.id != player.id){
-                pack = {
-                    x:player.x,
-                    y:player.y,
-                    fight:player.pressingFight,
-                    id:player.id,
-                    pos:player.pos,
-                    time:data.time ? data.time : 0
+                if(data.input === 'xy'){
+                    player.x = data.x;
+                    player.y = data.y;
+                    data.pos ? player.pos = data.pos : player.pos = player.pos
+                    pack = {
+                        x:player.x,
+                        y:player.y,
+                        pos:player.pos
+                    }
+                }else{
+                    pack = {
+                        mouseX:data.mouseX ? data.mouseX : 0,
+                        mouseY:data.mouseY ? data.mouseY : 0
+                    }
                 }
                 //console.log("pack n",player2.id,"->",pack);
-                SOCKET_LIST[player2.id].emit('newPositions',pack);
+                SOCKET_LIST[player2.id].emit('playerAction', pack);
             }
         }
     });
@@ -163,7 +163,7 @@ io.sockets.on('connection', function(socket){
 });
 
 setInterval(function(){//criação do inimigo
-    if(players_ready == 2){
+    if(players_ready == 2 && idEnemy < max_enemies){
         let type;
         //console.log("enemy id:", idEnemy)
         let margin = 300;
@@ -230,13 +230,13 @@ setInterval(function(){//mover o inimigo
             }
         }
     }
-}, 10);
+}, 200);
 
 setInterval(function(){//range o inimigo
     if(players_ready == 2){
         for(var ei in ENEMY_LIST){
             var enemy = ENEMY_LIST[ei]
-            if(enemy.type==1){
+            if(enemy.type == 1){
                 for(var i in SOCKET_LIST){
                     var socketEmit = SOCKET_LIST[i];
                     socketEmit.emit('enemyShoot', {id: enemy.id, time: Date.now() - start});
@@ -244,7 +244,7 @@ setInterval(function(){//range o inimigo
             }
         }
     }
-}, 10);
+}, 500);
 
 /*setInterval(function(){//mover o inimigo
     if(players_ready == 2){

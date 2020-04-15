@@ -1,4 +1,4 @@
-import player from "../models/Player.js";
+import Player from "../models/Player.js";
 import Enemy from "../models/Enemy.js";
 
 export default class playGame extends Phaser.Scene {
@@ -32,7 +32,7 @@ export default class playGame extends Phaser.Scene {
         
         this.players = this.physics.add.group({
             maxSize: 2,
-            classType: player
+            classType: Player
         });
 
         this.enemies = this.physics.add.group({
@@ -88,13 +88,13 @@ export default class playGame extends Phaser.Scene {
             this.socket.emit('enemyPosition', {id: enemy.id, x: enemy.x, y: enemy.y, collider: true})
         });
 
-        this.socket.on('newPositions',(data)=>{
-            this.player2.x = data.x
-            this.player2.y = data.y
-            //console.log(data.pos)
-            this.player2.play(data.pos)
-            if(data.fight){
-                this.player2.fire(data.time)
+        this.socket.on('playerAction',(data)=>{
+            if(data.mouseX && data.mouseY){
+                this.player2.fire2(data.mouseX, data.mouseY)
+            }else{
+                this.player2.x = data.x
+                this.player2.y = data.y
+                this.player2.play(data.pos)
             }
         });
 
@@ -190,6 +190,7 @@ export default class playGame extends Phaser.Scene {
         })
 
         this.cursors = this.defCursors()
+        
     }
 
     update(time) {
@@ -217,7 +218,7 @@ export default class playGame extends Phaser.Scene {
 
         this.enemies.children.iterate(function (enemies) {
 
-          enemies.update(time,this.players);
+          enemies.update();
         
         }, this);
 
