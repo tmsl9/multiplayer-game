@@ -7,9 +7,10 @@ app.get('/',function(req, res) {
 });
 app.use('/',express.static(__dirname));
 
-serv.listen(5500, '192.168.131.1');
+serv.listen(5500, '192.168.1.99');
 var io = require('socket.io')(serv,{});
-console.log("Server started.");
+
+//console.log("Server started.");
 var start = Date.now()
 
 var SOCKET_LIST = {};
@@ -22,8 +23,9 @@ var ENEMY_LIST = {};
 let idEnemy = 1;
 const enemyTimerDelay = 5000;
 
+
 var Player = function(id){
-    console.log("Client entered the game with id: ", id)
+    //console.log("Client entered the game with id: ", id)
     var self = {
         x:id % 2 != 0 ? 200 : 400,///////
         y:400,
@@ -38,34 +40,35 @@ var Player = function(id){
     self.emitId = function(){
         var socket = SOCKET_LIST[self.id]
         socket.emit('id', self.id);
-        console.log("-->", self.id)
+        //console.log("-->", self.id)
     }
 
     return self;
 }
 
 var Enemy = function(x, y, id, type){
-    console.log("Enemy successfully created: ", id)
+    //console.log("Enemy successfully created: ", id)
     var self = {
         x:x,
         y:y,
         life:100,/////
         id:id,
-        type:type
+        type:type,
+        distRange:200
     }
 
     return self;
 }
 
 io.sockets.on('connection', function(socket){
-    console.log("total --> ",total_players)////os dois ficam com id 2
+    //console.log("total --> ",total_players)////os dois ficam com id 2
     if(total_players == 2){///está a dar problemas na sincronização
         total_players = 0;
         players_ready = 0;
         SOCKET_LIST = {}
         PLAYER_LIST = {}
     }
-    console.log("New connection", total_players + 1)
+    //console.log("New connection", total_players + 1)
     total_players++;
     socket.id = total_players;
     SOCKET_LIST[socket.id] = socket;
@@ -86,7 +89,7 @@ io.sockets.on('connection', function(socket){
     });
 
     socket.on('ready',function(){
-        console.log("Player id", socket.id, "ready")
+        //console.log("Player id", socket.id, "ready")
         PLAYER_LIST[socket.id].ready = true
         players_ready++
         if(players_ready == 2){
@@ -94,7 +97,7 @@ io.sockets.on('connection', function(socket){
                 var socketEmit = SOCKET_LIST[i];
                 socketEmit.emit('2players_ready');
             }
-            console.log('Both players are ready!')
+            //console.log('Both players are ready!')
         }
     });
         
@@ -162,7 +165,7 @@ io.sockets.on('connection', function(socket){
 setInterval(function(){//criação do inimigo
     if(players_ready == 2){
         let type;
-        console.log("enemy id:", idEnemy)
+        //console.log("enemy id:", idEnemy)
         let margin = 300;
         let x ;
         let y ;
@@ -180,7 +183,7 @@ setInterval(function(){//criação do inimigo
         }
         
         let prob = Math.floor(Math.random() * 100+1);
-        
+        console.log(prob)
         if(prob<=40){
             type=1;
         }else if(prob<=80){
@@ -217,8 +220,13 @@ setInterval(function(){//mover o inimigo
                 }
             }
             for(var i in SOCKET_LIST){
-                var socketEmit = SOCKET_LIST[i];
-                socketEmit.emit('moveEnemy', {idPlayer:plCloser.id, idEnemy: enemy.id});
+               // if((enemy.type==1 && minor>enemy.distRange) || enemy.type!=1)
+             //   {
+                    var socketEmit = SOCKET_LIST[i];
+                   // console.log(enemy.type)
+                    socketEmit.emit('moveEnemy', {idPlayer:plCloser.id, idEnemy: enemy.id});
+              //  }
+                
             }
         }
     }
@@ -228,9 +236,11 @@ setInterval(function(){//range o inimigo
     if(players_ready == 2){
         for(var ei in ENEMY_LIST){
             var enemy = ENEMY_LIST[ei]
-            for(var i in SOCKET_LIST){
-                var socketEmit = SOCKET_LIST[i];
-                socketEmit.emit('enemyShoot', {id: enemy.id, time: Date.now() - start});
+            if(enemy.type==1){
+                for(var i in SOCKET_LIST){
+                    var socketEmit = SOCKET_LIST[i];
+                    socketEmit.emit('enemyShoot', {id: enemy.id, time: Date.now() - start});
+                }
             }
         }
     }
