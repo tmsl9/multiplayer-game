@@ -8,9 +8,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         
         super(scene, x, y, img);
 
+        this.scene = scene
         this.img = img;
         this.scene.add.existing(this);
-
+        //this.scene.physics.add.existing(this);
         //enable physics to sprite
         this.scene.physics.world.enable(this);
         

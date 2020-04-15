@@ -168,6 +168,7 @@ export default class playGame extends Phaser.Scene {
             if(enemy){
                 enemy.spawn(data.idEnemy)
             }
+            console.log("lifeeeeeee-> ", enemy.life)// = data.life;
         })
 
         
@@ -200,7 +201,7 @@ export default class playGame extends Phaser.Scene {
             this.enemies.children.iterate(function (enemy) {
                 if(enemy.id == data.idEnemy){
                     enemy.life = data.life;
-                    this.player2.removeBullet(data.idBullet);
+                    //this.player2.removeBullet(data.idBullet);
                 }
             }, this)
         })
@@ -214,7 +215,7 @@ export default class playGame extends Phaser.Scene {
         })
 
         this.cursors = this.defCursors()
-        
+
     }
 
     update(time) {

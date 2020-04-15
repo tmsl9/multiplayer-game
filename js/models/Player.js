@@ -119,6 +119,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.bullets.children.iterate(function (bullet) {
             if(bullet.id == idBullet){
                 //console.log("bullet removed", idBullet)
+                bullet.active = false
+                bullet.visible = false
                 this.bullets.killAndHide(bullet);
                 bullet.removeFromScreen();
             }
