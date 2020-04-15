@@ -15,6 +15,12 @@ export default class bootGame extends Phaser.Scene {
         });
 
         this.load.image("bullet", "assets/bullet.png");
+
+        this.load.image("bullet1", "assets/bullet1.png");
+
+        this.load.image("bullet2", "assets/bullet2.png");
+
+        this.load.image("bullet3", "assets/bullet3.png");
         
         this.load.image("bulletz", "assets/bulletz.png");
 

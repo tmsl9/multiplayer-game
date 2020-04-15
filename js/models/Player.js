@@ -4,12 +4,10 @@ import Explosion from "./Explosion.js";
 export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     constructor(scene, x, y, id) {
-        var img = "player" + id;
-
-        super(scene, x, y, img);
+        super(scene, x, y, "player" + id);
 
         this.id = id
-        this.img = img
+        this.img = "player" + id
         
         this.scene.add.existing(this);
 
@@ -21,15 +19,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.life = 100;
         this.atacklvl = 1;
         this.velocity = 200;
-        this.fireRate = 350;
         this.money = 0;
 
         this.canBeKilled = true;
 
+        this.typeBullets = 2;
         this.bulletsMaxsize = 5;
-
         this.numBullets = 0
-
         this.timeToShoot = 0;
 
         this.bullets = this.scene.physics.add.group({
@@ -87,14 +83,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
 
             this.scene.input.on("pointerdown", this.fire, this)
-
             
             if (cursors.up.isUp && cursors.down.isUp) {
                 this.setVelocityY(0);
-                }
+            }
             if (cursors.left.isUp && cursors.right.isUp) {
                 this.setVelocityX(0);
-                }
+            }
         }
 
         this.bullets.children.iterate(function (bullet) {
@@ -134,10 +129,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             let bullet = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
             
             if (bullet) {
+                this.characteristicsBullet(bullet)
                 bullet.fire(mouseX, mouseY)
             }
         
-            this.timeToShoot = this.time + this.fireRate;
+            this.timeToShoot = this.time + bullet.fireRate;
 
             if (this.bullets.children.size > this.bulletsMaxsize) {
                 //console.log("Group size failed")
@@ -153,14 +149,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     fire2(x, y){
         let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
-        
+
         if (bullet) {
+            this.characteristicsBullet(bullet)
             bullet.fire(x, y)
         }
     
         if (this.fireSound) {
             this.fireSound.play();
         }
+    }
+
+    characteristicsBullet(bullet){
+        bullet.characteristics(this.typeBullets)
     }
 
     /**

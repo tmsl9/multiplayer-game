@@ -49,8 +49,11 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         //executes animation
         this.play('down'+this.img);
-
     }
+
+    update(){
+        this.bulletOutsideCanvas()
+     }
 
     removeFromScreen() {
         new Explosion(this.scene, this.x, this.y);
@@ -68,9 +71,6 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         const height = this.scene.game.config.height;
 
         return this.x > width || this.y > height || this.x < 0 || this.y < 0;
-    }
-    update(){
-       this.bulletOutsideCanvas()
     }
 
     move(pl, socket){
