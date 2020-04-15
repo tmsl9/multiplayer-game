@@ -27,6 +27,8 @@ export default class shop extends Phaser {
             font: "30px Cambria",
             fill: "#ffffff"
         });
+        this.coin=new Coin(this,30,75,0)
+        this.coin.coinplay()
         this.add.text(this.sceneHeight - 100, 50, "Player 2: 100", {
             font: "30px Cambria",
             fill: "#ffffff"
