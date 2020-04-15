@@ -1,46 +1,41 @@
 import player from "../models/Player.js";
 
-export default class shop extends Phaser.Scene {
+export default class shop extends Phaser {
     constructor() {
         super("Shop");
     }
     
-    init(data){
+    init(data, scene){
         console.log("Menu: ", data)
         this.data = data
         this.socket = data.socket
         this.id = data.id
+        this.scene = scene
     }
 
     create() {
-        console.log("Menu");
-        this.volume = 250
-        this.min = 200
-        this.max = 300
-        this.mouseX = this.game.input.mousePointer.x
-        this.player1 = new Player(this, this.min, 400, 1)
-        this.player = new Player(this, this.volume, 400, 1)
-        this.player2 = new Player(this, this.max, 400, 1)
-        this.player.setInteractive()
-        this.player.on('pointerdown', () => {
-           
-            if(this.mouseX >= this.min && this.mouseX <= this.max){
-                this.player = this.mouseX
-            }else{
-                this.player = this.mouseX < this.min ? this.min : this.max
-            }
-            this.player.x =  this.mouseX
-        })
-        console.log(this.mouseX)
-        
-            //som
-            //configurar controlos
-               
-    }
-    listener(){
-        console.log(game.input.mousePointer.x)
-    }
+        console.log("Shop");
 
+        this.sceneWidth = this.scene.game.config.width;
+        this.sceneHeight = this.scene.game.config.height;
 
+        this.bullet1 = this.scene.add.image(this.sceneHeight - 100, 40, "bullet1")
+        this.bullet2 = this.scene.add.image(this.sceneHeight - 80, 40, "bullet2")
+        this.bullet3 = this.scene.add.image(this.sceneHeight - 60, 40, "bullet3")
+        this.regenLife = this.scene.add.image(this.sceneHeight - 40, 40, "regenLife")
+        this.add.text(this.sceneHeight - 100, 50, "100", {
+            font: "30px Cambria",
+            fill: "#ffffff"
+        });
+        this.add.text(this.sceneHeight - 100, 50, "Player 2: 100", {
+            font: "30px Cambria",
+            fill: "#ffffff"
+        });
+        this.add.text(this.sceneHeight - 100, 50, "Player 2: 100", {
+            font: "30px Cambria",
+            fill: "#ffffff"
+        });
+
+    }
     
 }

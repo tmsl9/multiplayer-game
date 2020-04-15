@@ -2,7 +2,6 @@ import Explosion from './Explosion.js'
 import Bullet from "./Bullet.js";
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
-
     constructor(scene, x, y, type, id) {
         var img = 'z' + type
         

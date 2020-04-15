@@ -234,6 +234,4 @@ export default class playGame extends Phaser.Scene {
             shop: this.input.keyboard.addKey(this.data.cursors.shop.keyCode)
         }
     }
-    
-
 }

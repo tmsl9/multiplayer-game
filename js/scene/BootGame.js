@@ -5,14 +5,14 @@ export default class bootGame extends Phaser.Scene {
     
     preload() {
         this.load.spritesheet("player1", "assets/player1.png", {
-            frameWidth: 37.5,
-            frameHeight: 50
+            frameWidth: 96/3,
+            frameHeight: 190/4
         });
 
         this.load.spritesheet("player2", "assets/player2.png", {
-            frameWidth: 37.5,
-            frameHeight: 50
-        });
+            frameWidth: 96/3,
+            frameHeight: 194/4
+        }).setScale(0.1);
 
         this.load.image("bullet", "assets/bullet.png");
 
@@ -22,7 +22,9 @@ export default class bootGame extends Phaser.Scene {
 
         this.load.image("bullet3", "assets/bullet3.png");
         
-        this.load.image("bulletz", "assets/bulletz.png");
+        this.load.image("bossBullet", "assets/bossBullet.png");
+
+        this.load.image("regenLife", "assets/regenLife.png");
 
         this.load.spritesheet("z1", "assets/z1.png", {
             frameHeight: 33,
@@ -44,6 +46,11 @@ export default class bootGame extends Phaser.Scene {
             frameHeight: 64,
         });
 
+        this.load.spritesheet("coin", "assets/coin1.png", {
+            frameWidth: 250,
+            frameHeight: 260
+        });
+
         this.load.image("bg", "assets/background.png");
 
         this.load.audio("fire", "assets/fireball.mp3");
@@ -63,6 +70,7 @@ export default class bootGame extends Phaser.Scene {
             fight: this.input.keyboard.addKey('SPACE'),
             shop: this.input.keyboard.addKey('Q')
         }
+        this.add.image(0, 0, "bg").setScale(2)
 
         var socket = io();
         socket.on('id',(data)=>{
