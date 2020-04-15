@@ -26,9 +26,9 @@ export default class playGame extends Phaser.Scene {
         this.map = this.make.tilemap({ key: "map1" });
         const tileset = this.map.addTilesetImage("tile-map", "tiles");
         this.map.createStaticLayer("back", tileset, 0, 0);
-        const front = this.map.createStaticLayer("front", tileset, 0, 0);
+        this.front = this.map.createStaticLayer("front", tileset, 0, 0);
     
-        front.setCollisionByProperty({ "collides": true }, true);
+        this.front.setCollisionByProperty({ "collides": true }, true);
         
         this.players = this.physics.add.group({
             maxSize: 2,
@@ -36,7 +36,7 @@ export default class playGame extends Phaser.Scene {
         });
 
         this.enemies = this.physics.add.group({
-            maxSize: 10,
+            maxSize: 5,
             classType: Enemy
         });
 
@@ -110,9 +110,12 @@ export default class playGame extends Phaser.Scene {
             //player.fireSound = fireSound;
         }, this);
 
-        this.physics.add.collider(this.players, front)
+        this.physics.add.collider(this.players, this.front)
+
+        this.physics.add.collider(this.enemies, this.front)
+
         
-        this.physics.add.overlap(this.player, this.player2.bullets, (player, bullet) => {//eu levar com bala
+        this.physics.add.collider(this.player, this.player2.bullets, (player, bullet) => {//eu levar com bala
         
             var idBullet = bullet.id
 
@@ -131,14 +134,8 @@ export default class playGame extends Phaser.Scene {
         });
 
         this.players.children.iterate(function (player) {//colisao balas com arvores
-            this.physics.add.collider(player.bullets, front, (bullet, front) =>{
+            this.physics.add.collider(player.bullets, this.front, (bullet, front) =>{
                 player.removeBullet(bullet.id)
-            })
-        }, this);
-
-        this.enemies.children.iterate(function (enemy) {//colisao balas com arvores
-            this.physics.add.collider(enemy.bullets, front, (bullet, front) =>{
-                enemy.removeBullet(bullet);//console.log("olaaaaaaaaa")
             })
         }, this);
 
@@ -150,7 +147,13 @@ export default class playGame extends Phaser.Scene {
         
         this.socket.on('life', (data)=>{//se o outro player tiver sido atingido, eu atualizo a vida dele
             this.player2.life = data.life
-            if(data.idBullet){
+            if(data.idBullet && data.idEnemy){//se o outro jogador sofrer dano do inimigo
+                this.enemies.children.iterate(function (enemy) {
+                    if(enemy.id==data.idEnemy){
+                        enemy.removeBulletz(data.idBullet)
+                    }
+                }, this);
+            }else if(data.idBullet){//se o outro jogador sofrer dano de mim
                 this.player.removeBullet(data.idBullet)
             }
             if(this.player2.id == 1){
@@ -165,18 +168,23 @@ export default class playGame extends Phaser.Scene {
             if(enemy){
                 enemy.spawn()
             }
+            console.log("lifeeeeeee-> ", enemy.life)// = data.life;
         })
 
-        this.physics.add.collider(this.enemies, front)
+        
 
         this.socket.on('moveEnemy', (data) =>{
             this.enemies.children.iterate(function (enemy) {
                 if(enemy.id == data.idEnemy){
-                    this.players.children.iterate(function (player) {
-                        if(player.id == data.idPlayer){
-                            enemy.move(player, this.socket)
-                        }
-                    }, this)
+                    if(data.idPlayer){
+                        this.players.children.iterate(function (player) {
+                            if(player.id == data.idPlayer){
+                                enemy.move(player, this.socket)
+                            }
+                        }, this)
+                    }else{
+                        enemy.setVelocity(0);
+                    }
                 }
             }, this)
         })
@@ -189,8 +197,17 @@ export default class playGame extends Phaser.Scene {
             }, this)
         })
 
+        this.socket.on('lifeEnemy', (data) =>{
+            this.enemies.children.iterate(function (enemy) {
+                if(enemy.id == data.idEnemy){
+                    enemy.life = data.life;
+                    //this.player2.removeBullet(data.idBullet);
+                }
+            }, this)
+        })
+
         this.cursors = this.defCursors()
-        
+
     }
 
     update(time) {
@@ -216,9 +233,49 @@ export default class playGame extends Phaser.Scene {
             }
         }, this);
 
-        this.enemies.children.iterate(function (enemies) {
+        this.enemies.children.iterate(function (enemy) {
+            enemy.update(time,this.players);
 
-          enemies.update();
+            this.physics.add.collider(enemy.bullets, this.front, (bulletz, front) =>{
+                enemy.removeBulletz(bulletz.id);
+            })
+
+            this.physics.add.collider(this.player, enemy.bullets, (player, bullet) => {//eu levar com bala
+        
+                enemy.removeBulletz(bullet.id);
+                
+                player.life -= bullet.power;
+                
+                //update the score text
+                if(player.id == 1){
+                    this.lifeLabel1.setText("Player 1: " + player.life)
+                }else{
+                    this.lifeLabel2.setText("Player 2: " + player.life)
+                }
+                this.socket.emit('life', {idEnemy:enemy.id,idBullet:bullet.id, life:player.life})// o outro player mexe-se ahahha
+    
+            });
+
+            this.physics.add.collider(enemy, this.player2.bullets, (enemyz, bullet) =>{
+                //console.log(enemyz.id);
+                this.player2.removeBullet(bullet.id);
+            })
+
+            this.physics.add.collider(enemy, this.player.bullets, (enemyz, bullet) =>{
+                //console.log(enemyz.id);
+                bullet.destroy()
+                this.player.removeBullet(bullet.id);
+                
+                enemyz.life -= bullet.power;
+                
+                this.socket.emit('lifeEnemy', {idEnemy:enemyz.id, idBullet:bullet.id, life:enemyz.life})
+            })
+
+            if(enemy.life <= 0){
+                enemy.dead();
+                this.enemies.killAndHide(enemy);
+                
+            }
         
         }, this);
 
