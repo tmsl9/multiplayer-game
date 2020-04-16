@@ -7,7 +7,7 @@ app.get('/',function(req, res) {
 });
 app.use('/',express.static(__dirname));
 
-serv.listen(5500, '192.168.131.1');
+serv.listen(5500, '192.168.1.77');
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
 var start = Date.now()
@@ -130,7 +130,7 @@ io.sockets.on('connection', function(socket){
                 }
                 if(enemy.life<=0){
                     num_enemies--;
-                    console.log(enemy.id,enemy.life,num_enemies);
+                    //console.log(enemy.id,enemy.life,num_enemies);
                     delete ENEMY_LIST[enemy.id];
                 }
             }
@@ -155,7 +155,8 @@ io.sockets.on('connection', function(socket){
                 }else{
                     pack = {
                         mouseX:data.mouseX ? data.mouseX : 0,
-                        mouseY:data.mouseY ? data.mouseY : 0
+                        mouseY:data.mouseY ? data.mouseY : 0,
+                        idBullet:data.idBullet
                     }
                 }
                 //console.log("pack n",player2.id,"->",pack);
@@ -201,7 +202,7 @@ setInterval(function(){//criação do inimigo
             x=Math.floor(Math.random() * (width));
             y=height;
         }
-        console.log("ENEMY",x,y);
+
         let prob = Math.floor(Math.random() * 100+1);
         
         if(prob<=40){
@@ -214,13 +215,15 @@ setInterval(function(){//criação do inimigo
         
         idEnemy++;
         num_enemies++;
+        
+        //console.log("ENEMY",x,y, idEnemy);
 
         var enemy = Enemy(x, y, idEnemy, type);
         ENEMY_LIST[idEnemy] = enemy;
         
         for(var i in SOCKET_LIST){
             var socketEmit = SOCKET_LIST[i];
-            socketEmit.emit('createEnemy', {x: x, y: y, idEnemy: idEnemy, type: type, life:enemy.life});
+            socketEmit.emit('createEnemy', {x:x, y:y, idEnemy:idEnemy, type:type, life:enemy.life});
         }
     }
 }, enemyTimerDelay);
@@ -243,12 +246,12 @@ setInterval(function(){//mover o inimigo
             if((enemy.type == 1 && enemy.dist < minor) || (enemy.type!=1)){
                 for(var i in SOCKET_LIST){
                     var socketEmit = SOCKET_LIST[i];
-                    socketEmit.emit('moveEnemy', {idPlayer:plCloser.id, idEnemy: enemy.id});
+                    socketEmit.emit('moveEnemy', {idPlayer:plCloser.id, idEnemy:enemy.id});
                 }
             }else{ // se for so tipo 1 e tiver a 200 não anda
                 for(var i in SOCKET_LIST){
                     var socketEmit = SOCKET_LIST[i];
-                    socketEmit.emit('moveEnemy', {idEnemy: enemy.id});
+                    socketEmit.emit('moveEnemy', {idEnemy:enemy.id});
                 }
             }
             
@@ -261,39 +264,15 @@ setInterval(function(){//range o inimigo
         for(var ei in ENEMY_LIST){
             var enemy = ENEMY_LIST[ei]
             if(enemy.type == 1){
+                //console.log("shoot-> ", enemy.id, enemy.type, enemy.x, enemy.y)
                 for(var i in SOCKET_LIST){
                     var socketEmit = SOCKET_LIST[i];
-                    socketEmit.emit('enemyShoot', {id: enemy.id, time: Date.now() - start});
+                    socketEmit.emit('enemyShoot', {id:enemy.id, time:Date.now() - start});
                 }
             }
         }
     }
 }, 500);
-
-/*setInterval(function(){//mover o inimigo
-    if(players_ready == 2){
-        for(var ei in ENEMY_LIST){
-            var enemy = ENEMY_LIST[ei]
-            
-            var plCloser
-            var minor = 100000
-            for(var pi in PLAYER_LIST){
-                var player = PLAYER_LIST[pi]
-                var dist = Math.sqrt(Math.pow(enemy.x - player.x, 2) + Math.pow(enemy.y - player.y, 2))
-                if(minor > dist){
-                    plCloser = player
-                    minor = dist
-                }
-            }
-            for(var i in SOCKET_LIST){
-                var socketEmit = SOCKET_LIST[i];
-                socketEmit.emit('attackEnemy', {idPlayer:plCloser.id, idEnemy: enemy.id});
-            }
-        }
-    }
-}, 4000);*/
-
-
 
 ////////////fazer o mover e o ataque aqui no server
 ////inicialmente fazer dist aqui, depois dist sempre nos jogadores, quando um dos jogadores enviar info que o player mais proximo mudou, fazer dist aqui

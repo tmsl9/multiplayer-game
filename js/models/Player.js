@@ -32,7 +32,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.bullets = new BulletsGroup(this.scene.physics.world, this.scene)
 
         this.bulletsMaxsize = this.bullets.maxSize;
-        
+           
+        this.typeBullet = 1
+
         this.numBullets = 0;
 
         this.timeToShoot = 0;
@@ -87,14 +89,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
 
             this.scene.input.on("pointerdown", this.fire, this)
-
             
             if (cursors.up.isUp && cursors.down.isUp) {
                 this.setVelocityY(0);
-                }
+            }
             if (cursors.left.isUp && cursors.right.isUp) {
                 this.setVelocityX(0);
-                }
+            }
         }
 
         this.bullets.children.iterate(function (bullet) {
@@ -133,12 +134,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         //console.log(mouseX, mouseY)
 
         if (this.timeToShoot < this.time) {
-            var idBullet = this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets
-            let bullet = this.bullets.getFirstDead(true, this.x, this.y, idBullet)
+            let bullet = this.bullets.getFirstDead(true, this.x, this.y, this.typeBullet)
             
             if (bullet) {
-                console.log("bala id", this.numBullets)
-                bullet.fire(mouseX, mouseY, idBullet)
+                bullet.fire(mouseX, mouseY, this.typeBullet)
             }
         
             this.timeToShoot = this.time + this.fireRate;
@@ -151,17 +150,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.fireSound.play();
             }
 
-            this.socket.emit('keyPress',{input:'fight',state:true, mouseX: mouseX, mouseY: mouseY});
+            this.socket.emit('keyPress',{input:'fight', state:true, mouseX: mouseX, mouseY: mouseY, idBullet: bullet.id});
         }
     }
 
-    fire2(x, y){
-        var idBullet = this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets
-        let bullet  = this.bullets.getFirstDead(true, this.x, this.y, idBullet)
-        
-        if (bullet) {
-            bullet.fire(x, y, idBullet)
-        }
+    fire2(x, y, idBullet){
+        this.bullets.children.iterate(function(bullet){
+            if(bullet.id == idBullet){
+                bullet.x = this.x
+                bullet.y = this.y
+                bullet.fire(x, y, this.typeBullet)////testar
+            }
+        }, this)
     
         if (this.fireSound) {
             this.fireSound.play();

@@ -1,23 +1,23 @@
 export default class Bullet extends Phaser.Physics.Arcade.Image {
-    constructor(scene, x, y, id) {
-        super(scene, x, y, "bullet");
+    constructor(scene, x, y, type) {
+
+        var img = type == "z" ? "bullet" + type : "bullet"
+        
+        super(scene, x, y, img);
 
         this.scene.add.existing(this);
 
         this.scene.physics.world.enable(this);
-        this.id=id;
+
+        this.id;
+        
         this.baseVelocity = 350;
         
         this.power = 10
     }
 
-    updateBullet(id){
-        this.id = id
-        this.setTexture("bullet" + this.id > 5 ? "z" : this.id)
-    }
-
-    fire(x, y, id) {
-        this.updateBullet(id)
+    fire(x, y, type) {
+        this.updateBullet(type)
         const dx = x - this.x;
         const dy = y - this.y;
         const alpha = Math.atan2(dy, dx);
@@ -27,6 +27,10 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
         this.setVelocityY(vy);
         this.active = true;
         this.visible = true;
+    }
+    
+    updateBullet(type){
+        this.setTexture(type == "z" ? "bulletz" : "bullet")
     }
 
     removeFromScreen() {

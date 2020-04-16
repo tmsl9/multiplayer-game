@@ -24,6 +24,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.timeToShoot = 0;
         this.timeToMeelee = 0;
         this.enemyTimerDelay = 2000;
+        this.typeBullet = "z"
 
         this.numBullets = 5;
         
@@ -31,22 +32,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         this.bulletsMaxsize = this.bullets.maxSize + this.numBullets;
 
-        this.scene.anims.create({
-            key: 'up'+this.img,
-            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 3, end: 3 })
-        });
-        this.scene.anims.create({
-            key: 'down'+this.img,
-            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 0 })
-        });
-        this.scene.anims.create({
-            key: 'left'+this.img,
-            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 1, end: 1 })
-        });
-        this.scene.anims.create({
-            key: 'right'+this.img,
-            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 2, end: 2 })
-        });
+        this.updateAnims()
 
         //executes animation
         this.play('down'+this.img, true);
@@ -59,11 +45,35 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.setVelocity(0, 0);
     }
 
-    spawn(id) {
-        this.life=100;
+    spawn(id, type) {
+        this.life = 100;
         this.id = id;
+        this.type = type
+        this.img = "z" + this.type
+        this.updateAnims()
         this.visible = true;
         this.active = true;
+    }
+
+    updateAnims(){
+        if(!this.scene.anims.exists('up' + this.img)){
+            this.scene.anims.create({
+                key: 'up'+this.img,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 3, end: 3 })
+            });
+            this.scene.anims.create({
+                key: 'down'+this.img,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 0 })
+            });
+            this.scene.anims.create({
+                key: 'left'+this.img,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 1, end: 1 })
+            });
+            this.scene.anims.create({
+                key: 'right'+this.img,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 2, end: 2 })
+            });
+        }
     }
 
     isOutsideCanvas() {
@@ -72,6 +82,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         return this.x > width || this.y > height || this.x < 0 || this.y < 0;
     }
+
     update(){
        this.bulletOutsideCanvas()
     }
@@ -138,10 +149,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
                     minor = dist
                 }
             }, this);
-            var idBullet = this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets
-            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, idBullet)
+            
+            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.typeBullet)
             if (bullet) {
-                bullet.fire(pl.x, pl.y, idBullet);
+                bullet.fire(pl.x, pl.y, this.typeBullet);
             }
 
             //console.log("pl.id = ", pl.id, "minor: ", minor)

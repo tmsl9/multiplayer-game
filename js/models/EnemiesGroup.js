@@ -7,7 +7,7 @@ export default class EnemiesGroup extends Phaser.Physics.Arcade.Group {
         const maxSize = 5;
 
         for (let i = 0; i < maxSize; i++) {
-            let enemy = new Enemy(scene, -100, -100, 1, i).setActive(false)
+            let enemy = new Enemy(scene, -100, -100, 1, i + 10).setActive(false)
             this.add(enemy);
         }
     }

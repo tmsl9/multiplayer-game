@@ -1,5 +1,3 @@
-import Player from "../models/Player.js";
-import Enemy from "../models/Enemy.js";
 import EnemiesGroup from "../models/EnemiesGroup.js";
 import PlayersGroup from "../models/PlayersGroup.js";
 
@@ -34,7 +32,7 @@ export default class playGame extends Phaser.Scene {
         this.players = new PlayersGroup(this.physics.world, this, this.id)
         this.myPlayer = this.players.me
         this.otherPlayer = this.players.other
-
+        
         this.enemies = new EnemiesGroup(this.physics.world, this)
 
         var lifeLabel1 = this.add.text(20, 20, "Player 1: 100", {font: "30px Cambria", fill: "#ffffff"});
@@ -54,42 +52,24 @@ export default class playGame extends Phaser.Scene {
             //player.fireSound = fireSound;
         }, this);
 
-        this.physics.add.overlap(this.myPlayer, this.enemies, (myPlayer, enemy) =>{///colisão inimigos e eu
-
-            if(enemy.meeleeAttack(this.time.now, player)){
-                
-                this.myLifeLabel.setText("Player " + myPlayer.id + ": " + myPlayer.life)
-
-                this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life})
-            }
-            this.socket.emit('enemyPosition', {id: enemy.id, x: enemy.x, y: enemy.y, collider: true})
-        });
+        this.cursors = this.defCursors()
 
         this.physics.add.collider(this.players, this.front)
 
         this.physics.add.collider(this.enemies, this.front)
 
-        this.physics.add.overlap(this.myPlayer, this.otherPlayer.bullets, (myPlayer, bullet) => {//eu levar com bala
-        
-            var idBullet = bullet.id
+        this.physics.add.overlap(this.myPlayer, this.enemies, this.myPlayerEnemiesCollision, null, this)///colisão inimigos e eu
 
-            this.otherPlayer.removeBullet(bullet.id);
-            
-            myPlayer.life -= bullet.power;
-            
-            this.myLifeLabel.setText("Player " + myPlayer.id + ": " + myPlayer.life)
-            
-            this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life, idBullet:idBullet})
+        this.physics.add.overlap(this.myPlayer, this.otherPlayer.bullets, this.myPlayerOtherPlayerBulletsCollision, null, this)//eu levar com bala
 
-        });
+        this.players.children.iterate(this.playersBulletsFrontCollision, this);//colisao balas com arvores
 
-        this.players.children.iterate(function (player) {//colisao balas com arvores
-            
-            this.physics.add.collider(player.bullets, this.front, (bullet, front) =>{
-                
-                player.removeBullet(bullet.id)
-            })
+        this.enemies.children.iterate(function (enemy) {
+            this.enemiesBulletsFrontCollision(enemy)//balas inimigos com arvores
+            this.myPlayerEnemiesBulletsCollision(enemy)
         }, this);
+
+        this.physics.add.overlap(this.enemies, this.myPlayer.bullets, this.enemiesMyPlayerBulletsCollision, null, this)
 
         //recomeçar o jogo quando servidor desligar e voltar a ligar, mas nao funciona bem por causa do servidor
         /*this.socket.on('id', (data)=>{
@@ -107,8 +87,9 @@ export default class playGame extends Phaser.Scene {
         })
 
         this.socket.on('playerAction',(data)=>{
-            if(data.mouseX && data.mouseY){
-                this.otherPlayer.fire2(data.mouseX, data.mouseY)
+            if(data.mouseX && data.mouseY && data.idBullet){
+                console.log("-->", data.idBullet)
+                this.otherPlayer.fire2(data.mouseX, data.mouseY, data.idBullet)
             }else{
                 this.otherPlayer.x = data.x
                 this.otherPlayer.y = data.y
@@ -129,12 +110,13 @@ export default class playGame extends Phaser.Scene {
             }
             this.othersLifeLabel.setText("Player " + this.otherPlayer.id + ": " + this.otherPlayer.life)
         })
-
+        
         this.socket.on('createEnemy', (data) =>{
+            console.log("type-> ",data.type)
             let enemy = this.enemies.getFirstDead(true, data.x, data.y, data.type, data.idEnemy);
             if(enemy){
-                console.log(data.idEnemy)
-                enemy.spawn(data.idEnemy)
+                enemy.spawn(data.idEnemy, data.type)
+                console.log("type2-> ",enemy.type)
             }
         })
 
@@ -170,37 +152,11 @@ export default class playGame extends Phaser.Scene {
                 }
             }, this)
         })
-
-        this.physics.add.overlap(this.enemies, this.myPlayer.bullets, (enemyz, bullet) =>{
-            this.myPlayer.removeBullet(bullet.id);
-
-            enemyz.life -= bullet.power;
-            
-            this.socket.emit('lifeEnemy', {idEnemy:enemyz.id, idBullet:bullet.id, life:enemyz.life})
-        })
-
-        this.enemies.children.iterate(function (enemy) {
-            this.physics.add.collider(enemy.bullets, this.front, (bulletz, front) =>{
-                enemy.removeBulletz(bulletz.id);
-            })
-
-            this.physics.add.collider(this.myPlayer, enemy.bullets, (myPlayer, bullet) => {//eu levar com bala
-    
-                enemy.removeBulletz(bullet.id);
-                
-                myPlayer.life -= bullet.power;
-            
-                this.myLifeLabel.setText("Player " + myPlayer.id + ": " + myPlayer.life)
-
-                this.socket.emit('life', {idEnemy:enemy.id, idBullet:bullet.id, life:myPlayer.life})// o outro player mexe-se ahahha
-            });
-        }, this);
-
-        this.cursors = this.defCursors()
-
+        this.currentTime
     }
 
     update(time) {
+        this.currentTime = time
         this.players.children.iterate(function (player) {
             if(player.life > 0){
                 player.update(time, this.data)
@@ -231,5 +187,60 @@ export default class playGame extends Phaser.Scene {
             fight: this.input.keyboard.addKey(this.data.cursors.fight.keyCode),
             shop: this.input.keyboard.addKey(this.data.cursors.shop.keyCode)
         }
+    }
+
+    myPlayerEnemiesCollision(myPlayer, enemy){
+        if(enemy.meeleeAttack(this.currentTime, myPlayer)){
+            
+            this.myLifeLabel.setText("Player " + myPlayer.id + ": " + myPlayer.life)
+
+            this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life})
+        }
+        this.socket.emit('enemyPosition', {id: enemy.id, x: enemy.x, y: enemy.y, collider: true})
+    }
+
+    myPlayerOtherPlayerBulletsCollision(myPlayer, bullet){
+        var idBullet = bullet.id
+
+        this.otherPlayer.removeBullet(bullet.id);
+        
+        myPlayer.life -= bullet.power;
+        
+        this.myLifeLabel.setText("Player " + myPlayer.id + ": " + myPlayer.life)
+        
+        this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life, idBullet:idBullet})
+    }
+
+    playersBulletsFrontCollision(player) {
+        this.physics.add.collider(player.bullets, this.front, (bullet, front) =>{
+            player.removeBullet(bullet.id)
+        })
+    }
+
+    enemiesBulletsFrontCollision(enemy){
+        this.physics.add.collider(enemy.bullets, this.front, (bulletz, front) =>{
+            enemy.removeBulletz(bulletz.id);
+        })
+    }
+
+    myPlayerEnemiesBulletsCollision(enemy){
+        this.physics.add.collider(this.myPlayer, enemy.bullets, (myPlayer, bullet) => {//eu levar com bala
+    
+            enemy.removeBulletz(bullet.id);
+            
+            myPlayer.life -= bullet.power;
+        
+            this.myLifeLabel.setText("Player " + myPlayer.id + ": " + myPlayer.life)
+
+            this.socket.emit('life', {idEnemy:enemy.id, idBullet:bullet.id, life:myPlayer.life})// o outro player mexe-se ahahha
+        });
+    }
+
+    enemiesMyPlayerBulletsCollision(enemy, bullet){
+        this.myPlayer.removeBullet(bullet.id);
+
+        enemy.life -= bullet.power;
+        
+        this.socket.emit('lifeEnemy', {idEnemy:enemy.id, idBullet:bullet.id, life:enemy.life})
     }
 }
