@@ -1,5 +1,5 @@
-import Bullet from "./Bullet.js";
 import Explosion from "./Explosion.js";
+import BulletsGroup from "./BulletsGroup.js";
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
 
@@ -9,8 +9,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         super(scene, x, y, img);
 
         this.id = id
+
         this.img = img
         
+        this.scene = scene
+
         this.scene.add.existing(this);
 
         this.scene.physics.world.enable(this);
@@ -26,16 +29,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.canBeKilled = true;
 
-        this.bulletsMaxsize = 5;
+        this.bullets = new BulletsGroup(this.scene.physics.world, this.scene)
 
+        this.bulletsMaxsize = this.bullets.maxSize;
+        
         this.numBullets = 0;
 
         this.timeToShoot = 0;
-
-        this.bullets = this.scene.physics.add.group({
-            maxSize: this.bulletsMaxsize,
-            classType: Bullet
-        });
 
         this.scene.anims.create({
             key: 'up' + this.img,
@@ -133,10 +133,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         //console.log(mouseX, mouseY)
 
         if (this.timeToShoot < this.time) {
-            let bullet = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
+            var idBullet = this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets
+            let bullet = this.bullets.getFirstDead(true, this.x, this.y, idBullet)
             
             if (bullet) {
-                bullet.fire(mouseX, mouseY)
+                console.log("bala id", this.numBullets)
+                bullet.fire(mouseX, mouseY, idBullet)
             }
         
             this.timeToShoot = this.time + this.fireRate;
@@ -154,10 +156,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     fire2(x, y){
-        let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
+        var idBullet = this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets
+        let bullet  = this.bullets.getFirstDead(true, this.x, this.y, idBullet)
         
         if (bullet) {
-            bullet.fire(x, y)
+            bullet.fire(x, y, idBullet)
         }
     
         if (this.fireSound) {

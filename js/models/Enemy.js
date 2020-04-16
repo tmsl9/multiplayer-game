@@ -1,5 +1,5 @@
 import Explosion from './Explosion.js'
-import Bullet from "./Bullet.js";
+import BulletsGroup from "./BulletsGroup.js";
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
@@ -8,11 +8,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         
         super(scene, x, y, img);
 
-        this.scene = scene
+        this.scene = scene//criar metodo com isto
         this.img = img;
         this.scene.add.existing(this);
-        //this.scene.physics.add.existing(this);
-        //enable physics to sprite
+        
         this.scene.physics.world.enable(this);
         
         this.id=id;
@@ -27,13 +26,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.enemyTimerDelay = 2000;
 
         this.numBullets = 5;
+        
+        this.bullets = new BulletsGroup(this.scene.physics.world, this.scene)
 
-        this.bulletsMaxsize = 10;
-
-        this.bullets = this.scene.physics.add.group({
-            maxSize: this.bulletsMaxsize,
-            classType: Bullet
-        });
+        this.bulletsMaxsize = this.bullets.maxSize + this.numBullets;
 
         this.scene.anims.create({
             key: 'up'+this.img,
@@ -53,7 +49,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         });
 
         //executes animation
-        this.play('down'+this.img);
+        this.play('down'+this.img, true);
 
     }
 
@@ -123,9 +119,14 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.bonusEnemy(players);
         }
     }
-
+    /**
+     * comparar se é o meu jogador que está mais perto se for, so no meu ecra ele vai atras de mim, no outro ecra ele com
+     * "enemyPosition" linha 96, o server envia a info envia a info para ele, primeiro ve quem esta mais perto depois guarda
+     * numa variavel o id do player que ele tem que ir atras e dps envia a info para o que esta mais longe, no playGame o
+     * player mais longe receber a info do x e do y do enemy e atualiza como com o player2
+     */
     rangedAttack(time, players){
-        //console.log(this.timeToShoot, "----", time)
+       //console.log(this.timeToShoot, "----", time)
         if (this.timeToShoot < time) {
             var pl
             var minor = 100000
@@ -137,12 +138,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
                     minor = dist
                 }
             }, this);
-            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
+            var idBullet = this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets
+            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, idBullet)
             if (bullet) {
-                this.power=this.rangedDamage;
-                bullet.fire(pl.x, pl.y);
-                bullet.active = true;
-                bullet.visible = true;
+                bullet.fire(pl.x, pl.y, idBullet);
             }
 
             //console.log("pl.id = ", pl.id, "minor: ", minor)
@@ -159,16 +158,16 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    meeleeAttack(time, player){
+    meeleeAttack(time, myPlayer){
         if (this.timeToMeelee < time) {
-            player.life -= this.meeleDamage
+            myPlayer.life -= this.meeleDamage
             this.timeToMeelee = time + this.enemyTimerDelay;
             return true
         }
         return false
     }
 
-    bonusEnemy(player,player2){
+    bonusEnemy(myPlayer, otherPlayer){
 
     }
 

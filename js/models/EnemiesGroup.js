@@ -1,21 +1,14 @@
 import Enemy from "./Enemy.js";
 
-/**
- * Class created to include logic to group creation
- * classType argument for Scene::add.group does not call overriden constructor
- * it will create as many Enemy objects as passed by maxSize argument
- */
 export default class EnemiesGroup extends Phaser.Physics.Arcade.Group {
-    constructor(world, scene, maxSize) {
+    constructor(world, scene) {
         super(world, scene);
+        
+        const maxSize = 5;
 
         for (let i = 0; i < maxSize; i++) {
-            let child = new Enemy(scene, -100, -100);
-            child.active = false;
-            this.add(child);
+            let enemy = new Enemy(scene, -100, -100, 1, i).setActive(false)
+            this.add(enemy);
         }
-
-        console.log(this);
-
     }
 }
