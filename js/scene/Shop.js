@@ -1,43 +1,43 @@
-import player from "../models/Player.js";
+import Coin from "../models/Coin.js";
 
-export default class shop extends Phaser {
-    constructor() {
-        super("Shop");
+export default class shop extends Phaser.Scene {
+    constructor(parent){
+        super("Shop")
+        this.parent = parent
     }
-    
-    init(data, scene){
-        console.log("Menu: ", data)
-        this.data = data
-        this.socket = data.socket
-        this.id = data.id
-        this.scene = scene
-    }
-
     create() {
         console.log("Shop");
 
-        this.sceneWidth = this.scene.game.config.width;
-        this.sceneHeight = this.scene.game.config.height;
+        const sceneWidth = this.game.config.width;
+        const sceneHeight = this.game.config.height;
 
-        this.bullet1 = this.scene.add.image(this.sceneHeight - 100, 40, "bullet1")
-        this.bullet2 = this.scene.add.image(this.sceneHeight - 80, 40, "bullet2")
-        this.bullet3 = this.scene.add.image(this.sceneHeight - 60, 40, "bullet3")
-        this.regenLife = this.scene.add.image(this.sceneHeight - 40, 40, "regenLife")
-        this.add.text(this.sceneHeight - 100, 50, "100", {
-            font: "30px Cambria",
-            fill: "#ffffff"
-        });
-        this.coin=new Coin(this,30,75,0)
-        this.coin.coinplay()
-        this.add.text(this.sceneHeight - 100, 50, "Player 2: 100", {
-            font: "30px Cambria",
-            fill: "#ffffff"
-        });
-        this.add.text(this.sceneHeight - 100, 50, "Player 2: 100", {
-            font: "30px Cambria",
-            fill: "#ffffff"
-        });
+        const y1 = sceneHeight - 100
+        const y2 = sceneHeight - 80
+        const y3 = sceneHeight - 60
+        const y4 = sceneHeight - 40
 
+        var bullet1 = this.add.image(40, y1, "bullet1")
+        var bullet2 = this.add.image(40, y2, "bullet2")
+        var bullet3 = this.add.image(40, y3, "bullet3")
+        var regenLife = this.add.image(40, y4, "regenLife")
+
+        this.add.text(50, y1, "+damage", {font: "30px Cambria", fill: "#ffffff"});
+        this.add.text(50, y2, "+velocity", {font: "30px Cambria", fill: "#ffffff"});
+        this.add.text(50, y3, "-fire rate", {font: "30px Cambria", fill: "#ffffff"});
+        this.add.text(50, y4, "+life", {font: "30px Cambria", fill: "#ffffff"});
+
+        coin1 = new Coin(this, 70, y1)
+        .playAnim()
+        coin2 = new Coin(this, 70, y2)
+        .playAnim()
+        coin3 = new Coin(this, 70, y3)
+        .playAnim()
+        coin4 = new Coin(this, 70, y4)
+        .playAnim()
+
+        this.add.text(85, y1, "100", {font: "30px Cambria", fill: "#ffffff"});
+        this.add.text(85, y2, "200", {font: "30px Cambria", fill: "#ffffff"});
+        this.add.text(85, y3, "300", {font: "30px Cambria", fill: "#ffffff"});
+        this.add.text(85, y4, "200", {font: "30px Cambria", fill: "#ffffff"});
     }
-    
 }

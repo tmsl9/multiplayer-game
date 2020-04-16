@@ -1,5 +1,6 @@
 import Player from "../models/Player.js";
 import Enemy from "../models/Enemy.js";
+import shop from "./Shop.js";
 
 export default class playGame extends Phaser.Scene {
     constructor() {
@@ -22,7 +23,9 @@ export default class playGame extends Phaser.Scene {
 
     create() {
         //console.log("Starting game");
-        
+        const sceneWidth = this.game.config.width;
+        const sceneHeight = this.game.config.height;
+
         this.map = this.make.tilemap({ key: "map1" });
         const tileset = this.map.addTilesetImage("tile-map", "tiles");
         this.map.createStaticLayer("back", tileset, 0, 0);
@@ -198,6 +201,9 @@ export default class playGame extends Phaser.Scene {
         /*if(this.cursors.shop.isDown){
             this.scene.launch("menu", this.data)
         }*/
+        if(this.player.shop.isDown){
+            this.createWindowShop()
+        }
         
         this.players.children.iterate(function (player) {
             if(player.life > 0){
@@ -233,5 +239,16 @@ export default class playGame extends Phaser.Scene {
             fight: this.input.keyboard.addKey(this.data.cursors.fight.keyCode),
             shop: this.input.keyboard.addKey(this.data.cursors.shop.keyCode)
         }
+    }
+
+    createWindowShop()
+    {
+        var handle = 'window' + this.count++;
+
+        var win = this.add.zone(0, sceneHeight - 120, 100, 120);
+
+        var shopWindow = new shop(handle, win);
+
+        this.scene.add(handle, shopWindow, true);
     }
 }

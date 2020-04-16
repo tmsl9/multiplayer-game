@@ -1,3 +1,5 @@
+import shop from "./Shop";
+
 export default class bootGame extends Phaser.Scene {
     constructor() {
         super("BootGame");
@@ -12,7 +14,7 @@ export default class bootGame extends Phaser.Scene {
         this.load.spritesheet("player2", "assets/player2.png", {
             frameWidth: 96/3,
             frameHeight: 194/4
-        }).setScale(0.1);
+        });
 
         this.load.image("bullet", "assets/bullet.png");
 
@@ -61,7 +63,7 @@ export default class bootGame extends Phaser.Scene {
     
     create() {
         console.log("BootGame")
-        
+        this.add.image(0,0,"bg").setScale(4)
         var cursors = {
             up: this.input.keyboard.addKey('W'),
             down: this.input.keyboard.addKey('S'),
@@ -70,14 +72,19 @@ export default class bootGame extends Phaser.Scene {
             fight: this.input.keyboard.addKey('SPACE'),
             shop: this.input.keyboard.addKey('Q')
         }
-        this.add.image(0, 0, "bg").setScale(2)
 
-        var socket = io();
+        var win = this.add.zone(0, this.game.config.height - 120, 100, 120);
+console.log("po")
+        //var shopWindow = new shop(win);
+
+        this.scene.add("shop",shop., true);
+        console.log("pi")
+        /*var socket = io();
         socket.on('id',(data)=>{
             var id = data
             console.log("id received:", id)
             this.scene.stop()
             this.scene.start("Play", {socket: socket, id: id, volume: 1, cursors: cursors});
-        });
+        });*/
     }
 }
