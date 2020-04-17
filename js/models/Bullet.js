@@ -54,7 +54,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
                 console.log("3")
                 this.fireRate -= 100
                 break
-        }//nivel 3 isto nao acontece
+        }
     }
 
     removeFromScreen() {
