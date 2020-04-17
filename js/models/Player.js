@@ -41,18 +41,22 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.scene.anims.create({
             key: 'up' + this.img,
+            frameRate: 8,
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 10, end: 12 })
         });
         this.scene.anims.create({
             key: 'down' + this.img,
+            frameRate: 8,
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 2 })
         });
         this.scene.anims.create({
             key: 'left' + this.img,
+            frameRate: 8,
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 4, end: 6 })
         });
         this.scene.anims.create({
             key: 'right' + this.img,
+            frameRate: 8,
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 7, end: 9 })
         });
 
@@ -137,7 +141,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             let bullet = this.bullets.getFirstDead(true, this.x, this.y, this.typeBullet)
             
             if (bullet) {
-                bullet.characteristics(this.typeBullets)
                 bullet.fire(mouseX, mouseY, this.typeBullets)
             }
         
@@ -160,7 +163,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if(bullet.id == idBullet){
                 bullet.x = this.x
                 bullet.y = this.y
-                bullet.characteristics(this.typeBullets)
                 bullet.fire(x, y, this.typeBullets)////testar
             }
         }, this)

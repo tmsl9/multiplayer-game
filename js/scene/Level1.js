@@ -179,7 +179,7 @@ export default class playGame extends Phaser.Scene {
     myPlayerEnemiesBulletsCollision(enemy){
         this.physics.add.collider(this.myPlayer, enemy.bullets, (myPlayer, bullet) => {//eu levar com bala
     
-            enemy.removeBulletz(bullet.id);
+            enemy.removeBulletz(bullet.id);///////acho que nao esta a encontrar o id
             
             myPlayer.life -= bullet.power;
         

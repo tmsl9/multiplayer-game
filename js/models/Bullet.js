@@ -1,9 +1,6 @@
 export default class Bullet extends Phaser.Physics.Arcade.Image {
     constructor(scene, x, y, type) {
-
-        var img = type == "z" ? "bullet" + type : "bullet"
-        
-        super(scene, x, y, img);
+        super(scene, x, y, "bullet" + type);
 
         this.scene.add.existing(this);
 
@@ -11,15 +8,15 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
 
         this.id;
 
+        this.type = type
+        this.power = 10;
         this.baseVelocity = 350;
         this.fireRate = 350;
-        this.baseVelocity = 350;
-        
-        this.power = 10
     }
 
     fire(x, y, type) {
-        this.updateBullet(type)
+        this.type = type
+        this.typeBullet()
         const dx = x - this.x;
         const dy = y - this.y;
         const alpha = Math.atan2(dy, dx);
@@ -33,13 +30,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
         this.visible = true;
     }
     
-    updateBullet(type){
-        this.setTexture(type == "z" ? "bulletz" : "bullet")
-    }
-
-    characteristics(type){
-        this.type = type
-        console.log("type", this.type)
+    typeBullet(){
         /*if(this.type > 0){//bala do tipo seguinte fica mantém a melhoria do anterior
             this.setTexture("bullet" + this.type)
             this.power += 40
@@ -51,19 +42,16 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
             this.fireRate -= 100
         }*/
 
-        this.setTexture(this.type != 0 ? "bullet" + this.type : "bullet")///cada tipo tem uma melhoria
+        this.setTexture("bullet" + this.type)///cada tipo tem uma melhoria
         switch(this.type){
             case 1:
-                console.log("1")
-                this.power += 40
+                this.power = 50
                 break
             case 2:
-                console.log("2")
-                this.baseVelocity += 50
+                this.baseVelocity = 500
                 break
             case 3:
-                console.log("3")
-                this.fireRate -= 100
+                this.fireRate = 200
                 break
         }
     }

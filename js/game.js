@@ -1,5 +1,5 @@
 import bootGame from './scene/BootGame.js';
-import playGame from './scene/PlayGame.js';
+import playGame from './scene/Level1.js';
 import play from './scene/Play.js';
 import waitingOpponent from './scene/WaitingOpponent.js';
 import menu from './scene/Menu.js';
