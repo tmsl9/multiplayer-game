@@ -14,7 +14,7 @@ window.onload = function () {
         width: 640,
         height: 640,
         backgroundColor: 0x000000,
-        scene: [bootGame, playGame, finish, play, waitingOpponent, shop, menu, soundAdjustment, controlsConfiguration],
+        scene: [bootGame, playGame, finish, play, waitingOpponent, menu, shop, soundAdjustment, controlsConfiguration],
         physics: {
             default: "arcade",
             arcade: {
