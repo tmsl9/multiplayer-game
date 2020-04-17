@@ -1,4 +1,4 @@
-import shop from "./Shop";
+//import shop from "./Shop";
 
 export default class bootGame extends Phaser.Scene {
     constructor() {
@@ -63,7 +63,7 @@ export default class bootGame extends Phaser.Scene {
     
     create() {
         console.log("BootGame")
-        this.add.image(0,0,"bg").setScale(4)
+        //this.add.image(0,0,"bg").setScale(4)
         var cursors = {
             up: this.input.keyboard.addKey('W'),
             down: this.input.keyboard.addKey('S'),
@@ -73,18 +73,18 @@ export default class bootGame extends Phaser.Scene {
             shop: this.input.keyboard.addKey('Q')
         }
 
-        var win = this.add.zone(0, this.game.config.height - 120, 100, 120);
+        /*var win = this.add.zone(0, this.game.config.height - 120, 100, 120);
 console.log("po")
         //var shopWindow = new shop(win);
 
         this.scene.add("shop",shop., true);
-        console.log("pi")
-        /*var socket = io();
+        console.log("pi")*/
+        var socket = io();
         socket.on('id',(data)=>{
             var id = data
             console.log("id received:", id)
             this.scene.stop()
             this.scene.start("Play", {socket: socket, id: id, volume: 1, cursors: cursors});
-        });*/
+        });
     }
 }

@@ -23,6 +23,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.timeToShoot = 0;
         this.timeToMeelee = 0;
         this.enemyTimerDelay = 2000;
+        this.typeBullets = "z"
 
         this.bullets = this.scene.physics.add.group({
             maxSize: this.bulletsMaxsize,
@@ -126,7 +127,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             }, this);
             let bullet  = this.bullets.getFirstDead(true, this.x, this.y, 0)
             if (bullet) {
-                this.power=this.rangedDamage;
+                bullet.characteristics(this.typeBullets)
                 bullet.fire(pl.x, pl.y);
                 bullet.active = true;
                 bullet.visible = true;

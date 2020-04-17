@@ -40,7 +40,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
             this.fireRate -= 100
         }*/
 
-        this.setTexture("bullet" + this.type > 0 ? this.type : "")///cada tipo tem uma melhoria
+        this.setTexture(this.type != 0 ? "bullet" + this.type : "bullet")///cada tipo tem uma melhoria
         switch(this.type){
             case 1:
                 console.log("1")

@@ -1,6 +1,5 @@
 import Player from "../models/Player.js";
 import Enemy from "../models/Enemy.js";
-import shop from "./Shop.js";
 
 export default class playGame extends Phaser.Scene {
     constructor() {
@@ -196,14 +195,14 @@ export default class playGame extends Phaser.Scene {
         
     }
 
-    update(time) {
+    update(time) {/////mandar o tipo de balas para o servidor, e caracteristicas desse tipo
 
         /*if(this.cursors.shop.isDown){
             this.scene.launch("menu", this.data)
         }*/
-        if(this.player.shop.isDown){
+        /*if(this.player.shop.isDown){
             this.createWindowShop()
-        }
+        }*/
         
         this.players.children.iterate(function (player) {
             if(player.life > 0){
@@ -241,7 +240,7 @@ export default class playGame extends Phaser.Scene {
         }
     }
 
-    createWindowShop()
+    /*createWindowShop()
     {
         var handle = 'window' + this.count++;
 
@@ -250,5 +249,5 @@ export default class playGame extends Phaser.Scene {
         var shopWindow = new shop(handle, win);
 
         this.scene.add(handle, shopWindow, true);
-    }
+    }*/
 }

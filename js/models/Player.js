@@ -85,7 +85,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.scene.input.on("pointerdown", this.fire, this)
             
             if (cursors.up.isUp && cursors.down.isUp) {
-                
                 this.setVelocityY(0);
             }
             if (cursors.left.isUp && cursors.right.isUp) {
@@ -130,7 +129,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             let bullet = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
             
             if (bullet) {
-                this.characteristicsBullet(bullet)
+                bullet.characteristics(this.typeBullets)
                 bullet.fire(mouseX, mouseY)
             }
         
@@ -159,10 +158,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if (this.fireSound) {
             this.fireSound.play();
         }
-    }
-
-    characteristicsBullet(bullet){
-        bullet.characteristics(this.typeBullets)
     }
 
     /**
