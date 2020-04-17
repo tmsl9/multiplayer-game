@@ -1,5 +1,6 @@
 import EnemiesGroup from "../models/EnemiesGroup.js";
 import PlayersGroup from "../models/PlayersGroup.js";
+import Coin from "../models/Coin.js";
 
 export default class playGame extends Phaser.Scene {
     constructor() {
@@ -40,6 +41,9 @@ export default class playGame extends Phaser.Scene {
         var lifeLabel2 = this.add.text(this.game.config.width - 195, 20, "Player 2: 100", textConfig);
         this.myLifeLabel = this.id == 1 ? lifeLabel1 : lifeLabel2
         this.othersLifeLabel = this.id == 1 ? lifeLabel2 : lifeLabel1
+
+        
+        this.coin = new Coin(this, 30, 75, 0)
 
         this.money = this.add.text(45, 58, this.myPlayer.money, textConfig);
 
@@ -194,7 +198,7 @@ export default class playGame extends Phaser.Scene {
 
         if(enemy.life <= 0){
             this.myPlayer.earnmoney(enemy.type)
-            this.coin.coinplay()
+            this.coin.playAnim()
             this.money.setText(this.myPlayer.money)
         }
         
