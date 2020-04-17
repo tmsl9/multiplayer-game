@@ -35,10 +35,13 @@ export default class playGame extends Phaser.Scene {
         
         this.enemies = new EnemiesGroup(this.physics.world, this)
 
-        var lifeLabel1 = this.add.text(20, 20, "Player 1: 100", {font: "30px Cambria", fill: "#ffffff"});
-        var lifeLabel2 = this.add.text(this.game.config.width - 195, 20, "Player 2: 100", {font: "30px Cambria", fill: "#ffffff"});
+        var textConfig = {font: "30px Cambria", fill: "#ffffff"}
+        var lifeLabel1 = this.add.text(20, 20, "Player 1: 100", textConfig);
+        var lifeLabel2 = this.add.text(this.game.config.width - 195, 20, "Player 2: 100", textConfig);
         this.myLifeLabel = this.id == 1 ? lifeLabel1 : lifeLabel2
         this.othersLifeLabel = this.id == 1 ? lifeLabel2 : lifeLabel1
+
+        this.money = this.add.text(45, 58, this.myPlayer.money, textConfig);
 
         this.currentTime;
 
@@ -79,33 +82,19 @@ export default class playGame extends Phaser.Scene {
             this.scene.start("Play")
         })*/
         
-        this.socket.on('enemyPositionCollider', (data) =>{
-            this.enemyPositionWhenCollides(data)
-        })
+        this.socket.on('enemyPositionCollider', (data) =>{ this.enemyPositionWhenCollides(data) })
 
-        this.socket.on('playerAction', (data)=>{
-            this.playerActions(data)
-        });
+        this.socket.on('playerAction', (data)=>{ this.playerActions(data) });
 
-        this.socket.on('life', (data)=>{//se o outro player tiver sido atingido, eu atualizo a vida dele
-            this.otherPlayerLife(data)    
-        })
+        this.socket.on('life', (data)=>{ this.otherPlayerLife(data) })//se o outro player tiver sido atingido, eu atualizo a vida dele
         
-        this.socket.on('createEnemy', (data) =>{
-            this.createEnemy(data)
-        })
+        this.socket.on('createEnemy', (data) =>{ this.createEnemy(data) })
 
-        this.socket.on('moveEnemy', (data) =>{
-            this.moveEnemy(data)
-        })
+        this.socket.on('moveEnemy', (data) =>{ this.moveEnemy(data) })
 
-        this.socket.on('enemyShoot', (data) =>{
-            this.enemyMeleeAttack(data)
-        })
+        this.socket.on('enemyShoot', (data) =>{ this.enemyMeleeAttack(data) })
 
-        this.socket.on('lifeEnemy', (data) =>{
-            this.enemyLife(data)
-        })
+        this.socket.on('lifeEnemy', (data) =>{ this.enemyLife(data) })
     }
 
     update(time) {
@@ -202,6 +191,12 @@ export default class playGame extends Phaser.Scene {
         this.myPlayer.removeBullet(bullet.id);
 
         enemy.life -= bullet.power;
+
+        if(enemy.life <= 0){
+            this.myPlayer.earnmoney(enemy.type)
+            this.coin.coinplay()
+            this.money.setText(this.myPlayer.money)
+        }
         
         this.socket.emit('lifeEnemy', {idEnemy:enemy.id, idBullet:bullet.id, life:enemy.life})
     }

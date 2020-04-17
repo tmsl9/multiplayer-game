@@ -172,6 +172,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
+    earnmoney(type){
+        if(type == 3){
+            this.money += 30
+        }else{
+            this.money += 10
+        }
+    }
+
     /**
      * create an explosion, decrease one life, prevent a new collision and put the player off-screen
      */
