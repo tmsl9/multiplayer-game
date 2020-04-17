@@ -26,8 +26,8 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
         this.setAngle(angle)
         this.setVelocityX(vx);
         this.setVelocityY(vy);
-        this.active = true;
-        this.visible = true;
+        this.setActive(true);
+        this.setVisible(true);
     }
     
     typeBullet(){

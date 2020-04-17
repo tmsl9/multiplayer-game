@@ -1,5 +1,5 @@
 import Explosion from './Explosion.js'
-import BulletsGroup from "./BulletsGroup.js";
+import Bullet from "./Bullet.js";
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
@@ -8,7 +8,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         
         super(scene, x, y, img);
 
-        this.scene = scene//criar metodo com isto
+        this.scene = scene
         this.img = img;
         this.scene.add.existing(this);
         
@@ -25,17 +25,14 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.timeToMeelee = 0;
         this.enemyTimerDelay = 2000;
         this.typeBullet = "z"
-
-        this.numBullets = 5;
-        
-        this.bullets = new BulletsGroup(this.scene.physics.world, this.scene)
-
-        this.bulletsMaxsize = this.bullets.maxSize + this.numBullets;
-
+        if(this.type == 1){
+            this.bullet = new Bullet(this.scene, -500, -500, this.typeBullet).setActive(false)
+            this.bullet.id = 1
+        }
         this.updateAnims()
 
         //executes animation
-        this.play('down'+this.img, true);
+        this.play('down'+this.img);
 
     }
 
@@ -104,21 +101,15 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     bulletOutsideCanvas(){
-        this.bullets.children.iterate(function (bullet) {
-            if (bullet.isOutsideCanvas()) {
-                this.bullets.killAndHide(bullet);
-            }
-        }, this);
+        if (this.bullet.isOutsideCanvas()) {
+            this.removeBullet()
+        }
     }
 
-    removeBulletz(idBullet){
-        this.bullets.children.iterate(function (bullet) {
-            if(bullet.id == idBullet){
-                //console.log("bullet removed", idBullet)
-                this.bullets.killAndHide(bullet);
-                bullet.removeFromScreen();
-            }
-          }, this);
+    removeBullet(){
+        this.bullet.setActive(false)
+        this.bullet.setVisible(false)
+        this.bullet.removeFromScreen();
     }
 
     attack(time, players){
@@ -150,18 +141,13 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
                 }
             }, this);
             
-            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.typeBullet)
-            if (bullet) {
-                bullet.fire(pl.x, pl.y, this.typeBullet);
-            }
+            this.bullet.x = this.x
+            this.bullet.y = this.y
+            this.bullet.fire(pl.x, pl.y, this.typeBullet);
 
             //console.log("pl.id = ", pl.id, "minor: ", minor)
         
             this.timeToShoot = time + this.fireRate;
-
-            if (this.bullets.children.size > this.bulletsMaxsize) {
-                //console.log("Group size failed")
-            }
 
             if (this.fireSound) {
                 this.fireSound.play();

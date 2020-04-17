@@ -7,7 +7,7 @@ app.get('/',function(req, res) {
 });
 app.use('/',express.static(__dirname));
 
-serv.listen(5500, '192.168.1.77');
+serv.listen(5500, '192.168.131.1');
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
 var start = Date.now()
@@ -106,8 +106,8 @@ io.sockets.on('connection', function(socket){
             var player2 = PLAYER_LIST[i];
             if(player2.id != player.id){
                 player.life = data.life
-                if(data.idBullet && data.idEnemy){
-                    SOCKET_LIST[player2.id].emit('life', {life:player.life, idBullet:data.idBullet, idEnemy:data.idEnemy})
+                if(data.idEnemy){
+                    SOCKET_LIST[player2.id].emit('life', {life:player.life, idEnemy:data.idEnemy})
                 }else if(data.idBullet){
                     SOCKET_LIST[player2.id].emit('life', {life:player.life, idBullet:data.idBullet})
                 }else{
@@ -249,7 +249,7 @@ setInterval(function(){//mover o inimigo
                     socketEmit.emit('moveEnemy', {idPlayer:plCloser.id, idEnemy:enemy.id});
                 }
             }else{ // se for so tipo 1 e tiver a 200 não anda
-                for(var i in SOCKET_LIST){
+                for(var i in SOCKET_LIST){/////nao esta a resultar em alguns casos
                     var socketEmit = SOCKET_LIST[i];
                     socketEmit.emit('moveEnemy', {idEnemy:enemy.id});
                 }

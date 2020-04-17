@@ -143,13 +143,16 @@ export default class playGame extends Phaser.Scene {
     }
 
     myPlayerEnemiesCollision(myPlayer, enemy){
-        if(enemy.meeleeAttack(this.currentTime, myPlayer)){
-            
-            this.myLifeLabel.setText("Player " + myPlayer.id + ": " + myPlayer.life)
+        if(enemy.type != 1){
+            if(enemy.meeleeAttack(this.currentTime, myPlayer)){
+                
+                var life = myPlayer.life < 0 ? 0 : myPlayer.life
+                this.myLifeLabel.setText("Player " + myPlayer.id + ": " + life)
 
-            this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life})
+                this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life})
+            }
+            this.socket.emit('enemyPosition', {id: enemy.id, x: enemy.x, y: enemy.y, collider: true})
         }
-        this.socket.emit('enemyPosition', {id: enemy.id, x: enemy.x, y: enemy.y, collider: true})
     }
 
     myPlayerOtherPlayerBulletsCollision(myPlayer, bullet){
@@ -158,8 +161,9 @@ export default class playGame extends Phaser.Scene {
         this.otherPlayer.removeBullet(bullet.id);
         
         myPlayer.life -= bullet.power;
-        
-        this.myLifeLabel.setText("Player " + myPlayer.id + ": " + myPlayer.life)
+
+        var life = myPlayer.life < 0 ? 0 : myPlayer.life
+        this.myLifeLabel.setText("Player " + myPlayer.id + ": " + life)
         
         this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life, idBullet:idBullet})
     }
@@ -171,22 +175,27 @@ export default class playGame extends Phaser.Scene {
     }
 
     enemiesBulletsFrontCollision(enemy){
-        this.physics.add.collider(enemy.bullets, this.front, (bulletz, front) =>{
-            enemy.removeBulletz(bulletz.id);
-        })
+        if(enemy.type == 1){
+            this.physics.add.collider(enemy.bullet, this.front, (bullet, front) =>{
+                enemy.removeBullet();
+            })
+        }
     }
 
     myPlayerEnemiesBulletsCollision(enemy){
-        this.physics.add.collider(this.myPlayer, enemy.bullets, (myPlayer, bullet) => {//eu levar com bala
-    
-            enemy.removeBulletz(bullet.id);///////acho que nao esta a encontrar o id
-            
-            myPlayer.life -= bullet.power;
-        
-            this.myLifeLabel.setText("Player " + myPlayer.id + ": " + myPlayer.life)
+        if(enemy.type == 1){
+            this.physics.add.collider(this.myPlayer, enemy.bullet, (myPlayer, bullet) => {//eu levar com bala
 
-            this.socket.emit('life', {idEnemy:enemy.id, idBullet:bullet.id, life:myPlayer.life})// o outro player mexe-se ahahha
-        });
+                enemy.removeBullet();
+                
+                myPlayer.life -= bullet.power;
+            
+                var life = myPlayer.life < 0 ? 0 : myPlayer.life
+                this.myLifeLabel.setText("Player " + myPlayer.id + ": " + life)///quando um dos players ficar com menos de 0 de vida, mudar para 0
+
+                this.socket.emit('life', {idEnemy:enemy.id, idBullet:bullet.id, life:myPlayer.life})
+            });
+        }
     }
 
     enemiesMyPlayerBulletsCollision(enemy, bullet){
@@ -209,16 +218,18 @@ export default class playGame extends Phaser.Scene {
 
     otherPlayerLife(data){
         this.otherPlayer.life = data.life
-        if(data.idBullet && data.idEnemy){//se o outro jogador sofrer dano do inimigo
+        if(data.idEnemy){//se o outro jogador sofrer dano do inimigo
             this.enemies.children.iterate(function (enemy) {
                 if(enemy.id==data.idEnemy){
-                    enemy.removeBulletz(data.idBullet)
+                    enemy.removeBullet()
                 }
             }, this);
         }else if(data.idBullet){//se o outro jogador sofrer dano de mim
             this.myPlayer.removeBullet(data.idBullet)
         }
-        this.othersLifeLabel.setText("Player " + this.otherPlayer.id + ": " + this.otherPlayer.life)
+
+        var life = this.otherPlayer.life < 0 ? 0 : this.otherPlayer.life
+        this.othersLifeLabel.setText("Player " + this.otherPlayer.id + ": " + life)
     }
 
     enemyPositionWhenCollides(data){
@@ -269,4 +280,4 @@ export default class playGame extends Phaser.Scene {
             }
         }, this)
     }
-}
+}///aumentar numero de inimigos, senoa fica muito facil
