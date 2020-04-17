@@ -33,6 +33,7 @@ var Player = function(id){
         id:id, //important information
         number:total_players,
         pos:"downplayer" + id,
+        typeBullets:1,
         ready:false,
         maxSpd:10
     }
