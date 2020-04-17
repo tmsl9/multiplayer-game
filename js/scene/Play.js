@@ -1,3 +1,6 @@
+
+import MeleeAttack from "../models/MeleeAttack.js";
+import Explosion from "../models/Explosion.js";
 export default class play extends Phaser.Scene {
     constructor() {
         super("Play");
@@ -12,7 +15,8 @@ export default class play extends Phaser.Scene {
 
     create() {
         console.log("Play");
-        
+        new Explosion(this, 100, 100)
+        new MeleeAttack(this, 400, 400)
         this.playButton = this.add.text(280, 300, 'Play', { fill: '#fff' })
             .setInteractive()
             .on('pointerdown', () => {
