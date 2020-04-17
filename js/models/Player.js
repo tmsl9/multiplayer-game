@@ -33,7 +33,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.bulletsMaxsize = this.bullets.maxSize;
            
-        this.typeBullet = 1
+        this.typeBullets = 1
 
         this.numBullets = 0;
 
@@ -41,19 +41,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.scene.anims.create({
             key: 'up' + this.img,
-            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 3, end: 3 })
+            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 10, end: 12 })
         });
         this.scene.anims.create({
             key: 'down' + this.img,
-            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 0 })
+            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 2 })
         });
         this.scene.anims.create({
             key: 'left' + this.img,
-            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 1, end: 1 })
+            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 4, end: 6 })
         });
         this.scene.anims.create({
             key: 'right' + this.img,
-            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 2, end: 2 })
+            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 7, end: 9 })
         });
 
         this.play('down' + this.img)
@@ -137,7 +137,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             let bullet = this.bullets.getFirstDead(true, this.x, this.y, this.typeBullet)
             
             if (bullet) {
-                bullet.fire(mouseX, mouseY, this.typeBullet)
+                bullet.characteristics(this.typeBullets)
+                bullet.fire(mouseX, mouseY, this.typeBullets)
             }
         
             this.timeToShoot = this.time + this.fireRate;
@@ -159,7 +160,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if(bullet.id == idBullet){
                 bullet.x = this.x
                 bullet.y = this.y
-                bullet.fire(x, y, this.typeBullet)////testar
+                bullet.characteristics(this.typeBullets)
+                bullet.fire(x, y, this.typeBullets)////testar
             }
         }, this)
     
