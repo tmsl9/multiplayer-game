@@ -141,7 +141,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 bullet.fire(mouseX, mouseY, this.typeBullets)
             }
         
-            this.timeToShoot = this.time + this.fireRate;
+            this.timeToShoot = this.time + bullet.fireRate;
 
             if (this.bullets.children.size > this.bulletsMaxsize) {
                 //console.log("Group size failed")
