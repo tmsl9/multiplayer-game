@@ -5,18 +5,28 @@ export default class bootGame extends Phaser.Scene {
     
     preload() {
         this.load.spritesheet("player1", "assets/player1.png", {
-            frameWidth: 37.5,
-            frameHeight: 50
+            frameWidth: 96/3,
+            frameHeight: 190/4
         });
 
         this.load.spritesheet("player2", "assets/player2.png", {
-            frameWidth: 37.5,
-            frameHeight: 50
+            frameWidth: 96/3,
+            frameHeight: 194/4
         });
 
-        this.load.image("bullet", "assets/bullet.png");
+        this.load.image("bullet0", "assets/bullet0.png");
+
+        this.load.image("bullet1", "assets/bullet1.png");
+
+        this.load.image("bullet2", "assets/bullet2.png");
+
+        this.load.image("bullet3", "assets/bullet3.png");
         
         this.load.image("bulletz", "assets/bulletz.png");
+
+        this.load.image("bossBullet", "assets/bossBullet.png");
+
+        this.load.image("fireball", "assets/fireball.png");
 
         this.load.spritesheet("z1", "assets/z1.png", {
             frameHeight: 33,
@@ -33,14 +43,21 @@ export default class bootGame extends Phaser.Scene {
             frameWidth: 33
         });
 
+        this.load.image("regenLife", "assets/regenLife.png");
+
         this.load.spritesheet("coin", "assets/coin.png", {
             frameWidth: 260,
             frameHeight: 270,
         });
 
         this.load.spritesheet("explosion", "assets/explosion.png", {
-            frameWidth: 64,
-            frameHeight: 64,
+            frameWidth: 960/5,
+            frameHeight: 768/4,
+        });
+
+        this.load.spritesheet("playerMelee", "assets/playerMelee.png", {
+            frameWidth: 960/5,
+            frameHeight: 960/5,
         });
 
         this.load.image("bg", "assets/background.png");

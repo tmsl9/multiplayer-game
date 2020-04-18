@@ -30,8 +30,5 @@ export default class play extends Phaser.Scene {
             })
             .on('pointerover', () => this.menuButton.setStyle({ fill: '#ffa82e'}))
             .on('pointerout', () => this.menuButton.setStyle({ fill: '#fff'}));
-            //som
-            //configurar controlos
-               
     }
 }

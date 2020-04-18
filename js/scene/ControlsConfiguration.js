@@ -184,5 +184,4 @@ export default class controlsConfiguration extends Phaser.Scene {
 
         return c
     }
-    
 }

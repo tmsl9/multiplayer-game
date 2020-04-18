@@ -1,29 +1,54 @@
 export default class Bullet extends Phaser.Physics.Arcade.Image {
-    constructor(scene, x, y, id) {
-        super(scene, x, y, id > 5 ? "bulletz" : "bullet");
+    constructor(scene, x, y, type) {
+        super(scene, x, y, "bullet" + type);
 
-        //console.log("id da bullet", id)
-        //console.log("-",id == 0 ? "bulletz" : "bullet","-")
-        //this.scene.add.existing(this);
+        this.scene.add.existing(this);
 
-        //enable physics to sprite
-        //this.scene.physics.world.enable(this);
-        this.id=id;
+        this.scene.physics.world.enable(this);
+
+        this.id;
+
+        this.type = type
+        this.power = 10;
         this.baseVelocity = 350;
-        
-        this.power = 10
+        this.fireRate = 350;
     }
 
-    fire(x, y) {
+    fire(x, y, type) {
+        this.type = type
+        this.typeBullet()
         const dx = x - this.x;
         const dy = y - this.y;
         const alpha = Math.atan2(dy, dx);
         const vx = this.baseVelocity * Math.cos(alpha);
         const vy = this.baseVelocity * Math.sin(alpha);
+        const angle = alpha * 180 / Math.PI
+        this.setAngle(angle)
         this.setVelocityX(vx);
         this.setVelocityY(vy);
-        this.active = true;
-        this.visible = true;
+        this.setActive(true);
+        this.setVisible(true);
+    }
+    
+    typeBullet(){
+        this.setTexture("bullet" + this.type)
+        switch(this.type){
+            case 1:
+                this.power = 30
+                this.baseVelocity = 350
+                this.fireRate = 350
+                break
+            case 2:
+                this.power = 10
+                this.baseVelocity = 500
+                this.fireRate = 350
+                break
+            case 3:
+                this.power = 10
+                this.baseVelocity = 350
+                this.fireRate = 150
+                break
+        }
     }
 
     removeFromScreen() {

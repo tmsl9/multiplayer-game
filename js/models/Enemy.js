@@ -12,8 +12,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.scene = scene
         this.img = img;
         this.scene.add.existing(this);
-        //this.scene.physics.add.existing(this);
-        //enable physics to sprite
+        
         this.scene.physics.world.enable(this);
         
         this.id=id;
@@ -53,6 +52,13 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 2, end: 2 })
         });
 
+        this.typeBullet = "z"
+        if(this.type == 1){
+            this.bullet = new Bullet(this.scene, -500, -500, this.typeBullet).setActive(false)
+            this.bullet.id = 1
+        }
+        this.updateAnims()
+
         
 
         //executes animation
@@ -66,10 +72,35 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.setVelocity(0, 0);
     }
 
-    spawn() {
-        this.life = 100
+    spawn(id, type) {
+        this.life = 100;
+        this.id = id;
+        this.type = type
+        this.img = "z" + this.type
+        this.updateAnims()
         this.visible = true;
         this.active = true;
+    }
+
+    updateAnims(){
+        if(!this.scene.anims.exists('up' + this.img)){
+            this.scene.anims.create({
+                key: 'up'+this.img,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 3, end: 3 })
+            });
+            this.scene.anims.create({
+                key: 'down'+this.img,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 0 })
+            });
+            this.scene.anims.create({
+                key: 'left'+this.img,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 1, end: 1 })
+            });
+            this.scene.anims.create({
+                key: 'right'+this.img,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 2, end: 2 })
+            });
+        }
     }
 
     isOutsideCanvas() {
@@ -78,6 +109,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         return this.x > width || this.y > height || this.x < 0 || this.y < 0;
     }
+
     update(){
        this.bulletOutsideCanvas()
     }
@@ -99,21 +131,15 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     bulletOutsideCanvas(){
-        this.bullets.children.iterate(function (bullet) {
-            if (bullet.isOutsideCanvas()) {
-                this.bullets.killAndHide(bullet);
-            }
-        }, this);
+        if (this.bullet.isOutsideCanvas()) {
+            this.removeBullet()
+        }
     }
 
-    removeBulletz(idBullet){
-        this.bullets.children.iterate(function (bullet) {
-            if(bullet.id == idBullet){
-                //console.log("bullet removed", idBullet)
-                this.bullets.killAndHide(bullet);
-                bullet.removeFromScreen();
-            }
-          }, this);
+    removeBullet(){
+        this.bullet.setActive(false)
+        this.bullet.setVisible(false)
+        this.bullet.removeFromScreen();
     }
 
     attack(time, players){
@@ -125,9 +151,14 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.bonusEnemy(players);
         }
     }
-
+    /**
+     * comparar se é o meu jogador que está mais perto se for, so no meu ecra ele vai atras de mim, no outro ecra ele com
+     * "enemyPosition" linha 96, o server envia a info envia a info para ele, primeiro ve quem esta mais perto depois guarda
+     * numa variavel o id do player que ele tem que ir atras e dps envia a info para o que esta mais longe, no playGame o
+     * player mais longe receber a info do x e do y do enemy e atualiza como com o player2
+     */
     rangedAttack(time, players){
-        //console.log(this.timeToShoot, "----", time)
+       //console.log(this.timeToShoot, "----", time)
         if (this.timeToShoot < time) {
             var pl
             var minor = 100000
@@ -139,21 +170,14 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
                     minor = dist
                 }
             }, this);
-            let bullet  = this.bullets.getFirstDead(true, this.x, this.y, this.numBullets < this.bulletsMaxsize ? ++this.numBullets : this.numBullets)
-            if (bullet) {
-                this.power=this.rangedDamage;
-                bullet.fire(pl.x, pl.y);
-                bullet.active = true;
-                bullet.visible = true;
-            }
+            
+            this.bullet.x = this.x
+            this.bullet.y = this.y
+            this.bullet.fire(pl.x, pl.y, this.typeBullet);
 
             //console.log("pl.id = ", pl.id, "minor: ", minor)
         
             this.timeToShoot = time + this.fireRate;
-
-            if (this.bullets.children.size > this.bulletsMaxsize) {
-                //console.log("Group size failed")
-            }
 
             if (this.fireSound) {
                 this.fireSound.play();
@@ -161,17 +185,25 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    meeleeAttack(time, player){
+    meeleeAttack(time, myPlayer){
         if (this.timeToMeelee < time) {
-            player.life -= this.meeleDamage
+            myPlayer.life -= this.meeleDamage
             this.timeToMeelee = time + this.enemyTimerDelay;
             return true
         }
         return false
     }
 
-    bonusEnemy(player,player2){
+    bonusEnemy(myPlayer, otherPlayer){
 
+    }
+
+    dead() {
+        new Explosion(this.scene, this.x, this.y);
+
+        //prevents new collision
+        this.x = -100;
+        this.y = -100;
     }
 
     dead() {
