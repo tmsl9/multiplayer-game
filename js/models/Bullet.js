@@ -31,27 +31,22 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
     }
     
     typeBullet(){
-        /*if(this.type > 0){//bala do tipo seguinte fica mantém a melhoria do anterior
-            this.setTexture("bullet" + this.type)
-            this.power += 40
-        }
-        if(this.type > 1){
-            this.baseVelocity += 50
-        }
-        if(this.type > 2){
-            this.fireRate -= 100
-        }*/
-
-        this.setTexture("bullet" + this.type)///cada tipo tem uma melhoria
+        this.setTexture("bullet" + this.type)
         switch(this.type){
             case 1:
-                this.power = 50
+                this.power = 30
+                this.baseVelocity = 350
+                this.fireRate = 350
                 break
             case 2:
+                this.power = 10
                 this.baseVelocity = 500
+                this.fireRate = 350
                 break
             case 3:
-                this.fireRate = 200
+                this.power = 10
+                this.baseVelocity = 350
+                this.fireRate = 150
                 break
         }
     }

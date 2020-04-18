@@ -33,7 +33,7 @@ var Player = function(id){
         id:id, //important information
         number:total_players,
         pos:"downplayer" + id,
-        typeBullets:1,
+        typeBullets:0,
         ready:false,
         maxSpd:10
     }
@@ -118,6 +118,16 @@ io.sockets.on('connection', function(socket){
         }
     });
 
+    socket.on('typeBullets',function(data){
+        for(var i in PLAYER_LIST){
+            var player2 = PLAYER_LIST[i];
+            if(player2.id != player.id){
+                player.typeBullets = data.typeBullets
+                SOCKET_LIST[player2.id].emit('typeBullets', {typeBullets: player.typeBullets})
+            }
+        }
+    });
+
     socket.on('lifeEnemy',function(data){
         for(var i in ENEMY_LIST){
             var enemy = ENEMY_LIST[i];
@@ -147,7 +157,7 @@ io.sockets.on('connection', function(socket){
                 if(data.input === 'xy'){
                     player.x = data.x;
                     player.y = data.y;
-                    data.pos ? player.pos = data.pos : player.pos = player.pos
+                    player.pos = data.pos;
                     pack = {
                         x:player.x,
                         y:player.y,
