@@ -2,13 +2,13 @@ import EnemiesGroup from "../models/EnemiesGroup.js";
 import PlayersGroup from "../models/PlayersGroup.js";
 import Coin from "../models/Coin.js";
 
-export default class playGame extends Phaser.Scene {
+export default class level1 extends Phaser.Scene {
     constructor() {
-        super("PlayGame");
+        super("Level1");
     }
 
     init(data){
-        //console.log("PlayGame scene: ", data)
+        //console.log("Level1 scene: ", data)
         this.data = data
         this.socket = data.socket
         this.id = data.id
@@ -45,7 +45,7 @@ export default class playGame extends Phaser.Scene {
         
         this.coin = new Coin(this, 30, 75, 0)
 
-        this.money = this.add.text(45, 58, this.myPlayer.money, textConfig);
+        this.moneyLabel = this.add.text(45, 58, this.myPlayer.money, textConfig);
 
         this.currentTime;
 
@@ -92,6 +92,8 @@ export default class playGame extends Phaser.Scene {
 
         this.socket.on('life', (data)=>{ this.otherPlayerLife(data) })//se o outro player tiver sido atingido, eu atualizo a vida dele
         
+        this.socket.on('typeBullets', (data) =>{ this.otherPlayerTypeBullets(data) })
+
         this.socket.on('createEnemy', (data) =>{ this.createEnemy(data) })
 
         this.socket.on('moveEnemy', (data) =>{ this.moveEnemy(data) })
@@ -108,13 +110,18 @@ export default class playGame extends Phaser.Scene {
                 player.update(time, this.data)
             }else{
                 player.dead()
+                this.myPlayer.finish()
+                this.otherPlayer.finish()
                 this.scene.stop();
                 this.themeSound.stop();
                 this.socket.emit('Finish')
                 this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player.id})
             }
         }, this);
-
+        ///tem bugs que nao deixam o personagem mexer-se mas o anim corre na mesma
+        ///as vezes da erro e o dinheiro começa a disparar e o power tem mais de 50, e mata logo o enemy
+        ////shop nao esta a atualizar a bala no outro player, a vida sim mas nao na label
+        /////type 2 and 3 zombies have to be quicker
         this.enemies.children.iterate(function (enemy) {
             enemy.update(time, this.players);
             if(enemy.life <= 0){
@@ -197,9 +204,9 @@ export default class playGame extends Phaser.Scene {
         enemy.life -= bullet.power;
 
         if(enemy.life <= 0){
-            this.myPlayer.earnmoney(enemy.type)
+            this.myPlayer.earnMoney(enemy.type)
             this.coin.playAnim()
-            this.money.setText(this.myPlayer.money)
+            this.moneyLabel.setText(this.myPlayer.money)
         }
         
         this.socket.emit('lifeEnemy', {idEnemy:enemy.id, idBullet:bullet.id, life:enemy.life})
@@ -211,7 +218,7 @@ export default class playGame extends Phaser.Scene {
         }else{
             this.otherPlayer.x = data.x
             this.otherPlayer.y = data.y
-            this.otherPlayer.play(data.pos)
+            this.otherPlayer.playAnim(data.pos)
         }
     }
 
@@ -226,9 +233,12 @@ export default class playGame extends Phaser.Scene {
         }else if(data.idBullet){//se o outro jogador sofrer dano de mim
             this.myPlayer.removeBullet(data.idBullet)
         }
-
         var life = this.otherPlayer.life < 0 ? 0 : this.otherPlayer.life
         this.othersLifeLabel.setText("Player " + this.otherPlayer.id + ": " + life)
+    }
+
+    otherPlayerTypeBullets(data){
+        this.otherPlayer.typeBullets = data.typeBullets
     }
 
     enemyPositionWhenCollides(data){

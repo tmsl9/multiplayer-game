@@ -29,6 +29,6 @@ export default class play extends Phaser.Scene {
                 this.scene.start("Menu", this.data)
             })
             .on('pointerover', () => this.menuButton.setStyle({ fill: '#ffa82e'}))
-            .on('pointerout', () => this.menuButton.setStyle({ fill: '#fff'}));               
+            .on('pointerout', () => this.menuButton.setStyle({ fill: '#fff'}));
     }
 }
