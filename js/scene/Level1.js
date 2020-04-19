@@ -1,4 +1,4 @@
-import EnemiesGroup from "../models/EnemiesGroup.js";
+import ZombiesGroup from "../models/ZombiesGroup.js";
 import PlayersGroup from "../models/PlayersGroup.js";
 import Coin from "../models/Coin.js";
 
@@ -34,7 +34,7 @@ export default class level1 extends Phaser.Scene {
         this.myPlayer = this.players.me
         this.otherPlayer = this.players.other
         
-        this.enemies = new EnemiesGroup(this.physics.world, this)
+        this.enemies = new ZombiesGroup(this.physics.world, this)
 
         var textConfig = {font: "30px Cambria", fill: "#ffffff"}
         var lifeLabel1 = this.add.text(20, 20, "Player 1: 100", textConfig);
@@ -42,7 +42,6 @@ export default class level1 extends Phaser.Scene {
         this.myLifeLabel = this.id == 1 ? lifeLabel1 : lifeLabel2
         this.othersLifeLabel = this.id == 1 ? lifeLabel2 : lifeLabel1
 
-        
         this.coin = new Coin(this, 30, 75, 0)
 
         this.moneyLabel = this.add.text(45, 58, this.myPlayer.money, textConfig);
@@ -65,7 +64,11 @@ export default class level1 extends Phaser.Scene {
 
         this.physics.add.collider(this.players, this.front)
 
-        this.physics.add.collider(this.enemies, this.front)
+        this.enemies.children.iterate(function (zombie) {
+            if(zombie.type != 3){
+                this.physics.add.collider(this.enemies, this.front)
+            }
+        }, this);
 
         this.physics.add.overlap(this.myPlayer, this.enemies, this.myPlayerEnemiesCollision, null, this)///colisão inimigos e eu
 
@@ -73,9 +76,9 @@ export default class level1 extends Phaser.Scene {
 
         this.players.children.iterate(this.playersBulletsFrontCollision, this);//colisao balas com arvores
 
-        this.enemies.children.iterate(function (enemy) {
-            this.enemiesBulletsFrontCollision(enemy)//balas inimigos com arvores
-            this.myPlayerEnemiesBulletsCollision(enemy)
+        this.enemies.children.iterate(function (zombie) {
+            this.enemiesBulletsFrontCollision(zombie)//balas inimigos com arvores
+            this.myPlayerEnemiesBulletsCollision(zombie)
         }, this);
 
         this.physics.add.overlap(this.enemies, this.myPlayer.bullets, this.enemiesMyPlayerBulletsCollision, null, this)
@@ -86,7 +89,7 @@ export default class level1 extends Phaser.Scene {
             this.scene.start("Play")
         })*/
         
-        this.socket.on('enemyPositionCollider', (data) =>{ this.enemyPositionWhenCollides(data) })
+        this.socket.on('zombiePositionCollider', (data) =>{ this.zombiePositionWhenCollides(data) })
 
         this.socket.on('playerAction', (data)=>{ this.playerActions(data) });
 
@@ -94,15 +97,16 @@ export default class level1 extends Phaser.Scene {
         
         this.socket.on('typeBullets', (data) =>{ this.otherPlayerTypeBullets(data) })
 
-        this.socket.on('createEnemy', (data) =>{ this.createEnemy(data) })
+        this.socket.on('createZombie', (data) =>{ this.createZombie(data) })
 
-        this.socket.on('moveEnemy', (data) =>{ this.moveEnemy(data) })
+        this.socket.on('moveZombie', (data) =>{ this.moveZombie(data) })
 
-        this.socket.on('enemyShoot', (data) =>{ this.enemyMeleeAttack(data) })
+        this.socket.on('zombieShoot', (data) =>{ this.zombieMeleeAttack(data) })
 
-        this.socket.on('lifeEnemy', (data) =>{ this.enemyLife(data) })
+        this.socket.on('lifeZombie', (data) =>{ this.zombieLife(data) })
     }
-
+    ///tem bugs que nao deixam o personagem mexer-se mas o anim corre na mesma
+    ///as vezes da erro e o dinheiro começa a disparar e o power tem mais de 50, e mata logo o zombie
     update(time) {
         this.currentTime = time
         this.players.children.iterate(function (player) {
@@ -118,15 +122,12 @@ export default class level1 extends Phaser.Scene {
                 this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player.id})
             }
         }, this);
-        ///tem bugs que nao deixam o personagem mexer-se mas o anim corre na mesma
-        ///as vezes da erro e o dinheiro começa a disparar e o power tem mais de 50, e mata logo o enemy
-        ////shop nao esta a atualizar a bala no outro player, a vida sim mas nao na label
-        /////type 2 and 3 zombies have to be quicker
-        this.enemies.children.iterate(function (enemy) {
-            enemy.update(time, this.players);
-            if(enemy.life <= 0){
-                enemy.dead();
-                this.enemies.killAndHide(enemy);
+        
+        this.enemies.children.iterate(function (zombie) {
+            zombie.update(time, this.players);
+            if(zombie.life <= 0){
+                zombie.dead();
+                this.enemies.killAndHide(zombie);
             }
         }, this);
     }
@@ -142,16 +143,16 @@ export default class level1 extends Phaser.Scene {
         }
     }
 
-    myPlayerEnemiesCollision(myPlayer, enemy){
-        if(enemy.type != 1){
-            if(enemy.meeleeAttack(this.currentTime, myPlayer)){
+    myPlayerEnemiesCollision(myPlayer, zombie){
+        if(zombie.type != 1){
+            if(zombie.meeleeAttack(this.currentTime, myPlayer)){
                 
                 var life = myPlayer.life < 0 ? 0 : myPlayer.life
                 this.myLifeLabel.setText("Player " + myPlayer.id + ": " + life)
 
                 this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life})
             }
-            this.socket.emit('enemyPosition', {id: enemy.id, x: enemy.x, y: enemy.y, collider: true})
+            this.socket.emit('zombiePosition', {id: zombie.id, x: zombie.x, y: zombie.y, collider: true})
         }
     }
 
@@ -174,42 +175,42 @@ export default class level1 extends Phaser.Scene {
         })
     }
 
-    enemiesBulletsFrontCollision(enemy){
-        if(enemy.type == 1){
-            this.physics.add.collider(enemy.bullet, this.front, (bullet, front) =>{
-                enemy.removeBullet();
+    enemiesBulletsFrontCollision(zombie){
+        if(zombie.type == 1){
+            this.physics.add.collider(zombie.bullet, this.front, (bullet, front) =>{
+                zombie.removeBullet();
             })
         }
     }
 
-    myPlayerEnemiesBulletsCollision(enemy){
-        if(enemy.type == 1){
-            this.physics.add.collider(this.myPlayer, enemy.bullet, (myPlayer, bullet) => {//eu levar com bala
+    myPlayerEnemiesBulletsCollision(zombie){
+        if(zombie.type == 1){
+            this.physics.add.collider(this.myPlayer, zombie.bullet, (myPlayer, bullet) => {//eu levar com bala
 
-                enemy.removeBullet();
+                zombie.removeBullet();
                 
                 myPlayer.life -= bullet.power;
             
                 var life = myPlayer.life < 0 ? 0 : myPlayer.life
                 this.myLifeLabel.setText("Player " + myPlayer.id + ": " + life)///quando um dos players ficar com menos de 0 de vida, mudar para 0
 
-                this.socket.emit('life', {idEnemy:enemy.id, idBullet:bullet.id, life:myPlayer.life})
+                this.socket.emit('life', {idZombie:zombie.id, idBullet:bullet.id, life:myPlayer.life})
             });
         }
     }
 
-    enemiesMyPlayerBulletsCollision(enemy, bullet){
+    enemiesMyPlayerBulletsCollision(zombie, bullet){
         this.myPlayer.removeBullet(bullet.id);
 
-        enemy.life -= bullet.power;
+        zombie.life -= bullet.power;
 
-        if(enemy.life <= 0){
-            this.myPlayer.earnMoney(enemy.type)
+        if(zombie.life <= 0){
+            this.myPlayer.earnMoney(zombie.type)
             this.coin.playAnim()
             this.moneyLabel.setText(this.myPlayer.money)
         }
         
-        this.socket.emit('lifeEnemy', {idEnemy:enemy.id, idBullet:bullet.id, life:enemy.life})
+        this.socket.emit('lifezombie', {idzombie:zombie.id, idBullet:bullet.id, life:zombie.life})
     }
 
     playerActions(data){
@@ -224,10 +225,10 @@ export default class level1 extends Phaser.Scene {
 
     otherPlayerLife(data){
         this.otherPlayer.life = data.life
-        if(data.idEnemy){//se o outro jogador sofrer dano do inimigo
-            this.enemies.children.iterate(function (enemy) {
-                if(enemy.id==data.idEnemy){
-                    enemy.removeBullet()
+        if(data.idZombie){//se o outro jogador sofrer dano do inimigo
+            this.enemies.children.iterate(function (zombie) {
+                if(zombie.id==data.idZombie){
+                    zombie.removeBullet()
                 }
             }, this);
         }else if(data.idBullet){//se o outro jogador sofrer dano de mim
@@ -241,52 +242,52 @@ export default class level1 extends Phaser.Scene {
         this.otherPlayer.typeBullets = data.typeBullets
     }
 
-    enemyPositionWhenCollides(data){
-        this.enemies.children.iterate(function (enemy) {
-            if(enemy.id == data.id){
-                enemy.x = data.x
-                enemy.y = data.y
+    zombiePositionWhenCollides(data){
+        this.enemies.children.iterate(function (zombie) {
+            if(zombie.id == data.id){
+                zombie.x = data.x
+                zombie.y = data.y
             }
         }, this);
     }
 
-    createEnemy(data){
-        let enemy = this.enemies.getFirstDead(true, data.x, data.y, data.type, data.idEnemy);
-        if(enemy){
-            enemy.spawn(data.idEnemy, data.type)
+    createZombie(data){
+        let zombie = this.enemies.getFirstDead(true, data.x, data.y, data.type, data.idZombie);
+        if(zombie){
+            zombie.spawn(data.idZombie, data.type)
         }
     }
 
-    moveEnemy(data){
-        this.enemies.children.iterate(function (enemy) {
-            if(enemy.id == data.idEnemy){
+    moveZombie(data){
+        this.enemies.children.iterate(function (zombie) {
+            if(zombie.id == data.idZombie){
                 if(data.idPlayer){
                     this.players.children.iterate(function (player) {
                         if(player.id == data.idPlayer){
-                            enemy.move(player, this.socket)
+                            zombie.move(player, this.socket)
                         }
                     }, this)
                 }else{
-                    enemy.setVelocity(0);
+                    zombie.setVelocity(0);
                 }
             }
         }, this)
     }
 
-    enemyMeleeAttack(data){
-        this.enemies.children.iterate(function (enemy) {
-            if(enemy.id == data.id){
-                enemy.attack(data.time, this.players)
+    zombieMeleeAttack(data){
+        this.enemies.children.iterate(function (zombie) {
+            if(zombie.id == data.id){
+                zombie.attack(data.time, this.players)
             }
         }, this)
     }
 
-    enemyLife(data){
-        this.enemies.children.iterate(function (enemy) {
-            if(enemy.id == data.idEnemy){
-                enemy.life = data.life;
+    zombieLife(data){
+        this.enemies.children.iterate(function (zombie) {
+            if(zombie.id == data.idZombie){
+                zombie.life = data.life;
                 this.otherPlayer.removeBullet(data.idBullet);
             }
         }, this)
     }
-}///aumentar numero de inimigos, senoa fica muito facil
+}///aumentar numero de inimigos, senao fica muito facil
