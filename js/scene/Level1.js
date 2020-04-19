@@ -210,7 +210,7 @@ export default class level1 extends Phaser.Scene {
             this.moneyLabel.setText(this.myPlayer.money)
         }
         
-        this.socket.emit('lifezombie', {idzombie:zombie.id, idBullet:bullet.id, life:zombie.life})
+        this.socket.emit('lifeZombie', {idzombie:zombie.id, idBullet:bullet.id, life:zombie.life})
     }
 
     playerActions(data){
@@ -264,6 +264,7 @@ export default class level1 extends Phaser.Scene {
                 if(data.idPlayer){
                     this.players.children.iterate(function (player) {
                         if(player.id == data.idPlayer){
+                            console.log(zombie)
                             zombie.move(player, this.socket)
                         }
                     }, this)
