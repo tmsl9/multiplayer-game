@@ -56,19 +56,23 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         if(!this.scene.anims.exists('up' + this.img)){
             this.scene.anims.create({
                 key: 'up'+this.img,
-                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 3, end: 3 })
+                frameRate: 8,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 9, end: 11 })
             });
             this.scene.anims.create({
                 key: 'down'+this.img,
-                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 0 })
+                frameRate: 8,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 2 })
             });
             this.scene.anims.create({
                 key: 'left'+this.img,
-                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 1, end: 1 })
+                frameRate: 8,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 3, end: 5 })
             });
             this.scene.anims.create({
                 key: 'right'+this.img,
-                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 2, end: 2 })
+                frameRate: 8,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 6, end: 8 })
             });
         }
     }
