@@ -210,7 +210,7 @@ export default class level1 extends Phaser.Scene {
             this.moneyLabel.setText(this.myPlayer.money)
         }
         
-        this.socket.emit('lifeZombie', {idzombie:zombie.id, idBullet:bullet.id, life:zombie.life})
+        this.socket.emit('lifeZombie', {idZombie:zombie.id, idBullet:bullet.id, life:zombie.life})
     }
 
     playerActions(data){

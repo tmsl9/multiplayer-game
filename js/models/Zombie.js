@@ -29,10 +29,16 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
             this.bullet = new Bullet(this.scene, -500, -500, this.typeBullet).setActive(false)
             this.bullet.id = 1
         }
+
+        this.upAnim = 'up' + this.img
+        this.downAnim = 'down' + this.img
+        this.leftAnim = 'left' + this.img
+        this.rightAnim = 'right' + this.img
+        this.pos = this.downAnim
+
         this.updateAnims()
 
-        //executes animation
-        this.play('down'+this.img);
+        this.play(this.pos, 0);
 
     }
 
@@ -53,24 +59,25 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
     }
 
     updateAnims(){
-        if(!this.scene.anims.exists('up' + this.img)){
+        if(!this.scene.anims.exists(this.upAnim)){
+            console.log("olaaaaaaaaaaaaaaaaaaaaa")
             this.scene.anims.create({
-                key: 'up'+this.img,
+                key: this.upAnim,
                 frameRate: 8,
                 frames: this.scene.anims.generateFrameNumbers(this.img, { start: 9, end: 11 })
             });
             this.scene.anims.create({
-                key: 'down'+this.img,
+                key: this.downAnim,
                 frameRate: 8,
                 frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 2 })
             });
             this.scene.anims.create({
-                key: 'left'+this.img,
+                key: this.leftAnim,
                 frameRate: 8,
                 frames: this.scene.anims.generateFrameNumbers(this.img, { start: 3, end: 5 })
             });
             this.scene.anims.create({
-                key: 'right'+this.img,
+                key: this.rightAnim,
                 frameRate: 8,
                 frames: this.scene.anims.generateFrameNumbers(this.img, { start: 6, end: 8 })
             });
@@ -95,13 +102,24 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         const vx = this.baseVelocity * Math.cos(alpha);
         const vy = this.baseVelocity * Math.sin(alpha);
         if(Math.abs(vx) > Math.abs(vy)){
-            vx < 0 ? this.play('left'+this.img) : this.play('right'+this.img)
+            vx < 0 ? this.playAnim(this.leftAnim) : this.playAnim(this.rightAnim)
         }else{
-            vy > 0 ? this.play('down'+this.img) : this.play('up'+this.img)
+            vy < 0 ? this.playAnim(this.upAnim) : this.playAnim(this.downAnim)
         }
         this.setVelocityX(vx);
         this.setVelocityY(vy);
         socket.emit('zombiePosition', {id: this.id, x: this.x, y: this.y})
+    }
+
+    playAnim(posAnim){
+        this.pos = posAnim
+        if(!this.anims.isPlaying){
+            console.log(this.pos, posAnim)
+            this.play(this.pos)
+        }
+        if(this.anims.isPlaying && !(this.anims.currentAnim.key === this.pos)){
+            this.play(this.pos)
+        }
     }
 
     bulletOutsideCanvas(){
