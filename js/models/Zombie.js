@@ -25,6 +25,7 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.timeToMeelee = 0;
         this.zombieTimerDelay = 2000;
         this.typeBullet = "z"
+        
         if(this.type == 1){
             this.bullet = new Bullet(this.scene, -500, -500, this.typeBullet).setActive(false)
             this.bullet.id = 1
@@ -60,7 +61,6 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
 
     updateAnims(){
         if(!this.scene.anims.exists(this.upAnim)){
-            console.log("olaaaaaaaaaaaaaaaaaaaaa")
             this.scene.anims.create({
                 key: this.upAnim,
                 frameRate: 8,
@@ -192,7 +192,7 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
 
     dead() {
         new Explosion(this.scene, this.x, this.y);
-
+        this.life = 100
         //prevents new collision
         this.x = -100;
         this.y = -100;

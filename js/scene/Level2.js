@@ -1,41 +1,41 @@
-import ZombiesGroup from "../models/ZombiesGroup.js";
-import PlayersGroup from "../models/PlayersGroup.js";
 import Coin from "../models/Coin.js";
 
-export default class level1 extends Phaser.Scene {
+export default class level2 extends Phaser.Scene {
     constructor() {
-        super("Level1");
+        super("Level2");
     }
 
     init(data){
-        //console.log("Level1 scene: ", data)
+        //console.log("Level2 scene: ", data)
         this.data = data
         this.socket = data.socket
         this.id = data.id
         this.volume = data.volume
-        //console.log("volume",this.volume)
+        this.players = data.players
+        this.zombies = data.zombies
+        this.myPlayer = data.myPlayer
+        this.otherPlayer = data.otherPlayer
     }
 
     preload(){
         this.load.image("tiles", "assets/tile-map.png");
-        this.load.tilemapTiledJSON("map1", "assets/Map1.json");
+        this.load.tilemapTiledJSON("map2", "assets/Map2.json");
     }
 
     create() {
         console.log("Starting game");
         
-        this.map = this.make.tilemap({ key: "map1" });
+        this.map = this.make.tilemap({ key: "map2" });
         const tileset = this.map.addTilesetImage("tile-map", "tiles");
         this.map.createStaticLayer("back", tileset, 0, 0);
-        this.front = this.map.createStaticLayer("front", tileset, 0, 0);
-        this.objective = this.map.createStaticLayer("objective", tileset, 0, 0);
-        this.front.setCollisionByProperty({ "collides": true }, true);
+        this.win = this.map.createStaticLayer("win", tileset, 0, 0);
+        this.map.setCollisionByProperty({ "collides": true }, true);
         
-        this.players = new PlayersGroup(this.physics.world, this, this.id)
-        this.myPlayer = this.players.me
-        this.otherPlayer = this.players.other
-        
-        this.zombies = new ZombiesGroup(this.physics.world, this)
+        this.myPlayer.x = this.myPlayer.id * 200
+        this.myPlayer.y = 400
+        this.otherPlayer.x = this.otherPlayer.id * 200
+        this.otherPlayer.y = 400
+
         this.maxZombies = 40
         this.deadZombies = 0
 
@@ -43,7 +43,7 @@ export default class level1 extends Phaser.Scene {
         var lifeLabel1 = this.add.text(20, 20, "Player 1: 100", textConfig);
         var lifeLabel2 = this.add.text(this.game.config.width - 195, 20, "Player 2: 100", textConfig);
         this.myLifeLabel = this.id == 1 ? lifeLabel1 : lifeLabel2
-        this.otherLifeLabel = this.id == 1 ? lifeLabel2 : lifeLabel1
+        this.othersLifeLabel = this.id == 1 ? lifeLabel2 : lifeLabel1
 
         this.coin = new Coin(this, 30, 75, 0)
 
@@ -65,39 +65,34 @@ export default class level1 extends Phaser.Scene {
 
         this.cursors = this.defCursors()
 
-        this.physics.add.collider(this.players, this.front)
+        this.physics.add.collider(this.players, this.win)
 
         this.zombies.children.iterate(function (zombie) {
             if(zombie.type != 3){
-                this.physics.add.collider(this.zombies, this.front)
+                this.physics.add.collider(this.zombies, this.win)
             }
         }, this);
 
-        this.physics.add.collider(this.players, this.objective, ()=>{
+        this.physics.add.collider(this.players, this.win, ()=>{
+            this.socket.emit('level3')
             this.myPlayer.finish()
             this.otherPlayer.finish()
             this.scene.stop();
-            this.socket.emit('level2')
-            this.scene.start('Level2', {data: this.data,
-                                        players: this.players,
-                                        myPlayer: this.myPlayer,
-                                        otherPlayer: this.otherPlayer,
-                                        zombies: this.zombies
-                                    })
+            this.scene.start('Level3', {data: this.data, players: this.players})
         })
 
         this.physics.add.overlap(this.myPlayer, this.zombies, this.myPlayerZombiesCollision, null, this)///colisão inimigos e eu
 
         this.physics.add.overlap(this.myPlayer, this.otherPlayer.bullets, this.myPlayerOtherPlayerBulletsCollision, null, this)//eu levar com bala
 
-        this.players.children.iterate(this.playersBulletsFrontCollision, this);//colisao balas com arvores
+        this.players.children.iterate(this.playersBulletsMapCollision, this);//colisao balas com arvores
 
-        this.enemies.children.iterate(function (zombie) {
-            this.enemiesBulletsFrontCollision(zombie)//balas inimigos com arvores
-            this.myPlayerEnemiesBulletsCollision(zombie)
+        this.zombies.children.iterate(function (zombie) {
+            this.zombiesBulletsMapCollision(zombie)//balas inimigos com arvores
+            this.myPlayerZombiesBulletsCollision(zombie)
         }, this);
 
-        this.physics.add.overlap(this.enemies, this.myPlayer.bullets, this.enemiesMyPlayerBulletsCollision, null, this)
+        this.physics.add.overlap(this.zombies, this.myPlayer.bullets, this.zombiesMyPlayerBulletsCollision, null, this)
 
         //recomeçar o jogo quando servidor desligar e voltar a ligar, mas nao funciona bem por causa do servidor
         /*this.socket.on('id', (data)=>{
@@ -139,7 +134,7 @@ export default class level1 extends Phaser.Scene {
             }
         }, this);
         
-        this.enemies.children.iterate(function (zombie) {
+        this.zombies.children.iterate(function (zombie) {
             zombie.update(time, this.players);
             if(zombie.life <= 0){
                 zombie.dead();
@@ -163,7 +158,7 @@ export default class level1 extends Phaser.Scene {
         }
     }
 
-    myPlayerEnemiesCollision(myPlayer, zombie){
+    myPlayerZombiesCollision(myPlayer, zombie){
         if(zombie.type != 1){
             if(zombie.meeleeAttack(this.currentTime, myPlayer)){
                 
@@ -189,21 +184,21 @@ export default class level1 extends Phaser.Scene {
         this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life, idBullet:idBullet})
     }
 
-    playersBulletsFrontCollision(player) {
-        this.physics.add.collider(player.bullets, this.front, (bullet, front) =>{
+    playersBulletsMapCollision(player) {
+        this.physics.add.collider(player.bullets, this.win, (bullet, win) =>{
             player.removeBullet(bullet.id)
         })
     }
 
-    enemiesBulletsFrontCollision(zombie){
+    zombiesBulletsMapCollision(zombie){
         if(zombie.type == 1){
-            this.physics.add.collider(zombie.bullet, this.front, (bullet, front) =>{
+            this.physics.add.collider(zombie.bullet, this.win, (bullet, win) =>{
                 zombie.removeBullet();
             })
         }
     }
 
-    myPlayerEnemiesBulletsCollision(zombie){
+    myPlayerZombiesBulletsCollision(zombie){
         if(zombie.type == 1){
             this.physics.add.collider(this.myPlayer, zombie.bullet, (myPlayer, bullet) => {//eu levar com bala
 
@@ -219,7 +214,7 @@ export default class level1 extends Phaser.Scene {
         }
     }
 
-    enemiesMyPlayerBulletsCollision(zombie, bullet){
+    zombiesMyPlayerBulletsCollision(zombie, bullet){
         this.myPlayer.removeBullet(bullet.id);
 
         zombie.life -= bullet.power;
@@ -246,7 +241,7 @@ export default class level1 extends Phaser.Scene {
     otherPlayerLife(data){
         this.otherPlayer.life = data.life
         if(data.idZombie){//se o outro jogador sofrer dano do inimigo
-            this.enemies.children.iterate(function (zombie) {
+            this.zombies.children.iterate(function (zombie) {
                 if(zombie.id==data.idZombie){
                     zombie.removeBullet()
                 }
@@ -255,7 +250,7 @@ export default class level1 extends Phaser.Scene {
             this.myPlayer.removeBullet(data.idBullet)
         }
         var life = this.otherPlayer.life < 0 ? 0 : this.otherPlayer.life
-        this.otherLifeLabel.setText("Player " + this.otherPlayer.id + ": " + life)
+        this.othersLifeLabel.setText("Player " + this.otherPlayer.id + ": " + life)
     }
 
     otherPlayerTypeBullets(data){
@@ -263,7 +258,7 @@ export default class level1 extends Phaser.Scene {
     }
 
     zombiePositionWhenCollides(data){
-        this.enemies.children.iterate(function (zombie) {
+        this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.id){
                 zombie.x = data.x
                 zombie.y = data.y
@@ -272,14 +267,14 @@ export default class level1 extends Phaser.Scene {
     }
 
     createZombie(data){
-        let zombie = this.enemies.getFirstDead(true, data.x, data.y, data.type, data.idZombie);
+        let zombie = this.zombies.getFirstDead(true, data.x, data.y, data.type, data.idZombie);
         if(zombie){
             zombie.spawn(data.idZombie, data.type)
         }
     }
 
     moveZombie(data){
-        this.enemies.children.iterate(function (zombie) {
+        this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.idZombie){
                 if(data.idPlayer){
                     this.players.children.iterate(function (player) {
@@ -296,7 +291,7 @@ export default class level1 extends Phaser.Scene {
     }
 
     zombieMeleeAttack(data){
-        this.enemies.children.iterate(function (zombie) {
+        this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.id){
                 zombie.attack(data.time, this.players)
             }
@@ -304,7 +299,7 @@ export default class level1 extends Phaser.Scene {
     }
 
     zombieLife(data){
-        this.enemies.children.iterate(function (zombie) {
+        this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.idZombie){
                 zombie.life = data.life;
                 this.otherPlayer.removeBullet(data.idBullet);

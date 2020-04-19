@@ -23,6 +23,7 @@ var max_zombies = 5;
 var num_zombies = 0;
 let idZombie = 1;
 const zombieTimerDelay = 5000;
+var level = 1
 
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
@@ -170,7 +171,6 @@ io.sockets.on('connection', function(socket){
                         idBullet:data.idBullet
                     }
                 }
-                //console.log("pack n",player2.id,"->",pack);
                 SOCKET_LIST[player2.id].emit('playerAction', pack);
             }
         }
@@ -192,6 +192,16 @@ io.sockets.on('connection', function(socket){
                 }
             }
         }
+    });
+
+    socket.on('level2',function(data){
+        this.level = 2
+        ZOMBIE_LIST = {}
+    });
+
+    socket.on('level3',function(data){
+        this.level = 3
+        ZOMBIE_LIST = {}
     });
 });
 
@@ -283,7 +293,7 @@ setInterval(function(){//range o inimigo
             }
         }
     }
-}, 500);
+}, 500);// 0
 
 ////////////fazer o mover e o ataque aqui no server
 ////inicialmente fazer dist aqui, depois dist sempre nos jogadores, quando um dos jogadores enviar info que o player mais proximo mudou, fazer dist aqui
