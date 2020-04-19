@@ -1,5 +1,6 @@
 import Explosion from "./Explosion.js";
 import BulletsGroup from "./BulletsGroup.js";
+import shop from "../scene/Shop.js";
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
 
@@ -33,35 +34,45 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.bulletsMaxsize = this.bullets.maxSize;
            
-        this.typeBullets = 1
+        this.typeBullets = 0
 
         this.numBullets = 0;
 
         this.timeToShoot = 0;
 
+        this.upAnim = 'up' + this.img
+        this.downAnim = 'down' + this.img
+        this.leftAnim = 'left' + this.img
+        this.rightAnim = 'right' + this.img
+
         this.scene.anims.create({
-            key: 'up' + this.img,
+            key: this.upAnim,
             frameRate: 8,
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 9, end: 11 })
         });
         this.scene.anims.create({
-            key: 'down' + this.img,
+            key: this.downAnim,
             frameRate: 8,
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 2 })
         });
         this.scene.anims.create({
-            key: 'left' + this.img,
+            key: this.leftAnim,
             frameRate: 8,
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 3, end: 5 })
         });
         this.scene.anims.create({
-            key: 'right' + this.img,
+            key:  this.rightAnim,
             frameRate: 8,
             frames: this.scene.anims.generateFrameNumbers(this.img, { start: 6, end: 8 })
         });
+        
+        this.pos = this.downAnim
 
-        this.play('down' + this.img)
+        this.play(this.pos)
 
+        this.shopNum = 0
+        this.timeToShop = 0
+        this.delayShop = 1000
     }
 
     update(time, data) {
@@ -72,24 +83,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if(this.id == id){
             this.setVelocity(0)
             if (cursors.up.isDown && this.y > this.frame.halfHeight + 6) {///se mudar pra 7 fica um espacinho de sobra
-                this.play('up' + this.img)
+                this.playAnim(this.upAnim)
                 this.setVelocityY(-this.velocity);
-                this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'up' + this.img});
+                this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
             }
             if (cursors.down.isDown && this.y < this.sceneHeight - this.frame.halfHeight - 6) {
-                this.play('down' + this.img)
+                this.playAnim(this.downAnim)
                 this.setVelocityY(this.velocity);
-                this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'down' + this.img});
+                this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
             }
             if (cursors.left.isDown && this.x > this.frame.halfWidth + 6) {/////funciona se mandarmos vetor com teclas a false ou true
-                this.play('left' + this.img)
+                this.playAnim(this.leftAnim)
                 this.setVelocityX(-this.velocity);
-                this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'left' + this.img});
+                this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
             }
             if (cursors.right.isDown && this.x < this.sceneWidth - this.frame.halfWidth - 6) {
-                this.play('right' + this.img)
+                this.playAnim(this.rightAnim)
                 this.setVelocityX(this.velocity);
-                this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:'right' + this.img});
+                this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
             }
 
             this.scene.input.on("pointerdown", this.fire, this)
@@ -100,6 +111,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if (cursors.left.isUp && cursors.right.isUp) {
                 this.setVelocityX(0);
             }
+
+            if(cursors.shop.isDown && this.timeToShop < this.time){
+                if(!this.scene.scene.isActive("Shop" + this.shopNum)){
+                    this.shopNum++
+                    console.log(this.id, this.shopNum)
+                    this.timeToShop = this.time + this.delayShop
+                    this.scene.scene.add("Shop"+this.shopNum, new shop("Shop"+this.shopNum,this), true)
+                }else{
+                    this.scene.scene.stop("Shop" + this.shopNum)
+                    this.timeToShop = this.time + this.delayShop
+                }
+            }
         }
 
         this.bullets.children.iterate(function (bullet) {
@@ -107,6 +130,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.bullets.killAndHide(bullet);
             }
         }, this);
+    }
+
+    playAnim(posAnim){
+        this.pos = posAnim
+        if(!this.anims.isPlaying){
+            this.play(this.pos)
+        }
+        if(this.anims.isPlaying && !(this.anims.currentAnim.key === this.pos)){
+            this.play(this.pos)
+        }
     }
 
     defCursors(data){
@@ -142,19 +175,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             
             if (bullet) {
                 bullet.fire(mouseX, mouseY, this.typeBullets)
-            }
-        
-            this.timeToShoot = this.time + bullet.fireRate;
+            
+                this.timeToShoot = this.time + bullet.fireRate;
 
-            if (this.bullets.children.size > this.bulletsMaxsize) {
-                //console.log("Group size failed")
-            }
+                if (this.bullets.children.size > this.bulletsMaxsize) {
+                    //console.log("Group size failed")
+                }
 
-            if (this.fireSound) {
-                this.fireSound.play();
-            }
+                if (this.fireSound) {
+                    this.fireSound.play();
+                }
 
-            this.socket.emit('keyPress',{input:'fight', state:true, mouseX: mouseX, mouseY: mouseY, idBullet: bullet.id});
+                this.socket.emit('keyPress',{input:'fight', state:true, mouseX: mouseX, mouseY: mouseY, idBullet: bullet.id});
+            }
         }
     }
 
@@ -172,11 +205,23 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    earnmoney(type){
+    earnMoney(type){
         if(type == 3){
             this.money += 30
         }else{
             this.money += 10
+        }
+    }
+
+    buyPowerUp(n){
+        this.scene.moneyLabel.setText(this.money)
+        if(n != 4){
+            this.typeBullets = n
+            this.socket.emit("typeBullets", {typeBullets: n})
+        }else{
+            this.life + 50 <= 100 ? this.life += 50 : this.life = 100
+            this.scene.myLifeLabel.setText("Player " + this.id + ": " + this.life)
+            this.socket.emit("life", {life:this.life})
         }
     }
 
@@ -189,7 +234,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         //prevents new collision
         this.x = -100;
         this.y = -100;
-
+    }
+    
+    finish(){
+        if(this.scene.scene.isActive("Shop" + this.shopNum)){
+            this.scene.scene.stop("Shop" + this.shopNum)
+        }
     }
 
     /**

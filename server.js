@@ -18,11 +18,11 @@ var total_players = 0;
 var players_ready = 0;
 const width = 640
 const height = 640
-var ENEMY_LIST = {};
-var max_enemies = 5;
-var num_enemies = 0;
-let idEnemy = 1;
-const enemyTimerDelay = 5000;
+var ZOMBIE_LIST = {};
+var max_zombies = 5;
+var num_zombies = 0;
+let idZombie = 1;
+const zombieTimerDelay = 5000;
 
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
@@ -47,12 +47,12 @@ var Player = function(id){
     return self;
 }
 
-var Enemy = function(x, y, id, type){
-    //console.log("Enemy successfully created: ", id)
+var Zombie = function(x, y, id, type){
+    //console.log("Zombie successfully created: ", id)
     var self = {
         x:x,
         y:y,
-        life:100,/////
+        life:100,
         id:id,
         dist:200,
         type:type
@@ -107,8 +107,8 @@ io.sockets.on('connection', function(socket){
             var player2 = PLAYER_LIST[i];
             if(player2.id != player.id){
                 player.life = data.life
-                if(data.idEnemy){
-                    SOCKET_LIST[player2.id].emit('life', {life:player.life, idEnemy:data.idEnemy})
+                if(data.idZombie){
+                    SOCKET_LIST[player2.id].emit('life', {life:player.life, idZombie:data.idZombie})
                 }else if(data.idBullet){
                     SOCKET_LIST[player2.id].emit('life', {life:player.life, idBullet:data.idBullet})
                 }else{
@@ -118,21 +118,31 @@ io.sockets.on('connection', function(socket){
         }
     });
 
-    socket.on('lifeEnemy',function(data){
-        for(var i in ENEMY_LIST){
-            var enemy = ENEMY_LIST[i];
-            if(enemy.id == data.idEnemy){
-                enemy.life = data.life
+    socket.on('typeBullets',function(data){
+        for(var i in PLAYER_LIST){
+            var player2 = PLAYER_LIST[i];
+            if(player2.id != player.id){
+                player.typeBullets = data.typeBullets
+                SOCKET_LIST[player2.id].emit('typeBullets', {typeBullets: player.typeBullets})
+            }
+        }
+    });
+
+    socket.on('lifeZombie',function(data){
+        for(var i in ZOMBIE_LIST){
+            var zombie = ZOMBIE_LIST[i];
+            if(zombie.id == data.idZombie){
+                zombie.life = data.life
                 for(var j in PLAYER_LIST){
                     if(PLAYER_LIST[j].id != player.id){
                         var player2 = PLAYER_LIST[j]
-                        SOCKET_LIST[player2.id].emit('lifeEnemy', {idEnemy:data.idEnemy, idBullet:data.idBullet, life:data.life})
+                        SOCKET_LIST[player2.id].emit('lifeZombie', {idZombie:data.idZombie, idBullet:data.idBullet, life:data.life})
                     }
                 }
-                if(enemy.life<=0){
-                    num_enemies--;
-                    //console.log(enemy.id,enemy.life,num_enemies);
-                    delete ENEMY_LIST[enemy.id];
+                if(zombie.life<=0){
+                    num_zombies--;
+                    //console.log(zombie.id,zombie.life,num_zombies);
+                    delete ZOMBIE_LIST[zombie.id];
                 }
             }
         }
@@ -147,7 +157,7 @@ io.sockets.on('connection', function(socket){
                 if(data.input === 'xy'){
                     player.x = data.x;
                     player.y = data.y;
-                    data.pos ? player.pos = data.pos : player.pos = player.pos
+                    player.pos = data.pos;
                     pack = {
                         x:player.x,
                         y:player.y,
@@ -166,17 +176,17 @@ io.sockets.on('connection', function(socket){
         }
     });
 
-    socket.on('enemyPosition',function(data){
-        for(var i in ENEMY_LIST){
-            var enemy = ENEMY_LIST[i];
-            if(enemy.id == data.id){
-                enemy.x = data.x
-                enemy.y = data.y
+    socket.on('zombiePosition',function(data){
+        for(var i in ZOMBIE_LIST){
+            var zombie = ZOMBIE_LIST[i];
+            if(zombie.id == data.id){
+                zombie.x = data.x
+                zombie.y = data.y
                 if(data.collider){
                     for(var i in PLAYER_LIST){
                         var player2 = PLAYER_LIST[i];
                         if(player2.id != player.id){
-                            SOCKET_LIST[player2.id].emit('enemyPositionCollider', {id:enemy.id, x:enemy.x, y:enemy.y})
+                            SOCKET_LIST[player2.id].emit('zombiePositionCollider', {id:zombie.id, x:zombie.x, y:zombie.y})
                         }
                     }
                 }
@@ -186,9 +196,9 @@ io.sockets.on('connection', function(socket){
 });
 
 setInterval(function(){//criação do inimigo
-    if(players_ready == 2 && num_enemies < max_enemies){
+    if(players_ready == 2 && num_zombies < max_zombies){
         let type;
-        //console.log("enemy id:", idEnemy)
+        //console.log("zombie id:", idZombies)
         let x ;
         let y ;
         let randNum= Math.floor(Math.random() *3);
@@ -214,45 +224,45 @@ setInterval(function(){//criação do inimigo
             type=3;
         }
         
-        idEnemy++;
-        num_enemies++;
+        idZombie++;
+        num_zombies++;
         
-        //console.log("ENEMY",x,y, idEnemy);
+        //console.log("ZOMBIE",x,y, idZombie);
 
-        var enemy = Enemy(x, y, idEnemy, type);
-        ENEMY_LIST[idEnemy] = enemy;
+        var zombie = Zombie(x, y, idZombie, type);
+        ZOMBIE_LIST[idZombie] = zombie;
         
         for(var i in SOCKET_LIST){
             var socketEmit = SOCKET_LIST[i];
-            socketEmit.emit('createEnemy', {x:x, y:y, idEnemy:idEnemy, type:type, life:enemy.life});
+            socketEmit.emit('createZombie', {x:x, y:y, idZombie:idZombie, type:type, life:zombie.life});
         }
     }
-}, enemyTimerDelay);
+}, zombieTimerDelay);
 
 setInterval(function(){//mover o inimigo
     if(players_ready == 2){
-        for(var ei in ENEMY_LIST){
-            var enemy = ENEMY_LIST[ei]
+        for(var ei in ZOMBIE_LIST){
+            var zombie = ZOMBIE_LIST[ei]
             
             var plCloser
             var minor = 100000
             for(var pi in PLAYER_LIST){
                 var player = PLAYER_LIST[pi]
-                var dist = Math.sqrt(Math.pow(enemy.x - player.x, 2) + Math.pow(enemy.y - player.y, 2))
+                var dist = Math.sqrt(Math.pow(zombie.x - player.x, 2) + Math.pow(zombie.y - player.y, 2))
                 if(minor > dist){
                     plCloser = player
                     minor = dist
                 }
             }
-            if((enemy.type == 1 && enemy.dist < minor) || (enemy.type!=1)){
+            if((zombie.type == 1 && zombie.dist < minor) || (zombie.type!=1)){
                 for(var i in SOCKET_LIST){
                     var socketEmit = SOCKET_LIST[i];
-                    socketEmit.emit('moveEnemy', {idPlayer:plCloser.id, idEnemy:enemy.id});
+                    socketEmit.emit('moveZombie', {idPlayer:plCloser.id, idZombie:zombie.id});
                 }
             }else{ // se for so tipo 1 e tiver a 200 não anda
                 for(var i in SOCKET_LIST){/////nao esta a resultar em alguns casos
                     var socketEmit = SOCKET_LIST[i];
-                    socketEmit.emit('moveEnemy', {idEnemy:enemy.id});
+                    socketEmit.emit('moveZombie', {idZombie:zombie.id});
                 }
             }
             
@@ -262,13 +272,13 @@ setInterval(function(){//mover o inimigo
 
 setInterval(function(){//range o inimigo
     if(players_ready == 2){
-        for(var ei in ENEMY_LIST){
-            var enemy = ENEMY_LIST[ei]
-            if(enemy.type == 1){
-                //console.log("shoot-> ", enemy.id, enemy.type, enemy.x, enemy.y)
+        for(var ei in ZOMBIE_LIST){
+            var zombie = ZOMBIE_LIST[ei]
+            if(zombie.type == 1){
+                //console.log("shoot-> ", zombie.id, zombie.type, zombie.x, zombie.y)
                 for(var i in SOCKET_LIST){
                     var socketEmit = SOCKET_LIST[i];
-                    socketEmit.emit('enemyShoot', {id:enemy.id, time:Date.now() - start});
+                    socketEmit.emit('zombieShoot', {id:zombie.id, time:Date.now() - start});
                 }
             }
         }

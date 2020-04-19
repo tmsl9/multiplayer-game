@@ -1,7 +1,7 @@
 import Explosion from './Explosion.js'
 import Bullet from "./Bullet.js";
 
-export default class Enemy extends Phaser.Physics.Arcade.Sprite {
+export default class Zombie extends Phaser.Physics.Arcade.Sprite {
 
     constructor(scene, x, y, type, id) {
         var img = 'z' + type
@@ -23,7 +23,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.fireRate=4000;
         this.timeToShoot = 0;
         this.timeToMeelee = 0;
-        this.enemyTimerDelay = 2000;
+        this.zombieTimerDelay = 2000;
         this.typeBullet = "z"
         if(this.type == 1){
             this.bullet = new Bullet(this.scene, -500, -500, this.typeBullet).setActive(false)
@@ -97,7 +97,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         }
         this.setVelocityX(vx);
         this.setVelocityY(vy);
-        socket.emit('enemyPosition', {id: this.id, x: this.x, y: this.y})
+        socket.emit('zombiePosition', {id: this.id, x: this.x, y: this.y})
     }
 
     bulletOutsideCanvas(){
@@ -118,14 +118,14 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         }else if(this.type==2){
             this.meeleeAttack(players);
         }else if(this.type==3){
-            this.bonusEnemy(players);
+            this.bonusZombie(players);
         }
     }
     /**
      * comparar se é o meu jogador que está mais perto se for, so no meu ecra ele vai atras de mim, no outro ecra ele com
-     * "enemyPosition" linha 96, o server envia a info envia a info para ele, primeiro ve quem esta mais perto depois guarda
+     * "zombiePosition" linha 96, o server envia a info envia a info para ele, primeiro ve quem esta mais perto depois guarda
      * numa variavel o id do player que ele tem que ir atras e dps envia a info para o que esta mais longe, no playGame o
-     * player mais longe receber a info do x e do y do enemy e atualiza como com o player2
+     * player mais longe receber a info do x e do y do zombie e atualiza como com o player2
      */
     rangedAttack(time, players){
        //console.log(this.timeToShoot, "----", time)
@@ -158,13 +158,13 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     meeleeAttack(time, myPlayer){
         if (this.timeToMeelee < time) {
             myPlayer.life -= this.meeleDamage
-            this.timeToMeelee = time + this.enemyTimerDelay;
+            this.timeToMeelee = time + this.zombieTimerDelay;
             return true
         }
         return false
     }
 
-    bonusEnemy(myPlayer, otherPlayer){
+    bonusZombie(myPlayer, otherPlayer){
 
     }
 
