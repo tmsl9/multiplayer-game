@@ -25,23 +25,29 @@ export default class level1 extends Phaser.Scene {
         console.log("Starting game");
         
         this.map = this.make.tilemap({ key: "map1" });
-        const tileset = this.map.addTilesetImage("tile-map", "tiles");
-        this.map.createStaticLayer("back", tileset, 0, 0);
-        this.front = this.map.createStaticLayer("front", tileset, 0, 0);
+        this.tileset = this.map.addTilesetImage("tile-map", "tiles");
+        this.map.createStaticLayer("back", this.tileset, 0, 0);
+       
+        this.front = this.map.createStaticLayer("front", this.tileset, 0, 0);
         this.front.setCollisionByProperty({ "collides": true }, true);
+        this.totalEnemiesDead=0;
         
+        this.objective=this.map.createStaticLayer("objective", this.tileset, -10000, -10000);
+
         this.players = new PlayersGroup(this.physics.world, this, this.id)
         this.myPlayer = this.players.me
         this.otherPlayer = this.players.other
         
         this.enemies = new EnemiesGroup(this.physics.world, this)
+        this.add.image(320,10,"barraprogresso")
+        
+       
 
         var textConfig = {font: "30px Cambria", fill: "#ffffff"}
         var lifeLabel1 = this.add.text(20, 20, "Player 1: 100", textConfig);
         var lifeLabel2 = this.add.text(this.game.config.width - 195, 20, "Player 2: 100", textConfig);
         this.myLifeLabel = this.id == 1 ? lifeLabel1 : lifeLabel2
-        this.othersLifeLabel = this.id == 1 ? lifeLabel2 : lifeLabel1
-
+        this.othersLifeLabel = this.id == 1 ? lifeLabel2 : lifeLabel1 
         
         this.coin = new Coin(this, 30, 75, 0)
 
@@ -64,6 +70,15 @@ export default class level1 extends Phaser.Scene {
         this.cursors = this.defCursors()
 
         this.physics.add.collider(this.players, this.front)
+        
+        this.physics.add.collider(this.players, this.objective,()=>{
+            this.myPlayer.finish()
+            this.otherPlayer.finish()
+            this.scene.stop();
+            this.themeSound.stop();
+            this.socket.emit('Level2')
+            this.scene.start('Level2', {data: this.data, players: this.players})
+        })
 
         this.physics.add.collider(this.enemies, this.front)
 
@@ -120,15 +135,27 @@ export default class level1 extends Phaser.Scene {
         }, this);
         ///tem bugs que nao deixam o personagem mexer-se mas o anim corre na mesma
         ///as vezes da erro e o dinheiro começa a disparar e o power tem mais de 50, e mata logo o enemy
-        ////shop nao esta a atualizar a bala no outro player, a vida sim mas nao na label
-        /////type 2 and 3 zombies have to be quicker
+        ////shop nao esta a atualizar a bala no outro player, a vida sim mas nao na label - Works
+        /////type 2 and 3 zombies have to be quicker - Done
         this.enemies.children.iterate(function (enemy) {
             enemy.update(time, this.players);
             if(enemy.life <= 0){
+                this.totalEnemiesDead+=1;
                 enemy.dead();
                 this.enemies.killAndHide(enemy);
+                if(this.totalEnemiesDead>0){this.add.image(238.5+this.totalEnemiesDead*4,10,"progresso").setScale(0.2,0.4)}
+                console.log(this.totalEnemiesDead)
             }
         }, this);
+       
+
+        if(this.totalEnemiesDead==40)
+        { 
+            this.objective.x=0;
+            this.objective.y=0;
+            this.totalEnemiesDead++
+            console.log("proximo nivel")
+        }
     }
     
     defCursors(){
@@ -238,6 +265,7 @@ export default class level1 extends Phaser.Scene {
     }
 
     otherPlayerTypeBullets(data){
+        //console.log(this.otherPlayer.id) Type of bullet é mudado
         this.otherPlayer.typeBullets = data.typeBullets
     }
 

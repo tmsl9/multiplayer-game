@@ -18,8 +18,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.id=id;
         this.type=type;
         this.life = 100;
-        this.rangedDamage=20;
-        this.meeleDamage=10;
+        //this.rangedDamage=20;
+        this.rangedDamage=0;
+        //this.meeleDamage=10;
+        this.meeleDamage=0;
         this.baseVelocity=5;
         this.fireRate=4000;
         this.timeToShoot = 0;
@@ -76,6 +78,9 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.life = 100;
         this.id = id;
         this.type = type
+        if(this.type!=1){
+            this.baseVelocity=100
+        }
         this.img = "z" + this.type
         this.updateAnims()
         this.visible = true;
@@ -200,15 +205,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     dead() {
         new Explosion(this.scene, this.x, this.y);
-
-        //prevents new collision
-        this.x = -100;
-        this.y = -100;
-    }
-
-    dead() {
-       // new Explosion(this.scene, this.x, this.y);
-        
+        this.life=100;
         //prevents new collision
         this.x = -100;
         this.y = -100;

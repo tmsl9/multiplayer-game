@@ -23,6 +23,7 @@ var max_enemies = 5;
 var num_enemies = 0;
 let idEnemy = 1;
 const enemyTimerDelay = 5000;
+var level=1;
 
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
@@ -125,6 +126,7 @@ io.sockets.on('connection', function(socket){
                 player.typeBullets = data.typeBullets
                 SOCKET_LIST[player2.id].emit('typeBullets', {typeBullets: player.typeBullets})
             }
+    
         }
     });
 
@@ -193,7 +195,12 @@ io.sockets.on('connection', function(socket){
             }
         }
     });
+
+    socket.on('Level2',function(){
+        level=2;
+    })
 });
+
 
 setInterval(function(){//criação do inimigo
     if(players_ready == 2 && num_enemies < max_enemies){

@@ -23,10 +23,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.sceneHeight = this.scene.game.config.height;
 
         this.life = 100;
-        this.atacklvl = 1;
         this.velocity = 200;
         this.fireRate = 350;
-        this.money = 0;
+        this.money = 1000;
 
         this.canBeKilled = true;
 
@@ -124,7 +123,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if(cursors.shop.isDown && this.timeToShop < this.time){
                 if(!this.scene.scene.isActive("Shop" + this.shopNum)){
                     this.shopNum++
-                    console.log(this.id, this.shopNum)
+                    //console.log(this.id, this.shopNum)
                     this.timeToShop = this.time + this.delayShop
                     this.scene.scene.add("Shop"+this.shopNum, new shop("Shop"+this.shopNum,this), true)
                 }else{
@@ -223,12 +222,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     buyPowerUp(n){
+        
         this.scene.moneyLabel.setText(this.money)
         if(n != 4){
             this.typeBullets = n
+        
             this.socket.emit("typeBullets", {typeBullets: n})
         }else{
+            console.log(this.life) //muda a vida
             this.life + 50 <= 100 ? this.life += 50 : this.life = 100
+            console.log(this.life) //muda a vida
             this.scene.myLifeLabel.setText("Player " + this.id + ": " + this.life)
             this.socket.emit("life", {life:this.life})
         }

@@ -16,6 +16,10 @@ export default class bootGame extends Phaser.Scene {
 
         this.load.image("bullet0", "assets/bullet0.png");
 
+        this.load.image("barraprogresso", "assets/barraprogresso.png");
+
+        this.load.image("progresso", "assets/progresso.png");
+
         this.load.image("bullet1", "assets/bullet1.png");
 
         this.load.image("bullet2", "assets/bullet2.png");
@@ -79,8 +83,8 @@ export default class bootGame extends Phaser.Scene {
             fight: this.input.keyboard.addKey('SPACE'),
             shop: this.input.keyboard.addKey('Q')
         }
-
-
+      
+     
        var socket = io();
         socket.on('id',(data)=>{
             var id = data
