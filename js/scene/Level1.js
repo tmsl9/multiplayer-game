@@ -26,9 +26,9 @@ export default class level1 extends Phaser.Scene {
         
         this.map = this.make.tilemap({ key: "map1" });
         const tileset = this.map.addTilesetImage("tile-map", "tiles");
-        this.map.createStaticLayer("back", tileset, 0, 0);
+        this.back = this.map.createStaticLayer("back", tileset, 0, 0);
         this.front = this.map.createStaticLayer("front", tileset, 0, 0);
-        this.objective = this.map.createStaticLayer("objective", tileset, 0, 0);
+        this.objective = this.map.createStaticLayer("objective", tileset, -500, -500);
         this.front.setCollisionByProperty({ "collides": true }, true);
         
         this.players = new PlayersGroup(this.physics.world, this, this.id)
@@ -36,7 +36,7 @@ export default class level1 extends Phaser.Scene {
         this.otherPlayer = this.players.other
         
         this.zombies = new ZombiesGroup(this.physics.world, this)
-        this.maxZombies = 40
+        this.maxZombies = 5
         this.deadZombies = 0
 
         var textConfig = {font: "30px Cambria", fill: "#ffffff"}
@@ -72,19 +72,6 @@ export default class level1 extends Phaser.Scene {
                 this.physics.add.collider(this.zombies, this.front)
             }
         }, this);
-
-        this.physics.add.collider(this.players, this.objective, ()=>{
-            this.myPlayer.finish()
-            this.otherPlayer.finish()
-            this.scene.stop();
-            this.socket.emit('level2')
-            this.scene.start('Level2', {data: this.data,
-                                        players: this.players,
-                                        myPlayer: this.myPlayer,
-                                        otherPlayer: this.otherPlayer,
-                                        zombies: this.zombies
-                                    })
-        })
 
         this.physics.add.overlap(this.myPlayer, this.zombies, this.myPlayerZombiesCollision, null, this)///colisão inimigos e eu
 
@@ -150,6 +137,28 @@ export default class level1 extends Phaser.Scene {
                 this.objective.y = 0
             }
         }, this);
+
+        if(this.deadZombies == this.maxZombies){
+            this.myPlayer.finish()
+            this.otherPlayer.finish()
+            this.scene.time.addEvent({
+                repeat: 100,
+                loop: false,
+                callback: () => {
+                    if (i >= repetition) {
+                        this.scene.stop();
+                        this.socket.emit('level2')
+                        this.scene.start('Level2', {data: this.data,
+                                        players: this.players,
+                                        myPlayer: this.myPlayer,
+                                        otherPlayer: this.otherPlayer,
+                                        zombies: this.zombies
+                        })
+                    }
+                    i++
+                }
+            });
+        }
     }
     
     defCursors(){
@@ -284,7 +293,6 @@ export default class level1 extends Phaser.Scene {
                 if(data.idPlayer){
                     this.players.children.iterate(function (player) {
                         if(player.id == data.idPlayer){
-                            console.log(zombie)
                             zombie.move(player, this.socket)
                         }
                     }, this)

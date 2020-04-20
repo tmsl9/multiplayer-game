@@ -121,7 +121,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if(cursors.shop.isDown && this.timeToShop < this.time){
                 if(!this.scene.scene.isActive("Shop" + this.shopNum)){
                     this.shopNum++
-                    console.log(this.id, this.shopNum)
+                    //console.log(this.id, this.shopNum)
                     this.timeToShop = this.time + this.delayShop
                     this.scene.scene.add("Shop"+this.shopNum, new shop("Shop"+this.shopNum,this), true)
                 }else{
