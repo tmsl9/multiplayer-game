@@ -22,10 +22,10 @@ var ZOMBIE_LIST = {};
 var max_zombies = 5;
 var living_zombies = 0;
 var total_zombies = 0;
-var max_zombies_level1 = 1;
+var max_zombies_level1 = 2;
 let idZombie = 1;
 const zombieTimerDelay = 5000;
-var level = 1
+var level = 0
 var readyToText = false
 var numReadyToText = 0
 var readyToNextLevel = false
@@ -232,56 +232,55 @@ io.sockets.on('connection', function(socket){
 });
 
 setInterval(function(){//criação do inimigo
-    if(level != 3){
-        if(total_zombies < max_zombies_level1 && players_ready == 2 && living_zombies < max_zombies){
-            let type;
-            let x;
-            let y;
-            let randNum = Math.floor(Math.random() * 3);
-            let xy1 = {x:12, y:13}//////////////////////dani
-            let xy2 = {x:12, y:13}//////////////////////dani
-            if(level == 1){
-                if(randNum==0){
-                    x = 0;
-                    y = Math.floor(Math.random() * height);
-                }else if( randNum == 1){
-                    x = width;
-                    y = Math.floor(Math.random() * height);
-                }else if(randNum ==2){
-                    x = Math.floor(Math.random() * width);
-                    y = height;
-                }
+    console.log(level, total_zombies, max_zombies_level1, living_zombies, players_ready)
+    if(level > 0 && level != 3 && total_zombies < max_zombies_level1 && players_ready == 2 && living_zombies < max_zombies_level1){
+        let type;
+        let x;
+        let y;
+        let randNum = Math.floor(Math.random() * 3);
+        let xy1 = {x:12, y:13}//////////////////////dani
+        let xy2 = {x:12, y:13}//////////////////////dani
+        if(level == 1){
+            if(randNum==0){
+                x = 0;
+                y = Math.floor(Math.random() * height);
+            }else if( randNum == 1){
+                x = width;
+                y = Math.floor(Math.random() * height);
+            }else if(randNum ==2){
+                x = Math.floor(Math.random() * width);
+                y = height;
+            }
+        }else{
+            let xy = Math.floor(Math.random() * 2);
+            if(xy == 0){
+                x = xy1.x
+                y = xy1.y
             }else{
-                let xy = Math.floor(Math.random() * 2);
-                if(xy == 0){
-                    x = xy1.x
-                    y = xy1.y
-                }else{
-                    x = xy2.x
-                    y = xy2.y
-                }
+                x = xy2.x
+                y = xy2.y
             }
+        }
 
-            let prob = Math.floor(Math.random() * 100+1);
-            
-            if(prob <= 40){
-                type = 1;
-            }else if(prob <= 80){
-                type = 2;
-            }else{
-                type = 3;
-            }
-            
-            idZombie++;
-            living_zombies++;
-            total_zombies++;
+        let prob = Math.floor(Math.random() * 100+1);
+        
+        if(prob <= 40){
+            type = 1;
+        }else if(prob <= 80){
+            type = 2;
+        }else{
+            type = 3;
+        }
+        
+        idZombie++;
+        living_zombies++;
+        total_zombies++;
 
-            var zombie = Zombie(x, y, idZombie, type);
-            ZOMBIE_LIST[idZombie] = zombie;
-            
-            for(var i in SOCKET_LIST){
-                SOCKET_LIST[i].emit('createZombie', {x:x, y:y, idZombie:idZombie, type:type, life:zombie.life});
-            }
+        var zombie = Zombie(x, y, idZombie, type);
+        ZOMBIE_LIST[idZombie] = zombie;
+        
+        for(var i in SOCKET_LIST){
+            SOCKET_LIST[i].emit('createZombie', {x:x, y:y, idZombie:idZombie, type:type, life:zombie.life});
         }
     }
 }, zombieTimerDelay);
@@ -290,7 +289,6 @@ setInterval(function(){//mover o inimigo
     if(living_zombies > 0 && players_ready == 2){
         for(var ei in ZOMBIE_LIST){
             var zombie = ZOMBIE_LIST[ei]
-            
             var plCloser
             var minor = 100000
             for(var pi in PLAYER_LIST){

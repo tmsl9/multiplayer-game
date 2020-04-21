@@ -73,7 +73,7 @@ export default class level1 extends Phaser.Scene {
 
         this.players.children.iterate(function(player){
             this.playersBulletsFrontCollision(player)
-            player.fireSound = fireSound
+            //player.fireSound = fireSound
         }, this);//colisao balas com arvores, e som
 
         this.zombies.children.iterate(function (zombie) {

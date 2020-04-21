@@ -25,8 +25,8 @@ export default class nextLevel extends Phaser.Scene {
 
         var textConfig = {font: "17px Cambria", fill: "#ffffff"}
 
-        this.textSound = this.sound.add("text1", { volume: this.volume });
-        this.textSound.play();
+        this.textSound = this.sound.add("text3", { volume: this.volume });
+        //this.textSound.play();
         
         if(this.nextLevel == 1){
             this.add.text(300, 350, "\"Vocês nunca vão conseguir entrar!\nNão com a horda das minhas criações!!\nO castelo é meu!!!!\"", textConfig)            
@@ -37,10 +37,9 @@ export default class nextLevel extends Phaser.Scene {
             this.boss.setAngle(270)
             this.add.text(300, 350, "\"Posso até morrer, mas não vou ser o ÚNICO!!\nEu amaldiçoei o castelo,\ne apenas um de vós poderá sair daqui!\nAHAHGAGHAGHA!!!\"", textConfig)
         }
-
         let i = 0
         let changeTint = true;
-        let repetition = 400//////////////ver tempo por causa da voz do mago(rui)
+        let repetition = 700//////////////ver tempo por causa da voz do mago(rui)
         this.time.addEvent({
             repeat: repetition,
             loop: false,
