@@ -194,8 +194,7 @@ export default class level1 extends Phaser.Scene {
             if(zombie.meeleeAttack(this.currentTime, myPlayer)){
                 
                 var life = myPlayer.life < 0 ? 0 : myPlayer.life
-                this.updateLifeLabel(this.myPlayer.id);
-
+                this.updateLifeLabel(myPlayer.id)
                 this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life})
             }
             this.socket.emit('zombiePosition', {id: zombie.id, x: zombie.x, y: zombie.y, collider: true})
@@ -210,7 +209,7 @@ export default class level1 extends Phaser.Scene {
         myPlayer.life -= bullet.power;
 
         var life = myPlayer.life < 0 ? 0 : myPlayer.life
-        this.updateLifeLabel(this.myPlayer.id);
+        this.updateLifeLabel(myPlayer.id)
         
         this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life, idBullet:idBullet})
     }
@@ -238,7 +237,7 @@ export default class level1 extends Phaser.Scene {
                 myPlayer.life -= bullet.power;
             
                 var life = myPlayer.life < 0 ? 0 : myPlayer.life
-                this.updateLifeLabel(this.myPlayer.id);
+                this.updateLifeLabel(myPlayer.id)///quando um dos players ficar com menos de 0 de vida, mudar para 0
 
                 this.socket.emit('life', {idZombie:zombie.id, idBullet:bullet.id, life:myPlayer.life})
             });

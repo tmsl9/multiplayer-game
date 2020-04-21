@@ -62,8 +62,7 @@ var Zombie = function(x, y, id, type){
         life:100,
         id:id,
         dist:200,
-        type:type,
-        plCloser:0
+        type:type
     }
 
     return self;
@@ -238,8 +237,7 @@ setInterval(function(){//criação do inimigo
         let x;
         let y;
         let randNum = Math.floor(Math.random() * 3);
-        let xy1 = {x:12, y:13}//////////////////////dani
-        let xy2 = {x:12, y:13}//////////////////////dani
+        
         if(level == 1){
             if(randNum==0){
                 x = 0;
@@ -256,7 +254,7 @@ setInterval(function(){//criação do inimigo
             xy == 0 ? x = 304 : x = 336
             y = 113
         }
-
+        
         let prob = Math.floor(Math.random() * 100+1);
         
         if(prob <= 40){
@@ -281,7 +279,7 @@ setInterval(function(){//criação do inimigo
 }, zombieTimerDelay);
 
 setInterval(function(){//mover o inimigo
-    if(living_zombies > 0 && players_ready == 2){
+    if(total_zombies <= max_zombies_level1 && living_zombies > 0 && players_ready == 2){
         for(var ei in ZOMBIE_LIST){
             var zombie = ZOMBIE_LIST[ei]
             var plCloser
@@ -295,28 +293,23 @@ setInterval(function(){//mover o inimigo
                 }
             }
             if((zombie.type == 1 && zombie.dist < minor) || (zombie.type != 1)){
-                if(zombie.plCloser != plCloser.id){
-                    zombie.plCloser = plCloser.id
-                    for(var i in SOCKET_LIST){
-                        SOCKET_LIST[i].emit('moveZombie', {idPlayer:plCloser.id, idZombie:zombie.id});
-                    }
+                for(var i in SOCKET_LIST){
+                    SOCKET_LIST[i].emit('moveZombie', {idPlayer:plCloser.id, idZombie:zombie.id});
                 }
             }else{ // se for so tipo 1 e tiver a 200 não anda
                 for(var i in SOCKET_LIST){/////nao esta a resultar em alguns casos
                     SOCKET_LIST[i].emit('moveZombie', {idZombie:zombie.id});
                 }
             }
-            
         }
     }
 }, 200);
 
 setInterval(function(){//range o inimigo
-    if(total_zombies < max_zombies_level1 && players_ready == 2){
+    if(living_zombies > 0 && total_zombies <= max_zombies_level1 && players_ready == 2){
         for(var ei in ZOMBIE_LIST){
             var zombie = ZOMBIE_LIST[ei]
             if(zombie.type == 1){
-                //console.log("shoot-> ", zombie.id, zombie.type, zombie.x, zombie.y)
                 for(var i in SOCKET_LIST){
                     SOCKET_LIST[i].emit('zombieShoot', {id:zombie.id, time:Date.now() - start});
                 }
