@@ -30,8 +30,6 @@ export default class bootGame extends Phaser.Scene {
 
         this.load.image("fireball", "assets/fireball.png");
 
-        this.load.image("bullet_blue", "assets/aura_azul.png");
-
         this.load.spritesheet("z1", "assets/z1.png", {
             frameWidth: 31.5,
             frameHeight: 32
