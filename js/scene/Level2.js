@@ -31,23 +31,25 @@ export default class level2 extends Phaser.Scene {
         this.win = this.map.createStaticLayer("win", tileset, 0, 0);
         this.map.setCollisionByProperty({ "collides": true }, true);
         
-        this.myPlayer.x = this.myPlayer.id * 200
-        this.myPlayer.y = 400
-        this.otherPlayer.x = this.otherPlayer.id * 200
-        this.otherPlayer.y = 400
+        this.players.children.iterate(function(player){
+            player.x = player.id * 200
+            player.y = 400
+        }, this)
 
-        this.maxZombies = 40
+        this.maxZombies = 20
         this.deadZombies = 0
 
         var textConfig = {font: "30px Cambria", fill: "#ffffff"}
         var lifeLabel1 = this.add.text(20, 20, "Player 1: 100", textConfig);
         var lifeLabel2 = this.add.text(this.game.config.width - 195, 20, "Player 2: 100", textConfig);
         this.myLifeLabel = this.id == 1 ? lifeLabel1 : lifeLabel2
-        this.othersLifeLabel = this.id == 1 ? lifeLabel2 : lifeLabel1
+        this.otherLifeLabel = this.id == 1 ? lifeLabel2 : lifeLabel1
 
         this.coin = new Coin(this, 30, 75, 0)
 
         this.moneyLabel = this.add.text(45, 58, this.myPlayer.money, textConfig);
+
+        this.add.image(320,10,"barraprogresso")
 
         this.currentTime;
 
@@ -65,30 +67,22 @@ export default class level2 extends Phaser.Scene {
 
         this.cursors = this.defCursors()
 
-        this.physics.add.collider(this.players, this.win)
-
-        this.zombies.children.iterate(function (zombie) {
-            if(zombie.type != 3){
-                this.physics.add.collider(this.zombies, this.win)
-            }
-        }, this);
-
-        this.physics.add.collider(this.players, this.win, ()=>{
-            this.socket.emit('level3')
-            this.myPlayer.finish()
-            this.otherPlayer.finish()
-            this.scene.stop();
-            this.scene.start('Level3', {data: this.data, players: this.players})
-        })
+        this.physics.add.collider(this.players, this.front)
 
         this.physics.add.overlap(this.myPlayer, this.zombies, this.myPlayerZombiesCollision, null, this)///colisão inimigos e eu
 
         this.physics.add.overlap(this.myPlayer, this.otherPlayer.bullets, this.myPlayerOtherPlayerBulletsCollision, null, this)//eu levar com bala
 
-        this.players.children.iterate(this.playersBulletsMapCollision, this);//colisao balas com arvores
+        this.players.children.iterate(function(player){
+            this.playersBulletsFrontCollision(player)
+            player.fireSound = fireSound
+        }, this);//colisao balas com arvores, e som
 
         this.zombies.children.iterate(function (zombie) {
-            this.zombiesBulletsMapCollision(zombie)//balas inimigos com arvores
+            if(zombie.type != 3){
+                this.physics.add.collider(zombie, this.front)
+            }
+            this.zombiesBulletsFrontCollision(zombie)//balas inimigos com arvores
             this.myPlayerZombiesBulletsCollision(zombie)
         }, this);
 
@@ -119,34 +113,67 @@ export default class level2 extends Phaser.Scene {
     ///tem bugs que nao deixam o personagem mexer-se mas o anim corre na mesma
     ///as vezes da erro e o dinheiro começa a disparar e o power tem mais de 50, e mata logo o zombie
     update(time) {
-        this.currentTime = time
-        this.players.children.iterate(function (player) {
-            if(player.life > 0){
-                player.update(time, this.data)
-            }else{
-                player.dead()
-                this.myPlayer.finish()
-                this.otherPlayer.finish()
-                this.scene.stop();
-                this.themeSound.stop();
-                this.socket.emit('Finish')
-                this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player.id})
-            }
-        }, this);
-        
-        this.zombies.children.iterate(function (zombie) {
-            zombie.update(time, this.players);
-            if(zombie.life <= 0){
-                zombie.dead();
-                this.zombies.killAndHide(zombie);
-                this.deadZombies++
-                //barra progresso
-                this.objective.x = 0
-                this.objective.y = 0
-            }
-        }, this);
+        if(this.deadZombies < this.maxZombies){
+            this.currentTime = time
+            this.players.children.iterate(function (player) {
+                if(player.life > 0){
+                    player.update(time, this.data)
+                }else{
+                    player.dead()
+                    this.myPlayer.finish()
+                    this.otherPlayer.finish()
+                    this.scene.stop();
+                    this.themeSound.stop();
+                    this.socket.emit('Finish')
+                    this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player.id})
+                }
+            }, this);
+            
+            this.zombies.children.iterate(function (zombie) {
+                zombie.update(time, this.players);
+                if(zombie.life <= 0){
+                    zombie.dead();
+                    this.zombies.killAndHide(zombie);
+                    this.deadZombies++
+                    //barra progresso
+                    if(this.deadZombies > 0){
+                        this.add.image(238.5 + this.deadZombies * 4, 10, "progresso").setScale(0.2, 0.4)
+                    }
+                }
+            }, this);
+        }else if(this.deadZombies == this.maxZombies){
+            this.objective.x = 0
+            this.objective.y = 0
+            this.myPlayer.finish()
+            this.otherPlayer.finish() ///////nao deixar que q o pointer seja o do lado direito
+            this.deadZombies++
+            this.nextLevel()
+        }
     }
     
+    nextLevel(){
+        var i = 0
+        this.time.addEvent({
+            repeat: 200,
+            loop: false,
+            callback: () => {
+                if (i >= 1000) {
+                    this.socket.emit('finishLevel')
+                    this.data.players = this.players
+                    this.data.myPlayer = this.myPlayer,
+                    this.data.otherPlayer = this.otherPlayer,
+                    this.data.zombies = this.zombies
+                    this.data.nextLevel++
+                    this.socket.on('readyToText', ()=>{
+                        this.scene.stop();
+                        this.scene.start('NextLevel', this.data)
+                    })
+                }
+                i++
+            }
+        });
+    }
+
     defCursors(){
         return {
             up: this.input.keyboard.addKey(this.data.cursors.up.keyCode),
@@ -184,15 +211,15 @@ export default class level2 extends Phaser.Scene {
         this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life, idBullet:idBullet})
     }
 
-    playersBulletsMapCollision(player) {
-        this.physics.add.collider(player.bullets, this.win, (bullet, win) =>{
+    playersBulletsFrontCollision(player) {
+        this.physics.add.collider(player.bullets, this.front, (bullet, front) =>{
             player.removeBullet(bullet.id)
         })
     }
 
-    zombiesBulletsMapCollision(zombie){
+    zombiesBulletsFrontCollision(zombie){
         if(zombie.type == 1){
-            this.physics.add.collider(zombie.bullet, this.win, (bullet, win) =>{
+            this.physics.add.collider(zombie.bullet, this.front, (bullet, front) =>{
                 zombie.removeBullet();
             })
         }
@@ -250,7 +277,7 @@ export default class level2 extends Phaser.Scene {
             this.myPlayer.removeBullet(data.idBullet)
         }
         var life = this.otherPlayer.life < 0 ? 0 : this.otherPlayer.life
-        this.othersLifeLabel.setText("Player " + this.otherPlayer.id + ": " + life)
+        this.otherLifeLabel.setText("Player " + this.otherPlayer.id + ": " + life)
     }
 
     otherPlayerTypeBullets(data){
@@ -279,7 +306,6 @@ export default class level2 extends Phaser.Scene {
                 if(data.idPlayer){
                     this.players.children.iterate(function (player) {
                         if(player.id == data.idPlayer){
-                            console.log(zombie)
                             zombie.move(player, this.socket)
                         }
                     }, this)

@@ -69,19 +69,19 @@ export default class level1 extends Phaser.Scene {
 
         this.physics.add.collider(this.players, this.front)
 
-        this.zombies.children.iterate(function (zombie) {
-            if(zombie.type != 3){
-                this.physics.add.collider(this.zombies, this.front)
-            }
-        }, this);
-
         this.physics.add.overlap(this.myPlayer, this.zombies, this.myPlayerZombiesCollision, null, this)///colisão inimigos e eu
 
         this.physics.add.overlap(this.myPlayer, this.otherPlayer.bullets, this.myPlayerOtherPlayerBulletsCollision, null, this)//eu levar com bala
 
-        this.players.children.iterate(this.playersBulletsFrontCollision, this);//colisao balas com arvores
+        this.players.children.iterate(function(player){
+            this.playersBulletsFrontCollision(player)
+            player.fireSound = fireSound
+        }, this);//colisao balas com arvores, e som
 
         this.zombies.children.iterate(function (zombie) {
+            if(zombie.type != 3){
+                this.physics.add.collider(zombie, this.front)
+            }
             this.zombiesBulletsFrontCollision(zombie)//balas inimigos com arvores
             this.myPlayerZombiesBulletsCollision(zombie)
         }, this);
@@ -113,60 +113,67 @@ export default class level1 extends Phaser.Scene {
     ///tem bugs que nao deixam o personagem mexer-se mas o anim corre na mesma
     ///as vezes da erro e o dinheiro começa a disparar e o power tem mais de 50, e mata logo o zombie
     update(time) {
-        this.currentTime = time
-        this.players.children.iterate(function (player) {
-            if(player.life > 0){
-                player.update(time, this.data)
-            }else{
-                player.dead()
-                this.myPlayer.finish()
-                this.otherPlayer.finish()
-                this.scene.stop();
-                this.themeSound.stop();
-                this.socket.emit('Finish')
-                this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player.id})
-            }
-        }, this);
-        
-        this.zombies.children.iterate(function (zombie) {
-            zombie.update(time, this.players);
-            if(zombie.life <= 0){
-                zombie.dead();
-                this.zombies.killAndHide(zombie);
-                this.deadZombies++
-                //barra progresso
-                if(this.deadZombies > 0){
-                    this.add.image(238.5 + this.deadZombies * 4, 10, "progresso").setScale(0.2, 0.4)
+        if(this.deadZombies < this.maxZombies){
+            this.currentTime = time
+            this.players.children.iterate(function (player) {
+                if(player.life > 0){
+                    player.update(time, this.data)
+                }else{
+                    player.dead()
+                    this.myPlayer.finish()
+                    this.otherPlayer.finish()
+                    this.scene.stop();
+                    this.themeSound.stop();
+                    this.socket.emit('Finish')
+                    this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player.id})
                 }
-            }
-        }, this);
-
-        if(this.deadZombies == this.maxZombies){
+            }, this);
+            
+            this.zombies.children.iterate(function (zombie) {
+                zombie.update(time, this.players);
+                if(zombie.life <= 0){
+                    zombie.dead();
+                    this.zombies.killAndHide(zombie);
+                    this.deadZombies++
+                    //barra progresso
+                    if(this.deadZombies > 0){
+                        this.add.image(238.5 + this.deadZombies * 4, 10, "progresso").setScale(0.2, 0.4)
+                    }
+                }
+            }, this);
+        }else if(this.deadZombies == this.maxZombies){
             this.objective.x = 0
             this.objective.y = 0
             this.myPlayer.finish()
-            this.otherPlayer.finish()///////nao deixar que q o pointer seja o do lado direito
-            var i = 0//////////////////criar historia
-            this.time.addEvent({
-                repeat: 1000,
-                loop: false,
-                callback: () => {
-                    if (i >= 1000) {
-                        this.scene.stop();
-                        this.socket.emit('level2')
-                        this.scene.start('Level2', {data: this.data,
-                                        players: this.players,
-                                        myPlayer: this.myPlayer,
-                                        otherPlayer: this.otherPlayer,
-                                        zombies: this.zombies
-                        })
-                    }
-                    i++
-                }
-            });
+            this.otherPlayer.finish() ///////nao deixar que q o pointer seja o do lado direito
+            this.deadZombies++
+            this.nextLevel()
         }
     }
     
+    nextLevel(){
+        var i = 0
+        this.time.addEvent({
+            repeat: 200,
+            loop: false,
+            callback: () => {
+                if (i >= 1000) {
+                    this.socket.emit('finishLevel')
+                    this.data.players = this.players
+                    this.data.myPlayer = this.myPlayer,
+                    this.data.otherPlayer = this.otherPlayer,
+                    this.data.zombies = this.zombies
+                    this.data.nextLevel++
+                    this.socket.on('readyToText', ()=>{
+                        this.scene.stop();
+                        this.scene.start('NextLevel', this.data)
+                    })
+                }
+                i++
+            }
+        });
+    }
+
     defCursors(){
         return {
             up: this.input.keyboard.addKey(this.data.cursors.up.keyCode),
