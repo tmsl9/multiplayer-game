@@ -155,7 +155,7 @@ export default class level1 extends Phaser.Scene {
             repeat: 200,
             loop: false,
             callback: () => {
-                if (i >= 1000) {
+                if (i >= 200) {
                     this.socket.emit('finishLevel')
                     this.data.players = this.players
                     this.data.myPlayer = this.myPlayer,
