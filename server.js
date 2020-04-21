@@ -253,13 +253,8 @@ setInterval(function(){//criação do inimigo
             }
         }else{
             let xy = Math.floor(Math.random() * 2);
-            if(xy == 0){
-                x = xy1.x
-                y = xy1.y
-            }else{
-                x = xy2.x
-                y = xy2.y
-            }
+            xy == 0 ? x = 304 : x = 336
+            y = 113
         }
 
         let prob = Math.floor(Math.random() * 100+1);
