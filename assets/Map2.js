@@ -50,7 +50,7 @@
          "imageheight":672,
          "imagewidth":736,
          "margin":0,
-         "name":"map-tile",
+         "name":"tile-map",
          "spacing":0,
          "tilecount":483,
          "tileheight":32,
