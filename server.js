@@ -22,7 +22,7 @@ var ZOMBIE_LIST = {};
 var max_zombies = 5;
 var living_zombies = 0;
 var total_zombies = 0;
-var max_zombies_level1 = 2;
+var max_zombies_level1 = 1;
 let idZombie = 1;
 const zombieTimerDelay = 5000;
 var level = 0
@@ -40,7 +40,7 @@ var Player = function(id){
         id:id, //important information
         number:total_players,
         pos:"downplayer" + id,
-        typeBullets:1,
+        typeBullets:0,
         ready:false,
         maxSpd:10
     }
