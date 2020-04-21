@@ -45,17 +45,21 @@ export default class controlsConfiguration extends Phaser.Scene {
 
         this.okButton = this.add.text(220, 400, 'Ok', { fill: '#fff' })
             .on('pointerdown', () => {
-                this.data.cursors = this.cursors
-                this.destroyCursors()
-                this.scene.stop()
-                this.scene.start("Menu", this.data)
+                if(this.clickLeft){
+                    this.data.cursors = this.cursors
+                    this.destroyCursors()
+                    this.scene.stop()
+                    this.scene.start("Menu", this.data)
+                }
             })
         this.buttonInteraction(this.okButton)
         this.cancelarButton = this.add.text(300, 400, 'Cancelar', { fill: '#fff' })
             .on('pointerdown', () => {
-                this.destroyCursors()
-                this.scene.stop()
-                this.scene.start("Menu", this.data)
+                if(this.clickLeft){
+                    this.destroyCursors()
+                    this.scene.stop()
+                    this.scene.start("Menu", this.data)
+                }
             })
         this.buttonInteraction(this.cancelarButton)
     }
@@ -66,8 +70,12 @@ export default class controlsConfiguration extends Phaser.Scene {
         but.on('pointerout', () => but.setStyle({ fill: '#fff'}))
     }
     
+    clickLeft(pointer){
+        return pointer.leftButtonDown()
+    }
+
     clickKey(pointer, buttons){
-        if(buttons.length > 0){
+        if(this.clickLeft && buttons.length > 0){
             this.button = buttons[0]
             this.button.setStyle({ fill: '#0f0'})
             this.input.off('pointerdown', this.clickKey, this)

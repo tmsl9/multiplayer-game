@@ -196,6 +196,4 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.x = -100;
         this.y = -100;
     }
-
-
 }
