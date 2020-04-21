@@ -8,19 +8,19 @@ export default class nextLevel extends Phaser.Scene {
         this.data = data
         this.socket = data.socket
         this.id = data.id
-        this.nextLevel = data.nextLevel
+        this.nextLevel = 3
     }
 
     preload(){
         this.load.image("tiles", "assets/tile-map.png");
-        this.load.tilemapTiledJSON("mapText", "assets/MapText.json");
+        this.load.tilemapTiledJSON("mapText", "assets/MapFinish.json");
     }
 
     create() {
         this.map = this.make.tilemap({ key: "mapText" });
         const tileset = this.map.addTilesetImage("tile-map", "tiles");
-        this.bossTalking = this.map.createStaticLayer("bossTalking", tileset, 0, 0);
-        
+        this.bossTalking = this.map.createStaticLayer("finish", tileset, 0, 0);
+        /*
         this.boss = this.add.image(200, 450, 'boss', 0).setScale(5)
 
         var textConfig = {font: "17px Cambria", fill: "#ffffff"}
@@ -65,7 +65,7 @@ export default class nextLevel extends Phaser.Scene {
                 }
                 i++
             }
-        });
+        });*/
     }
 
 
