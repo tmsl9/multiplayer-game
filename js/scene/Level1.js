@@ -26,25 +26,30 @@ export default class level1 extends Phaser.Scene {
         
         this.map = this.make.tilemap({ key: "map1" });
         const tileset = this.map.addTilesetImage("tile-map", "tiles");
-        this.map.createStaticLayer("back", tileset, 0, 0);
+        this.back = this.map.createStaticLayer("back", tileset, 0, 0);
         this.front = this.map.createStaticLayer("front", tileset, 0, 0);
+        this.objective = this.map.createStaticLayer("objective", tileset, -500, -500);
         this.front.setCollisionByProperty({ "collides": true }, true);
         
         this.players = new PlayersGroup(this.physics.world, this, this.id)
         this.myPlayer = this.players.me
         this.otherPlayer = this.players.other
         
-        this.enemies = new ZombiesGroup(this.physics.world, this)
+        this.zombies = new ZombiesGroup(this.physics.world, this)
+        this.maxZombies = 1
+        this.deadZombies = 0
 
         var textConfig = {font: "30px Cambria", fill: "#ffffff"}
         var lifeLabel1 = this.add.text(20, 20, "Player 1: 100", textConfig);
         var lifeLabel2 = this.add.text(this.game.config.width - 195, 20, "Player 2: 100", textConfig);
         this.myLifeLabel = this.id == 1 ? lifeLabel1 : lifeLabel2
-        this.othersLifeLabel = this.id == 1 ? lifeLabel2 : lifeLabel1
+        this.otherLifeLabel = this.id == 1 ? lifeLabel2 : lifeLabel1
 
         this.coin = new Coin(this, 30, 75, 0)
 
         this.moneyLabel = this.add.text(45, 58, this.myPlayer.money, textConfig);
+
+        this.add.image(320,10,"barraprogresso")
 
         this.currentTime;
 
@@ -64,13 +69,13 @@ export default class level1 extends Phaser.Scene {
 
         this.physics.add.collider(this.players, this.front)
 
-        this.enemies.children.iterate(function (zombie) {
+        this.zombies.children.iterate(function (zombie) {
             if(zombie.type != 3){
-                this.physics.add.collider(this.enemies, this.front)
+                this.physics.add.collider(this.zombies, this.front)
             }
         }, this);
 
-        this.physics.add.overlap(this.myPlayer, this.enemies, this.myPlayerEnemiesCollision, null, this)///colisão inimigos e eu
+        this.physics.add.overlap(this.myPlayer, this.zombies, this.myPlayerZombiesCollision, null, this)///colisão inimigos e eu
 
         this.physics.add.overlap(this.myPlayer, this.otherPlayer.bullets, this.myPlayerOtherPlayerBulletsCollision, null, this)//eu levar com bala
 
@@ -127,9 +132,39 @@ export default class level1 extends Phaser.Scene {
             zombie.update(time, this.players);
             if(zombie.life <= 0){
                 zombie.dead();
-                this.enemies.killAndHide(zombie);
+                this.zombies.killAndHide(zombie);
+                this.deadZombies++
+                //barra progresso
+                if(this.deadZombies > 0){
+                    this.add.image(238.5 + this.deadZombies * 4, 10, "progresso").setScale(0.2, 0.4)
+                }
             }
         }, this);
+
+        if(this.deadZombies == this.maxZombies){
+            this.objective.x = 0
+            this.objective.y = 0
+            this.myPlayer.finish()
+            this.otherPlayer.finish()///////nao deixar que q o pointer seja o do lado direito
+            var i = 0//////////////////criar historia
+            this.time.addEvent({
+                repeat: 1000,
+                loop: false,
+                callback: () => {
+                    if (i >= 1000) {
+                        this.scene.stop();
+                        this.socket.emit('level2')
+                        this.scene.start('Level2', {data: this.data,
+                                        players: this.players,
+                                        myPlayer: this.myPlayer,
+                                        otherPlayer: this.otherPlayer,
+                                        zombies: this.zombies
+                        })
+                    }
+                    i++
+                }
+            });
+        }
     }
     
     defCursors(){
@@ -210,7 +245,7 @@ export default class level1 extends Phaser.Scene {
             this.moneyLabel.setText(this.myPlayer.money)
         }
         
-        this.socket.emit('lifezombie', {idzombie:zombie.id, idBullet:bullet.id, life:zombie.life})
+        this.socket.emit('lifeZombie', {idZombie:zombie.id, idBullet:bullet.id, life:zombie.life})
     }
 
     playerActions(data){
@@ -235,7 +270,7 @@ export default class level1 extends Phaser.Scene {
             this.myPlayer.removeBullet(data.idBullet)
         }
         var life = this.otherPlayer.life < 0 ? 0 : this.otherPlayer.life
-        this.othersLifeLabel.setText("Player " + this.otherPlayer.id + ": " + life)
+        this.otherLifeLabel.setText("Player " + this.otherPlayer.id + ": " + life)
     }
 
     otherPlayerTypeBullets(data){

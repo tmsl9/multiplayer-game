@@ -26,7 +26,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.atacklvl = 1;
         this.velocity = 200;
         this.fireRate = 350;
-        this.money = 0;
+        this.money = 100000;
 
         this.canBeKilled = true;
 
@@ -45,34 +45,40 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.leftAnim = 'left' + this.img
         this.rightAnim = 'right' + this.img
 
-        this.scene.anims.create({
-            key: this.upAnim,
-            frameRate: 8,
-            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 9, end: 11 })
-        });
-        this.scene.anims.create({
-            key: this.downAnim,
-            frameRate: 8,
-            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 2 })
-        });
-        this.scene.anims.create({
-            key: this.leftAnim,
-            frameRate: 8,
-            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 3, end: 5 })
-        });
-        this.scene.anims.create({
-            key:  this.rightAnim,
-            frameRate: 8,
-            frames: this.scene.anims.generateFrameNumbers(this.img, { start: 6, end: 8 })
-        });
-        
         this.pos = this.downAnim
 
-        this.play(this.pos)
+        this.updateAnims()
+        
+        this.play(this.pos, 0)
 
         this.shopNum = 0
         this.timeToShop = 0
         this.delayShop = 1000
+    }
+
+    updateAnims(){
+        if(!this.scene.anims.exists(this.upAnim)){
+            this.scene.anims.create({
+                key: this.upAnim,
+                frameRate: 8,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 9, end: 11 })
+            });
+            this.scene.anims.create({
+                key: this.downAnim,
+                frameRate: 8,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 2 })
+            });
+            this.scene.anims.create({
+                key: this.leftAnim,
+                frameRate: 8,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 3, end: 5 })
+            });
+            this.scene.anims.create({
+                key:  this.rightAnim,
+                frameRate: 8,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 6, end: 8 })
+            });
+        }
     }
 
     update(time, data) {
@@ -115,7 +121,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if(cursors.shop.isDown && this.timeToShop < this.time){
                 if(!this.scene.scene.isActive("Shop" + this.shopNum)){
                     this.shopNum++
-                    console.log(this.id, this.shopNum)
+                    //console.log(this.id, this.shopNum)
                     this.timeToShop = this.time + this.delayShop
                     this.scene.scene.add("Shop"+this.shopNum, new shop("Shop"+this.shopNum,this), true)
                 }else{

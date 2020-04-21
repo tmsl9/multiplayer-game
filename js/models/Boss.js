@@ -1,10 +1,10 @@
 import Explosion from './Explosion.js'
 import Bullet from "./Bullet.js";
 
-export default class Zombie extends Phaser.Physics.Arcade.Sprite {
+export default class Boss extends Phaser.Physics.Arcade.Sprite {
 
     constructor(scene, x, y, type, id) {
-        var img = 'z' + type
+        var img = 'boss'
         
         super(scene, x, y, img);
 
@@ -20,11 +20,11 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.rangedDamage=20;
         this.meeleDamage=10;
         this.baseVelocity=5;
-        this.fireRate=4000;
+        this.fireRate=3000;
         this.timeToShoot = 0;
         this.timeToMeelee = 0;
         this.zombieTimerDelay = 2000;
-        this.typeBullet = "z"
+        this.typeBullet = 'b'
         
         if(this.type == 1){
             this.bullet = new Bullet(this.scene, -500, -500, this.typeBullet).setActive(false)

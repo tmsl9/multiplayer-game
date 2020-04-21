@@ -24,23 +24,28 @@ export default class bootGame extends Phaser.Scene {
         
         this.load.image("bulletz", "assets/bulletz.png");
 
-        this.load.image("bossBullet", "assets/bossBullet.png");
+        this.load.image("bulletb", "assets/bulletb.png");
 
         this.load.image("fireball", "assets/fireball.png");
 
         this.load.spritesheet("z1", "assets/z1.png", {
-            frameHeight: 32.5,
-            frameWidth: 128/4
+            frameWidth: 31.5,
+            frameHeight: 32
         });
 
         this.load.spritesheet("z2", "assets/z2.png", {
-            frameHeight: 32.5,
-            frameWidth: 128/4
+            frameWidth: 32.6,
+            frameHeight: 32
         });
 
         this.load.spritesheet("z3", "assets/z3.png", {
-            frameHeight: 31.1,
-            frameWidth: 128/4
+            frameWidth: 32,
+            frameHeight: 32
+        });
+
+        this.load.spritesheet("boss", "assets/boss.png", {
+            frameWidth: 96/3,
+            frameHeight: 192/4
         });
 
         this.load.image("regenLife", "assets/regenLife.png");
@@ -62,6 +67,10 @@ export default class bootGame extends Phaser.Scene {
             frameHeight: 960/5,
         });
 
+        this.load.image("barraprogresso", "assets/barraprogresso.png");
+
+        this.load.image("progresso", "assets/progresso.png");
+
         this.load.image("bg", "assets/background.png");
 
         this.load.audio("fire", "assets/fireball.mp3");
@@ -72,7 +81,7 @@ export default class bootGame extends Phaser.Scene {
     
     create() {
         console.log("BootGame")
-        
+
         var cursors = {
             up: this.input.keyboard.addKey('W'),
             down: this.input.keyboard.addKey('S'),
@@ -86,8 +95,10 @@ export default class bootGame extends Phaser.Scene {
         socket.on('id',(data)=>{
             var id = data
             console.log("id received:", id)
+            var data = {socket: socket, id: id, volume: 1, cursors: cursors, nextLevel: 1}
             this.scene.stop()
-            this.scene.start("Play", {socket: socket, id: id, volume: 1, cursors: cursors});
+            this.scene.start('NextLevel', data)
+            //this.scene.start("Play", data);
         });
     }
 }

@@ -20,9 +20,12 @@ const width = 640
 const height = 640
 var ZOMBIE_LIST = {};
 var max_zombies = 5;
-var num_zombies = 0;
+var living_zombies = 0;
+var total_zombies = 0;
+var max_zombies_level1 = 1;
 let idZombie = 1;
 const zombieTimerDelay = 5000;
+var level = 1
 
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
@@ -140,8 +143,8 @@ io.sockets.on('connection', function(socket){
                     }
                 }
                 if(zombie.life<=0){
-                    num_zombies--;
-                    //console.log(zombie.id,zombie.life,num_zombies);
+                    living_zombies--;
+                    //console.log(zombie.id,zombie.life,living_zombies);
                     delete ZOMBIE_LIST[zombie.id];
                 }
             }
@@ -170,7 +173,6 @@ io.sockets.on('connection', function(socket){
                         idBullet:data.idBullet
                     }
                 }
-                //console.log("pack n",player2.id,"->",pack);
                 SOCKET_LIST[player2.id].emit('playerAction', pack);
             }
         }
@@ -193,10 +195,20 @@ io.sockets.on('connection', function(socket){
             }
         }
     });
+
+    socket.on('level2',function(data){
+        level = 2
+        ZOMBIE_LIST = {}
+    });
+
+    socket.on('level3',function(data){
+        level = 3
+        ZOMBIE_LIST = {}
+    });
 });
 
 setInterval(function(){//criação do inimigo
-    if(players_ready == 2 && num_zombies < max_zombies){
+    if(total_zombies < max_zombies_level1 && players_ready == 2 && living_zombies < max_zombies){
         let type;
         //console.log("zombie id:", idZombies)
         let x ;
@@ -225,9 +237,10 @@ setInterval(function(){//criação do inimigo
         }
         
         idZombie++;
-        num_zombies++;
+        living_zombies++;
+        total_zombies++;
         
-        //console.log("ZOMBIE",x,y, idZombie);
+        //console.log("ZOMBIE", x, y, idZombie);
 
         var zombie = Zombie(x, y, idZombie, type);
         ZOMBIE_LIST[idZombie] = zombie;
@@ -240,7 +253,7 @@ setInterval(function(){//criação do inimigo
 }, zombieTimerDelay);
 
 setInterval(function(){//mover o inimigo
-    if(players_ready == 2){
+    if(living_zombies > 0 && players_ready == 2){
         for(var ei in ZOMBIE_LIST){
             var zombie = ZOMBIE_LIST[ei]
             
@@ -271,7 +284,7 @@ setInterval(function(){//mover o inimigo
 }, 200);
 
 setInterval(function(){//range o inimigo
-    if(players_ready == 2){
+    if(total_zombies < max_zombies_level1 && players_ready == 2){
         for(var ei in ZOMBIE_LIST){
             var zombie = ZOMBIE_LIST[ei]
             if(zombie.type == 1){
@@ -283,7 +296,7 @@ setInterval(function(){//range o inimigo
             }
         }
     }
-}, 500);
+}, 500);// 0
 
 ////////////fazer o mover e o ataque aqui no server
 ////inicialmente fazer dist aqui, depois dist sempre nos jogadores, quando um dos jogadores enviar info que o player mais proximo mudou, fazer dist aqui

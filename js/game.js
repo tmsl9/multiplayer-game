@@ -1,5 +1,7 @@
 import bootGame from './scene/BootGame.js';
 import level1 from './scene/Level1.js';
+import level2 from './scene/Level2.js';
+import nextLevel from './scene/NextLevel.js';
 import play from './scene/Play.js';
 import waitingOpponent from './scene/WaitingOpponent.js';
 import menu from './scene/Menu.js';
@@ -13,7 +15,7 @@ window.onload = function () {
         width: 640,
         height: 640,
         backgroundColor: 0x000000,
-        scene: [bootGame, level1, finish, play, waitingOpponent, menu, soundAdjustment, controlsConfiguration],
+        scene: [bootGame, level1, level2, nextLevel, finish, play, waitingOpponent, menu, soundAdjustment, controlsConfiguration],
         physics: {
             default: "arcade",
             arcade: {
