@@ -144,17 +144,32 @@ export default class level1 extends Phaser.Scene {
                 enemy.dead();
                 this.enemies.killAndHide(enemy);
                 if(this.totalEnemiesDead>0){this.add.image(238.5+this.totalEnemiesDead*4,10,"progresso").setScale(0.2,0.4)}
-                console.log(this.totalEnemiesDead)
             }
         }, this);
        
 
-        if(this.totalEnemiesDead==40)
-        { 
-            this.objective.x=0;
-            this.objective.y=0;
-            this.totalEnemiesDead++
-            console.log("proximo nivel")
+        if(this.totalEnemiesDead == 2){
+            let i=0;
+            let repetition = 300
+            this.myPlayer.finish()
+            this.otherPlayer.finish()
+            this.time.addEvent({
+                repeat: repetition,
+                loop: false,
+                callback: () => {
+                    if (i >= repetition) {
+                        this.scene.stop();
+                        this.socket.emit('level2')
+                        this.scene.start('Level2', {data: this.data,
+                                        players: this.players,
+                                        myPlayer: this.myPlayer,
+                                        otherPlayer: this.otherPlayer,
+                                        enemies: this.enemies
+                        })
+                    }
+                    i++
+                }
+            });
         }
     }
     
