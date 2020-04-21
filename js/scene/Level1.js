@@ -40,11 +40,16 @@ export default class level1 extends Phaser.Scene {
         this.deadZombies = 0
 
         var textConfig = {font: "30px Cambria", fill: "#ffffff"}
-        var lifeLabel1 = this.add.text(20, 20, "Player 1: 100", textConfig);
-        var lifeLabel2 = this.add.text(this.game.config.width - 195, 20, "Player 2: 100", textConfig);
-        this.myLifeLabel = this.id == 1 ? lifeLabel1 : lifeLabel2
-        this.otherLifeLabel = this.id == 1 ? lifeLabel2 : lifeLabel1
-
+        this.add.image(70, 20, "barraprogresso").setScale(0.625);
+        this.add.image(this.game.config.width - 100, 20, "barraprogresso").setScale(0.625);
+        var life1 = [];
+        var life2 = [];
+        for(var i = 0; i<10 ; i++){
+            life1[i] = this.add.image(25 + i * 10, 20, "progresso").setScale(0.5, 0.2);
+            life2[i] = this.add.image(this.game.config.width - 145 + i * 10, 20, "progresso").setScale(0.5, 0.2);
+        }
+        this.myLifeLabel = this.id == 1 ? life1 : life2
+        this.otherLifeLabel = this.id == 1 ? life2 : life1
         this.coin = new Coin(this, 30, 75, 0)
 
         this.moneyLabel = this.add.text(45, 58, this.myPlayer.money, textConfig);
@@ -155,7 +160,7 @@ export default class level1 extends Phaser.Scene {
             repeat: 200,
             loop: false,
             callback: () => {
-                if (i >= 1000) {
+                if (i >= 200) {
                     this.socket.emit('finishLevel')
                     this.data.players = this.players
                     this.data.myPlayer = this.myPlayer,
@@ -188,8 +193,7 @@ export default class level1 extends Phaser.Scene {
             if(zombie.meeleeAttack(this.currentTime, myPlayer)){
                 
                 var life = myPlayer.life < 0 ? 0 : myPlayer.life
-                this.myLifeLabel.setText("Player " + myPlayer.id + ": " + life)
-
+                this.updateLifeLabel(myPlayer.id)
                 this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life})
             }
             this.socket.emit('zombiePosition', {id: zombie.id, x: zombie.x, y: zombie.y, collider: true})
@@ -204,7 +208,7 @@ export default class level1 extends Phaser.Scene {
         myPlayer.life -= bullet.power;
 
         var life = myPlayer.life < 0 ? 0 : myPlayer.life
-        this.myLifeLabel.setText("Player " + myPlayer.id + ": " + life)
+        this.updateLifeLabel(myPlayer.id)
         
         this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life, idBullet:idBullet})
     }
@@ -232,7 +236,7 @@ export default class level1 extends Phaser.Scene {
                 myPlayer.life -= bullet.power;
             
                 var life = myPlayer.life < 0 ? 0 : myPlayer.life
-                this.myLifeLabel.setText("Player " + myPlayer.id + ": " + life)///quando um dos players ficar com menos de 0 de vida, mudar para 0
+                this.updateLifeLabel(myPlayer.id)///quando um dos players ficar com menos de 0 de vida, mudar para 0
 
                 this.socket.emit('life', {idZombie:zombie.id, idBullet:bullet.id, life:myPlayer.life})
             });
@@ -275,7 +279,7 @@ export default class level1 extends Phaser.Scene {
             this.myPlayer.removeBullet(data.idBullet)
         }
         var life = this.otherPlayer.life < 0 ? 0 : this.otherPlayer.life
-        this.otherLifeLabel.setText("Player " + this.otherPlayer.id + ": " + life)
+        this.updateLifeLabel(this.otherPlayer.id)
     }
 
     otherPlayerTypeBullets(data){
@@ -329,5 +333,17 @@ export default class level1 extends Phaser.Scene {
                 this.otherPlayer.removeBullet(data.idBullet);
             }
         }, this)
+    }
+
+    updateLifeLabel(id){
+        if(id == this.id){
+            for(var i = 0; i < 10 - this.myPlayer.life / 10 ; i++){
+                this.myLifeLabel[9 - i].setVisible(false);
+            }
+        }else{
+            for(var i = 0; i < 10 - this.otherPlayer.life / 10 ; i++){
+                this.otherLifeLabel[9 - i].setVisible(false);
+            }
+        }
     }
 }///aumentar numero de inimigos, senao fica muito facil
