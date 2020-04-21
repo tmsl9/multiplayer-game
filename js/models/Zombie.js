@@ -114,7 +114,6 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
     playAnim(posAnim){
         this.pos = posAnim
         if(!this.anims.isPlaying){
-            console.log(this.pos, posAnim)
             this.play(this.pos)
         }
         if(this.anims.isPlaying && !(this.anims.currentAnim.key === this.pos)){
