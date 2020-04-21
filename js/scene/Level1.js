@@ -57,9 +57,7 @@ export default class level1 extends Phaser.Scene {
 
         //this.themeSound.play();
 
-        let fireSound = this.sound.add("fire", {
-            volume: this.volume
-        });
+        let fireSound = this.sound.add("fire", { volume: this.volume });
 
         this.players.children.iterate(function (player) {
             //player.fireSound = fireSound;

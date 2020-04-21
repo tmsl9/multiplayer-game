@@ -25,7 +25,7 @@ export default class nextLevel extends Phaser.Scene {
 
         var textConfig = {font: "17px Cambria", fill: "#ffffff"}
 
-        this.textSound = this.sound.add("text1", { volume: this.volume });
+        this.textSound = this.sound.add("text3", { volume: this.volume });
         this.textSound.play();
         
         if(this.nextLevel == 1){
@@ -40,7 +40,7 @@ export default class nextLevel extends Phaser.Scene {
 
         let i = 0
         let changeTint = true;
-        let repetition = 400//////////////ver tempo por causa da voz do mago(rui)
+        let repetition = 600//////////////ver tempo por causa da voz do mago(rui)
         this.time.addEvent({
             repeat: repetition,
             loop: false,
