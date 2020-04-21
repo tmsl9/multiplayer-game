@@ -101,8 +101,8 @@ export default class bootGame extends Phaser.Scene {
             console.log("id received:", id)
             var data = {socket: socket, id: id, volume: 1, cursors: cursors, nextLevel: 1}
             this.scene.stop()
-            this.scene.start("NextLevel", data);
-            //this.scene.start("Play", data);
+            //this.scene.start("NextLevel", data);
+            this.scene.start("Play", data);
         });
     }
 }

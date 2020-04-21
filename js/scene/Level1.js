@@ -57,9 +57,7 @@ export default class level1 extends Phaser.Scene {
 
         //this.themeSound.play();
 
-        let fireSound = this.sound.add("fire", {
-            volume: this.volume
-        });
+        let fireSound = this.sound.add("fire", { volume: this.volume });
 
         this.players.children.iterate(function (player) {
             //player.fireSound = fireSound;
@@ -86,7 +84,7 @@ export default class level1 extends Phaser.Scene {
             this.myPlayerZombiesBulletsCollision(zombie)
         }, this);
 
-        this.physics.add.overlap(this.enemies, this.myPlayer.bullets, this.enemiesMyPlayerBulletsCollision, null, this)
+        this.physics.add.overlap(this.zombies, this.myPlayer.bullets, this.zombiesMyPlayerBulletsCollision, null, this)
 
         //recomeçar o jogo quando servidor desligar e voltar a ligar, mas nao funciona bem por causa do servidor
         /*this.socket.on('id', (data)=>{
@@ -185,7 +183,7 @@ export default class level1 extends Phaser.Scene {
         }
     }
 
-    myPlayerEnemiesCollision(myPlayer, zombie){
+    myPlayerZombiesCollision(myPlayer, zombie){
         if(zombie.type != 1){
             if(zombie.meeleeAttack(this.currentTime, myPlayer)){
                 
@@ -217,7 +215,7 @@ export default class level1 extends Phaser.Scene {
         })
     }
 
-    enemiesBulletsFrontCollision(zombie){
+    zombiesBulletsFrontCollision(zombie){
         if(zombie.type == 1){
             this.physics.add.collider(zombie.bullet, this.front, (bullet, front) =>{
                 zombie.removeBullet();
@@ -225,7 +223,7 @@ export default class level1 extends Phaser.Scene {
         }
     }
 
-    myPlayerEnemiesBulletsCollision(zombie){
+    myPlayerZombiesBulletsCollision(zombie){
         if(zombie.type == 1){
             this.physics.add.collider(this.myPlayer, zombie.bullet, (myPlayer, bullet) => {//eu levar com bala
 
@@ -241,7 +239,7 @@ export default class level1 extends Phaser.Scene {
         }
     }
 
-    enemiesMyPlayerBulletsCollision(zombie, bullet){
+    zombiesMyPlayerBulletsCollision(zombie, bullet){
         this.myPlayer.removeBullet(bullet.id);
 
         zombie.life -= bullet.power;
@@ -268,7 +266,7 @@ export default class level1 extends Phaser.Scene {
     otherPlayerLife(data){
         this.otherPlayer.life = data.life
         if(data.idZombie){//se o outro jogador sofrer dano do inimigo
-            this.enemies.children.iterate(function (zombie) {
+            this.zombies.children.iterate(function (zombie) {
                 if(zombie.id==data.idZombie){
                     zombie.removeBullet()
                 }
@@ -285,7 +283,7 @@ export default class level1 extends Phaser.Scene {
     }
 
     zombiePositionWhenCollides(data){
-        this.enemies.children.iterate(function (zombie) {
+        this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.id){
                 zombie.x = data.x
                 zombie.y = data.y
@@ -294,14 +292,14 @@ export default class level1 extends Phaser.Scene {
     }
 
     createZombie(data){
-        let zombie = this.enemies.getFirstDead(true, data.x, data.y, data.type, data.idZombie);
+        let zombie = this.zombies.getFirstDead(true, data.x, data.y, data.type, data.idZombie);
         if(zombie){
             zombie.spawn(data.idZombie, data.type)
         }
     }
 
     moveZombie(data){
-        this.enemies.children.iterate(function (zombie) {
+        this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.idZombie){
                 if(data.idPlayer){
                     this.players.children.iterate(function (player) {
@@ -317,7 +315,7 @@ export default class level1 extends Phaser.Scene {
     }
 
     zombieMeleeAttack(data){
-        this.enemies.children.iterate(function (zombie) {
+        this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.id){
                 zombie.attack(data.time, this.players)
             }
@@ -325,7 +323,7 @@ export default class level1 extends Phaser.Scene {
     }
 
     zombieLife(data){
-        this.enemies.children.iterate(function (zombie) {
+        this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.idZombie){
                 zombie.life = data.life;
                 this.otherPlayer.removeBullet(data.idBullet);
