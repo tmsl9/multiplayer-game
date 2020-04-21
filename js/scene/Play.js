@@ -16,8 +16,10 @@ export default class play extends Phaser.Scene {
         this.playButton = this.add.text(280, 300, 'Play', { fill: '#fff' })
             .setInteractive()
             .on('pointerdown', () => {
-                this.scene.stop()
-                this.scene.start("WaitingOpponent", this.data)
+                if(this.clickLeft){
+                    this.scene.stop()
+                    this.scene.start("WaitingOpponent", this.data)
+                }
             })
             .on('pointerover', () => this.playButton.setStyle({ fill: '#ffa82e'}))
             .on('pointerout', () => this.playButton.setStyle({ fill: '#fff'}));
@@ -25,10 +27,16 @@ export default class play extends Phaser.Scene {
         this.menuButton = this.add.text(280, 330, 'Menu', { fill: '#fff' })
             .setInteractive()
             .on('pointerdown', () => {
-                this.scene.stop()
-                this.scene.start("Menu", this.data)
+                if(this.clickLeft){
+                    this.scene.stop()
+                    this.scene.start("Menu", this.data)
+                }
             })
             .on('pointerover', () => this.menuButton.setStyle({ fill: '#ffa82e'}))
             .on('pointerout', () => this.menuButton.setStyle({ fill: '#fff'}));
+    }
+
+    clickLeft(pointer){
+        return pointer.leftButtonDown()
     }
 }

@@ -24,15 +24,19 @@ export default class soundAdjustment extends Phaser.Scene {
             .setScale(0.06)
         this.okButton = this.add.text(220, 400, 'Ok', { fill: '#fff' })
             .on('pointerdown', () => {
-                this.data.volume = (this.volume - 300) / 100
-                this.scene.stop()
-                this.scene.start("Menu", this.data)
+                if(this.clickLeft){
+                    this.data.volume = (this.volume - 300) / 100
+                    this.scene.stop()
+                    this.scene.start("Menu", this.data)
+                }
             })
         this.buttonInteraction(this.okButton)
         this.cancelarButton = this.add.text(300, 400, 'Cancelar', { fill: '#fff' })
             .on('pointerdown', () => {
-                this.scene.stop()
-                this.scene.start("Menu", this.data)
+                if(this.clickLeft){
+                    this.scene.stop()
+                    this.scene.start("Menu", this.data)
+                }
             })
         this.buttonInteraction(this.cancelarButton)
     }
@@ -43,11 +47,17 @@ export default class soundAdjustment extends Phaser.Scene {
         but.on('pointerout', () => but.setStyle({ fill: '#fff'}))
     }
 
+    clickLeft(pointer){
+        return pointer.leftButtonDown()
+    }
+
     clickVolume(pointer){
-        this.volumeButton.off('pointerdown', this.clickVolume, this)
-        this.volumeButton.on('pointermove', this.dragVolume, this)
-        this.input.on('pointermove', this.dragVolume, this)
-        this.input.on('pointerup', this.stopDragVolume, this)
+        if(this.clickLeft){
+            this.volumeButton.off('pointerdown', this.clickVolume, this)
+            this.volumeButton.on('pointermove', this.dragVolume, this)
+            this.input.on('pointermove', this.dragVolume, this)
+            this.input.on('pointerup', this.stopDragVolume, this)
+        }
     }
 
     dragVolume(pointer){
