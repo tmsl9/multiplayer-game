@@ -216,7 +216,7 @@ export default class level1 extends Phaser.Scene {
                 this.updateLifeLabel(myPlayer.id)
                 this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life})
             }
-            this.socket.emit('zombiePosition', {id: zombie.id, x: zombie.x, y: zombie.y, collider: true})
+            this.socket.emit('zombiePositionCollider', {id: zombie.id, x: zombie.x, y: zombie.y, collider: true})
         }
     }
 
