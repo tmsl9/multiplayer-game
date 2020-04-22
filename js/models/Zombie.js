@@ -60,6 +60,11 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
     }
 
     updateAnims(){
+        this.upAnim = 'up' + this.img
+        this.downAnim = 'down' + this.img
+        this.leftAnim = 'left' + this.img
+        this.rightAnim = 'right' + this.img
+        
         if(!this.scene.anims.exists(this.upAnim)){
             this.scene.anims.create({
                 key: this.upAnim,

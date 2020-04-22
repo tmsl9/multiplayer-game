@@ -25,8 +25,8 @@ export default class nextLevel extends Phaser.Scene {
 
         var textConfig = {font: "17px Cambria", fill: "#ffffff"}
 
-        this.textSound = this.sound.add("text3", { volume: this.volume });
-        //this.textSound.play();
+        this.textSound = this.sound.add("text"+this.nextLevel, { volume: this.volume });
+        this.textSound.play();
         
         if(this.nextLevel == 1){
             this.add.text(300, 350, "\"Vocês nunca vão conseguir entrar!\nNão com a horda das minhas criações!!\nO castelo é meu!!!!\"", textConfig)            
@@ -48,6 +48,7 @@ export default class nextLevel extends Phaser.Scene {
                     if(this.nextLevel == 3){
                         this.boss.tint = 0xFFFFFF
                     }
+                    this.textSound.stop();
                     this.scene.stop();
                     this.socket.emit('nextLevel')
                     this.socket.on('readyToNextLevel', ()=>{
