@@ -254,47 +254,4 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.scene.scene.stop("Shop" + this.shopNum)
         }
     }
-
-    /**
-     * replace the player on-screen, change the player color (tint) and re-enable collisions
-     */
-    /*revive() {
-
-        this.x = 100;
-        this.y = 100;
-
-        let i = 0;
-        let repetition = 200
-        let changeTint = true;*/
-
-        /**
-         * timer to change the player's color/tint 
-         */
-        /*this.scene.time.addEvent({
-            repeat: repetition,
-            loop: false,
-            callback: () => {
-
-                //in the last repetition replace the normal color (tint) and re-enables collision
-                if (i >= repetition) {
-                    this.tint = 0xFFFFFF
-                    this.canBeKilled = true;
-                } else {
-
-                    if (changeTint) {
-                        this.tint = 0xFF0000
-                    } else {
-                        this.tint = 0xFFFFFF
-                    }
-                    if (i % 20 == 0) {
-                        changeTint = !changeTint;
-                    }
-
-                }
-                i++
-            }
-        });
-    }*/
-
-
 }
