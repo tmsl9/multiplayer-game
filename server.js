@@ -30,7 +30,6 @@ var readyToText = false
 var numReadyToText = 0
 var readyToNextLevel = false
 var numReadyToNextLevel = 0
-var boss = new Mage()
 
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
@@ -79,6 +78,8 @@ var Mage = function(){
 
     return self;
 }
+
+var boss = Mage();
 
 io.sockets.on('connection', function(socket){
     console.log("total --> ",total_players)////os dois ficam com id 2

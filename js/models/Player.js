@@ -249,6 +249,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     finish(){
+        this.setVelocity(0,0);
         if(this.scene.scene.isActive("Shop" + this.shopNum)){
             this.scene.scene.stop("Shop" + this.shopNum)
         }
