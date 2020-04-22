@@ -171,28 +171,34 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
           }, this);
     }
 
+    clickLeft(pointer){
+        return pointer.leftButtonDown()
+    }
+
     fire(pointer){
-        var mouseX = Math.floor(pointer.x)
-        var mouseY = Math.floor(pointer.y)
-        //console.log(mouseX, mouseY)
+        if(this.clickLeft(pointer)){
+            var mouseX = Math.floor(pointer.x)
+            var mouseY = Math.floor(pointer.y)
+            //console.log(mouseX, mouseY)
 
-        if (this.timeToShoot < this.time) {
-            let bullet = this.bullets.getFirstDead(true, this.x, this.y, this.typeBullet)
-            
-            if (bullet) {
-                bullet.fire(mouseX, mouseY, this.typeBullets)
-            
-                this.timeToShoot = this.time + bullet.fireRate;
+            if (this.timeToShoot < this.time) {
+                let bullet = this.bullets.getFirstDead(true, this.x, this.y, this.typeBullet)
+                
+                if (bullet) {
+                    bullet.fire(mouseX, mouseY, this.typeBullets)
+                
+                    this.timeToShoot = this.time + bullet.fireRate;
 
-                if (this.bullets.children.size > this.bulletsMaxsize) {
-                    //console.log("Group size failed")
+                    if (this.bullets.children.size > this.bulletsMaxsize) {
+                        //console.log("Group size failed")
+                    }
+
+                    if (this.fireSound) {
+                        this.fireSound.play();
+                    }
+
+                    this.socket.emit('keyPress',{input:'fight', state:true, mouseX: mouseX, mouseY: mouseY, idBullet: bullet.id});
                 }
-
-                if (this.fireSound) {
-                    this.fireSound.play();
-                }
-
-                this.socket.emit('keyPress',{input:'fight', state:true, mouseX: mouseX, mouseY: mouseY, idBullet: bullet.id});
             }
         }
     }

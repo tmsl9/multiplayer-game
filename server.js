@@ -16,13 +16,13 @@ var SOCKET_LIST = {};
 var PLAYER_LIST = {};
 var total_players = 0;
 var players_ready = 0;
-const width = 640
+const width = 640///////zombies caminharsa
 const height = 640
 var ZOMBIE_LIST = {};
-var max_zombies = 5;
+var max_zombies_each = 1;//presentes de uma vez no campo
 var living_zombies = 0;
 var total_zombies = 0;
-var max_zombies_level1 = 1;
+var max_zombies_level1 = 1;//max em todo o nivel
 let idZombie = 1;
 const zombieTimerDelay = 5000;
 var level = 0
@@ -217,6 +217,8 @@ io.sockets.on('connection', function(socket){
             level++
             numReadyToNextLevel = 0
             ZOMBIE_LIST = {}
+            living_zombies = 0
+            total_zombies = 0
             for(var i in PLAYER_LIST){
                 PLAYER_LIST[i].x = 200 * PLAYER_LIST[i].id
                 PLAYER_LIST[i].y = 200
@@ -231,8 +233,7 @@ io.sockets.on('connection', function(socket){
 });
 
 setInterval(function(){//criação do inimigo
-    console.log(level, total_zombies, max_zombies_level1, living_zombies, players_ready)
-    if(level > 0 && level != 3 && total_zombies < max_zombies_level1 && players_ready == 2 && living_zombies < max_zombies_level1){
+    if(level > 0 && level != 3 && living_zombies < max_zombies_each && total_zombies < max_zombies_level1){
         let type;
         let x;
         let y;
@@ -250,12 +251,11 @@ setInterval(function(){//criação do inimigo
                 y = height;
             }
         }else{
-            let xy = Math.floor(Math.random() * 2);
-            xy == 0 ? x = 304 : x = 336
+            Math.floor(Math.random() * 2) == 0 ? x = 304 : x = 336
             y = 113
         }
         
-        let prob = Math.floor(Math.random() * 100+1);
+        let prob = Math.floor(Math.random() * 100 + 1);
         
         if(prob <= 40){
             type = 1;
@@ -271,7 +271,7 @@ setInterval(function(){//criação do inimigo
 
         var zombie = Zombie(x, y, idZombie, type);
         ZOMBIE_LIST[idZombie] = zombie;
-        
+        console.log("olaaaaaa")
         for(var i in SOCKET_LIST){
             SOCKET_LIST[i].emit('createZombie', {x:x, y:y, idZombie:idZombie, type:type, life:zombie.life});
         }
@@ -279,7 +279,7 @@ setInterval(function(){//criação do inimigo
 }, zombieTimerDelay);
 
 setInterval(function(){//mover o inimigo
-    if(total_zombies <= max_zombies_level1 && living_zombies > 0 && players_ready == 2){
+    if(level != 3 && living_zombies > 0){
         for(var ei in ZOMBIE_LIST){
             var zombie = ZOMBIE_LIST[ei]
             var plCloser
@@ -306,7 +306,7 @@ setInterval(function(){//mover o inimigo
 }, 200);
 
 setInterval(function(){//range o inimigo
-    if(living_zombies > 0 && total_zombies <= max_zombies_level1 && players_ready == 2){
+    if(level != 3 & living_zombies > 0){
         for(var ei in ZOMBIE_LIST){
             var zombie = ZOMBIE_LIST[ei]
             if(zombie.type == 1){
