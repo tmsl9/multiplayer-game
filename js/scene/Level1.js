@@ -191,8 +191,6 @@ export default class level1 extends Phaser.Scene {
     myPlayerZombiesCollision(myPlayer, zombie){
         if(zombie.type != 1){
             if(zombie.meeleeAttack(this.currentTime, myPlayer)){
-                
-                var life = myPlayer.life < 0 ? 0 : myPlayer.life
                 this.updateLifeLabel(myPlayer.id)
                 this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life})
             }
@@ -207,7 +205,6 @@ export default class level1 extends Phaser.Scene {
         
         myPlayer.life -= bullet.power;
 
-        var life = myPlayer.life < 0 ? 0 : myPlayer.life
         this.updateLifeLabel(myPlayer.id)
         
         this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life, idBullet:idBullet})
@@ -235,7 +232,6 @@ export default class level1 extends Phaser.Scene {
                 
                 myPlayer.life -= bullet.power;
             
-                var life = myPlayer.life < 0 ? 0 : myPlayer.life
                 this.updateLifeLabel(myPlayer.id)///quando um dos players ficar com menos de 0 de vida, mudar para 0
 
                 this.socket.emit('life', {idZombie:zombie.id, idBullet:bullet.id, life:myPlayer.life})
@@ -278,7 +274,6 @@ export default class level1 extends Phaser.Scene {
         }else if(data.idBullet){//se o outro jogador sofrer dano de mim
             this.myPlayer.removeBullet(data.idBullet)
         }
-        var life = this.otherPlayer.life < 0 ? 0 : this.otherPlayer.life
         this.updateLifeLabel(this.otherPlayer.id)
     }
 
