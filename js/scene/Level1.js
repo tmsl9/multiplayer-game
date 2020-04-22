@@ -39,22 +39,23 @@ export default class level1 extends Phaser.Scene {
         this.maxZombies = 1
         this.deadZombies = 0
 
-        var textConfig = {font: "30px Cambria", fill: "#ffffff"}
-        this.add.image(70, 20, "barraprogresso").setScale(0.625);
-        this.add.image(this.game.config.width - 100, 20, "barraprogresso").setScale(0.625);
+        this.add.image(320, 10, "barraprogresso")//objective
+        this.add.image(70, 20, "barraprogresso").setScale(0.625);//life player 1
+        this.add.image(this.game.config.width - 100, 20, "barraprogresso").setScale(0.625);//life player 2
         var life1 = [];
         var life2 = [];
-        for(var i = 0; i<10 ; i++){
+        for(var i = 0; i < 10 ; i++){
             life1[i] = this.add.image(25 + i * 10, 20, "progresso").setScale(0.5, 0.2);
             life2[i] = this.add.image(this.game.config.width - 145 + i * 10, 20, "progresso").setScale(0.5, 0.2);
         }
         this.myLifeLabel = this.id == 1 ? life1 : life2
         this.otherLifeLabel = this.id == 1 ? life2 : life1
+
         this.coin = new Coin(this, 30, 75, 0)
 
-        this.moneyLabel = this.add.text(45, 58, this.myPlayer.money, textConfig);
+        var textConfig = {font: "30px Cambria", fill: "#ffffff"}
 
-        this.add.image(320,10,"barraprogresso")
+        this.moneyLabel = this.add.text(45, 58, this.myPlayer.money, textConfig);
 
         this.currentTime;
 
@@ -168,6 +169,7 @@ export default class level1 extends Phaser.Scene {
                     this.data.zombies = this.zombies
                     this.data.nextLevel++
                     this.socket.on('readyToText', ()=>{
+                        this.socketOff()
                         this.scene.stop();
                         this.scene.start('NextLevel', this.data)
                     })
@@ -175,6 +177,26 @@ export default class level1 extends Phaser.Scene {
                 i++
             }
         });
+    }
+
+    socketOff(){
+        this.socket.off('zombiePositionCollider', (data) =>{ this.zombiePositionWhenCollides(data) })
+
+        this.socket.off('playerAction', (data)=>{ this.playerActions(data) });
+
+        this.socket.off('life', (data)=>{ this.otherPlayerLife(data) })//se o outro player tiver sido atingido, eu atualizo a vida dele
+        
+        this.socket.off('typeBullets', (data) =>{ this.otherPlayerTypeBullets(data) })
+
+        this.socket.off('createZombie', (data) =>{ this.createZombie(data) })
+
+        this.socket.off('moveZombie', (data) =>{ this.moveZombie(data) })
+
+        this.socket.off('zombieShoot', (data) =>{ this.zombieMeleeAttack(data) })
+
+        this.socket.off('lifeZombie', (data) =>{ this.zombieLife(data) })
+    
+        this.socket.off('readyToText')
     }
 
     defCursors(){
@@ -291,6 +313,7 @@ export default class level1 extends Phaser.Scene {
     }
 
     createZombie(data){
+        console.log("create")
         let zombie = this.zombies.getFirstDead(true, data.x, data.y, data.type, data.idZombie);
         if(zombie){
             zombie.spawn(data.idZombie, data.type)
@@ -298,6 +321,7 @@ export default class level1 extends Phaser.Scene {
     }
 
     moveZombie(data){
+        console.log("move")
         this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.idZombie){
                 if(data.idPlayer){
@@ -310,10 +334,11 @@ export default class level1 extends Phaser.Scene {
                     zombie.setVelocity(0);
                 }
             }
-        }, this)
+        }, this)//////fazer stop de mago(rui) sound when in level
     }
 
     zombieMeleeAttack(data){
+        console.log("shoot")
         this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.id){
                 zombie.attack(data.time, this.players)
