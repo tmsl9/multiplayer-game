@@ -35,23 +35,23 @@ export default class level3 extends Phaser.Scene {
             player.y = 400
         }, this)
 
-        var textConfig = {font: "30px Cambria", fill: "#ffffff"}
-        var lifeLabel1 = this.add.image(70, 20, "barraprogresso").setScale(0.625);
-        var lifeLabel2 = this.add.image(this.game.config.width - 100, 20, "barraprogresso").setScale(0.625);
-        this.life1 = [];
-        this.life2 = [];
-        for(var i = 0; i<10 ; i++){
-            this.life1[i] = this.add.image(25 + i * 10, 20, "progresso").setScale(0.5, 0.2);
-            this.life2[i] = this.add.image(this.game.config.width - 145 + i * 10, 20, "progresso").setScale(0.5, 0.2);
+        this.add.image(320, 10, "barraprogresso")//objective
+        this.add.image(70, 20, "barraprogresso").setScale(0.625);//life player 1
+        this.add.image(this.game.config.width - 100, 20, "barraprogresso").setScale(0.625);//life player 2
+        var life1 = [];
+        var life2 = [];
+        for(var i = 0; i < 10 ; i++){
+            life1[i] = this.add.image(25 + i * 10, 20, "progresso").setScale(0.5, 0.2);
+            life2[i] = this.add.image(this.game.config.width - 145 + i * 10, 20, "progresso").setScale(0.5, 0.2);
         }
-        this.myLifeLabel = this.id == 1 ? this.life1 : this.life2
-        this.otherLifeLabel = this.id == 1 ? this.life2 : this.life1
+        this.myLifeLabel = this.id == 1 ? life1 : life2
+        this.otherLifeLabel = this.id == 1 ? life2 : life1
 
         this.coin = new Coin(this, 30, 75, 0)
 
-        this.moneyLabel = this.add.text(45, 58, this.myPlayer.money, textConfig);
+        var textConfig = {font: "30px Cambria", fill: "#ffffff"}
 
-        this.add.image(320,10,"barraprogresso")
+        this.moneyLabel = this.add.text(45, 58, this.myPlayer.money, textConfig);
 
         this.currentTime;
 
