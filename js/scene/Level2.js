@@ -225,7 +225,7 @@ export default class level2 extends Phaser.Scene {
                 this.updateLifeLabel(myPlayer.id)
                 this.socket.emit('life', {life:myPlayer.life})
             }
-        }
+        }////////do lifelabel of mage, and taking him life
     }///////////////make mage venoum attack
 
     myPlayerOtherPlayerBulletsCollision(myPlayer, bullet){
