@@ -20,15 +20,16 @@ export default class level3 extends Phaser.Scene {
         this.load.image("tiles", "assets/tile-map.png");
         this.load.tilemapTiledJSON("map3", "assets/Map3.json");
     }
-
+/////////type 3 not shootting
+/////////mage not shooting
     create() {
         console.log("Starting game");
         
         this.map = this.make.tilemap({ key: "map3" });
         const tileset = this.map.addTilesetImage("tile-map", "tiles");
-        this.map.createStaticLayer("map", tileset, 0, 0);
+        this.back = this.map.createStaticLayer("map", tileset, 0, 0);
         this.win = this.map.createStaticLayer("winwin", tileset, -500, -500);
-        this.map.setCollisionByProperty({ "collides": true }, true);
+        this.back.setCollisionByProperty({ "collides": true }, true);
         
         this.players.children.iterate(function(player){
             player.x = player.id * 200
@@ -69,12 +70,12 @@ export default class level3 extends Phaser.Scene {
 
         this.cursors = this.defCursors()
 
-        this.physics.add.collider(this.players, this.front)
+        this.physics.add.collider(this.players, this.back)
 
         this.physics.add.overlap(this.myPlayer, this.otherPlayer.bullets, this.myPlayerOtherPlayerBulletsCollision, null, this)//eu levar com bala
 
         this.players.children.iterate(function(player){
-            this.playersBulletsFrontCollision(player)
+            this.playersBulletsBackCollision(player)
             player.fireSound = fireSound
         }, this);//colisao balas com arvores, e som
 
@@ -133,10 +134,10 @@ export default class level3 extends Phaser.Scene {
         this.socket.emit('life', {id:myPlayer.id, life:myPlayer.life, idBullet:idBullet})
     }
 
-    playersBulletsFrontCollision(player) {
-        this.physics.add.collider(player.bullets, this.front, (bullet, front) =>{
+    playersBulletsBackCollision(player) {
+        this.physics.add.collider(player.bullets, this.back, (bullet, back) =>{
             player.removeBullet(bullet.id)
-        })
+        })///type 1 not moving
     }
 
     playerActions(data){

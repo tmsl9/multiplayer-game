@@ -14,7 +14,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.img = img
         
         this.scene = scene
-
+        
         this.scene.add.existing(this);
 
         this.scene.physics.world.enable(this);
@@ -54,6 +54,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.shopNum = 0
         this.timeToShop = 0
         this.delayShop = 1000
+    }
+
+    updatePlayer(money, life, typeBullets){
+        this.money = money
+        this.life = life
+        this.typeBullets = typeBullets
     }
 
     updateAnims(){
@@ -249,6 +255,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     finish(){
+        this.setVelocity(0, 0)
         if(this.scene.scene.isActive("Shop" + this.shopNum)){
             this.scene.scene.stop("Shop" + this.shopNum)
         }

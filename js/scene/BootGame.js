@@ -45,7 +45,7 @@ export default class bootGame extends Phaser.Scene {
             frameHeight: 32
         });
 
-        this.load.spritesheet("boss", "assets/boss.png", {
+        this.load.spritesheet("mage", "assets/mage.png", {
             frameWidth: 96/3,
             frameHeight: 192/4
         });
