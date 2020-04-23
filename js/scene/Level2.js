@@ -227,7 +227,7 @@ export default class level2 extends Phaser.Scene {
             this.zombies.killAndHide(zombie)
         }, this)
     }
-//////////zombies and mage are always going "down" never leave the carpet
+    
     myPlayerZombiesCollision(myPlayer, zombie){
         if(zombie.type != 1){
             if(zombie.meeleeAttack(this.currentTime, myPlayer)){
@@ -265,13 +265,13 @@ export default class level2 extends Phaser.Scene {
 
     myPlayerZombiesBulletsCollision(zombie){
         if(zombie.type == 1){
-            this.physics.add.collider(this.myPlayer, zombie.bullet, (myPlayer, bullet) => {//eu levar com bala
+            this.physics.add.collider(this.myPlayer, zombie.bullet, (myPlayer, bullet) => {
 
                 zombie.removeBullet();
                 
                 myPlayer.life -= bullet.power;
             
-                this.updateLifeLabel(myPlayer.id)///quando um dos players ficar com menos de 0 de vida, mudar para 0
+                this.updateLifeLabel(myPlayer.id)
 
                 this.socket.emit('life', {idZombie:zombie.id, idBullet:bullet.id, life:myPlayer.life})
             });
@@ -306,15 +306,15 @@ export default class level2 extends Phaser.Scene {
     }
 
     myPlayerMageBulletsCollision(){
-        this.physics.add.collider(this.myPlayer, this.mage.bullet, (myPlayer, bullet) => {//eu levar com bala
+        this.physics.add.collider(this.myPlayer, this.mage.bullet, (myPlayer, bullet) => {
 
             this.mage.removeBullet();
             
             myPlayer.life -= bullet.power;
-        ///////not working, and other player life too, doesnt remove bullet
-            this.updateLifeLabel(myPlayer.id)///quando um dos players ficar com menos de 0 de vida, mudar para 0
+            
+            this.updateLifeLabel(myPlayer.id)
 
-            this.socket.emit('life', {mage:true, life:myPlayer.life})//problem server
+            this.socket.emit('life', {mage:true, life:myPlayer.life})
         });
     }
 
