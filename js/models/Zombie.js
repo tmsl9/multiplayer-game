@@ -25,22 +25,20 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.timeToMeelee = 0;
         this.zombieTimerDelay = 2000;
         this.typeBullet = "z"
+
+        this.timeToUpdatePositions = 0
+        this.delayPositions = 300
         
         if(this.type == 1){
             this.bullet = new Bullet(this.scene, -500, -500, this.typeBullet).setActive(false)
             this.bullet.id = 1
         }
 
-        this.upAnim = 'up' + this.img
-        this.downAnim = 'down' + this.img
-        this.leftAnim = 'left' + this.img
-        this.rightAnim = 'right' + this.img
-        this.pos = this.downAnim
-
         this.updateAnims()
 
-        this.play(this.pos, 0);
+        this.pos = this.downAnim
 
+        this.play(this.pos, 0);
     }
 
     removeFromScreen() {
@@ -60,6 +58,10 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
     }
 
     updateAnims(){
+        this.upAnim = 'up' + this.img
+        this.downAnim = 'down' + this.img
+        this.leftAnim = 'left' + this.img
+        this.rightAnim = 'right' + this.img
         if(!this.scene.anims.exists(this.upAnim)){
             this.scene.anims.create({
                 key: this.upAnim,
@@ -91,8 +93,16 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         return this.x > width || this.y > height || this.x < 0 || this.y < 0;
     }
 
-    update(){
+    update(time, socket){
        this.bulletOutsideCanvas()
+       this.updatePositionsSocket(time, socket)
+    }
+
+    updatePositionsSocket(time, socket){
+        if(this.timeToUpdatePositions < time){
+            socket.emit('zombiePosition', {id:this.id, x:this.x, y:this.y})
+            this.timeToUpdatePositions = time + this.delayPositions
+        }
     }
 
     move(pl, socket){
@@ -134,12 +144,11 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
     }
 
     attack(time, players){
-        if(this.type==1){
+        if(this.type == 1 || this.type == 3){
             this.rangedAttack(time, players);
-        }else if(this.type==2){
+        }
+        if(this.type == 2 || this.type == 3){
             this.meeleeAttack(players);
-        }else if(this.type==3){
-            this.bonusZombie(players);
         }
     }
     /**
@@ -196,6 +205,4 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.x = -100;
         this.y = -100;
     }
-
-
 }

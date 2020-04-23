@@ -26,6 +26,8 @@ export default class bootGame extends Phaser.Scene {
 
         this.load.image("bulletb", "assets/bulletb.png");
 
+        this.load.image("bulletblue", "assets/bulletblue.png");
+
         this.load.image("fireball", "assets/fireball.png");
 
         this.load.spritesheet("z1", "assets/z1.png", {
@@ -43,7 +45,7 @@ export default class bootGame extends Phaser.Scene {
             frameHeight: 32
         });
 
-        this.load.spritesheet("boss", "assets/boss.png", {
+        this.load.spritesheet("mage", "assets/mage.png", {
             frameWidth: 96/3,
             frameHeight: 192/4
         });
@@ -76,6 +78,10 @@ export default class bootGame extends Phaser.Scene {
         this.load.audio("fire", "assets/fireball.mp3");
         this.load.audio("theme", "assets/overworld.mp3");
         this.load.audio("gameover", "assets/gameover.mp3");
+        
+        this.load.audio("text1", "assets/text1.mp3");
+        this.load.audio("text2", "assets/text2.mp3");
+        this.load.audio("text3", "assets/text3.mp3");
 
     }
     
@@ -97,8 +103,7 @@ export default class bootGame extends Phaser.Scene {
             console.log("id received:", id)
             var data = {socket: socket, id: id, volume: 1, cursors: cursors, nextLevel: 1}
             this.scene.stop()
-            this.scene.start('NextLevel', data)
-            //this.scene.start("Play", data);
+            this.scene.start("Play", data);
         });
     }
 }

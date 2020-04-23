@@ -8,6 +8,7 @@ export default class waitingOpponent extends Phaser.Scene {
         this.data = data
         this.socket = data.socket
         this.id = data.id
+        data.nextLevel = 1
     }
     
     create() {
@@ -18,7 +19,7 @@ export default class waitingOpponent extends Phaser.Scene {
         this.socket.emit('ready')
         this.socket.on('2players_ready', ()=>{
             this.scene.stop()
-            this.scene.start("Level1", this.data)
+            this.scene.start("NextLevel", this.data)
         })
     }
 

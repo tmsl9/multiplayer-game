@@ -16,16 +16,21 @@ var SOCKET_LIST = {};
 var PLAYER_LIST = {};
 var total_players = 0;
 var players_ready = 0;
-const width = 640
+const width = 640///////zombies caminharsa
 const height = 640
 var ZOMBIE_LIST = {};
-var max_zombies = 5;
+var max_zombies_each = 1;//presentes de uma vez no campo
 var living_zombies = 0;
 var total_zombies = 0;
-var max_zombies_level1 = 1;
+var max_zombies_level1 = 1;//max em todo o nivel
 let idZombie = 1;
 const zombieTimerDelay = 5000;
-var level = 1
+var level = 0
+var readyToText = false
+var numReadyToText = 0
+var readyToNextLevel = false
+var numReadyToNextLevel = 0
+var playerDead = false
 
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
@@ -64,6 +69,19 @@ var Zombie = function(x, y, id, type){
     return self;
 }
 
+var Mage = function(){
+    //console.log("Zombie successfully created: ", id)
+    var self = {
+        x:300,////////////
+        y:200,////////////
+        life:200
+    }
+
+    return self;
+}
+
+var mage = Mage()
+
 io.sockets.on('connection', function(socket){
     console.log("total --> ",total_players)////os dois ficam com id 2
     if(total_players == 2){///está a dar problemas na sincronização
@@ -92,7 +110,7 @@ io.sockets.on('connection', function(socket){
         players_ready--
     });
 
-    socket.on('ready',function(){
+    socket.on('ready', function(){
         console.log("Player id", socket.id, "ready")
         PLAYER_LIST[socket.id].ready = true
         players_ready++
@@ -104,16 +122,47 @@ io.sockets.on('connection', function(socket){
             console.log('Both players are ready!')
         }
     });
-        
+
+    socket.on('keyPress',function(data){
+        var pack = [];
+        for(var i in PLAYER_LIST){
+            var player2 = PLAYER_LIST[i];
+            if(player2.id != player.id){
+                if(data.input === 'xy'){
+                    player.x = data.x;
+                    player.y = data.y;
+                    player.pos = data.pos;
+                    pack = {
+                        x:player.x,
+                        y:player.y,
+                        pos:player.pos
+                    }
+                }else{
+                    pack = {
+                        mouseX:data.mouseX ? data.mouseX : 0,
+                        mouseY:data.mouseY ? data.mouseY : 0,
+                        idBullet:data.idBullet
+                    }
+                }
+                SOCKET_LIST[player2.id].emit('playerAction', pack);
+            }
+        }
+    });
+
     socket.on('life',function(data){
         for(var i in PLAYER_LIST){
             var player2 = PLAYER_LIST[i];
             if(player2.id != player.id){
                 player.life = data.life
+                if(player.life <= 0){
+                    playerDead = true
+                }
                 if(data.idZombie){
                     SOCKET_LIST[player2.id].emit('life', {life:player.life, idZombie:data.idZombie})
                 }else if(data.idBullet){
                     SOCKET_LIST[player2.id].emit('life', {life:player.life, idBullet:data.idBullet})
+                }else if(data.mage){
+                    SOCKET_LIST[player2.id].emit('life', {mage:true, life:player.life})
                 }else{
                     SOCKET_LIST[player2.id].emit('life', {life:player.life})
                 }
@@ -142,38 +191,10 @@ io.sockets.on('connection', function(socket){
                         SOCKET_LIST[player2.id].emit('lifeZombie', {idZombie:data.idZombie, idBullet:data.idBullet, life:data.life})
                     }
                 }
-                if(zombie.life<=0){
+                if(zombie.life <= 0){
                     living_zombies--;
-                    //console.log(zombie.id,zombie.life,living_zombies);
                     delete ZOMBIE_LIST[zombie.id];
                 }
-            }
-        }
-    });
-
-    socket.on('keyPress',function(data){
-        var pack = [];
-    
-        for(var i in PLAYER_LIST){
-            var player2 = PLAYER_LIST[i];
-            if(player2.id != player.id){
-                if(data.input === 'xy'){
-                    player.x = data.x;
-                    player.y = data.y;
-                    player.pos = data.pos;
-                    pack = {
-                        x:player.x,
-                        y:player.y,
-                        pos:player.pos
-                    }
-                }else{
-                    pack = {
-                        mouseX:data.mouseX ? data.mouseX : 0,
-                        mouseY:data.mouseY ? data.mouseY : 0,
-                        idBullet:data.idBullet
-                    }
-                }
-                SOCKET_LIST[player2.id].emit('playerAction', pack);
             }
         }
     });
@@ -184,120 +205,183 @@ io.sockets.on('connection', function(socket){
             if(zombie.id == data.id){
                 zombie.x = data.x
                 zombie.y = data.y
-                if(data.collider){
-                    for(var i in PLAYER_LIST){
-                        var player2 = PLAYER_LIST[i];
-                        if(player2.id != player.id){
-                            SOCKET_LIST[player2.id].emit('zombiePositionCollider', {id:zombie.id, x:zombie.x, y:zombie.y})
-                        }
-                    }
-                }
             }
         }
     });
 
-    socket.on('level2',function(data){
-        level = 2
-        ZOMBIE_LIST = {}
+    socket.on('lifeMage',function(data){
+        mage.life = data.life
+        for(var j in PLAYER_LIST){
+            if(PLAYER_LIST[j].id != player.id){
+                var player2 = PLAYER_LIST[j]
+                SOCKET_LIST[player2.id].emit('lifeMage', {idBullet:data.idBullet, life:data.life})
+            }
+        }
     });
 
-    socket.on('level3',function(data){
-        level = 3
-        ZOMBIE_LIST = {}
+    socket.on('magePosition',function(data){
+        mage.x = data.x
+        mage.y = data.y
+    });
+
+    socket.on('finishLevel',function(data){
+        numReadyToText++
+        if(numReadyToText == 2){
+            numReadyToText = 0
+            readyToText = true
+            playerDead = false
+            for(var i in SOCKET_LIST){
+                SOCKET_LIST[i].emit('readyToText')
+            }
+        }
+    });
+
+    socket.on('nextLevel',function(data){
+        numReadyToNextLevel++
+        if(numReadyToNextLevel == 2){
+            level++
+            numReadyToNextLevel = 0
+            ZOMBIE_LIST = {}
+            living_zombies = 0
+            total_zombies = 0
+            for(var i in PLAYER_LIST){
+                PLAYER_LIST[i].x = 200 * PLAYER_LIST[i].id
+                PLAYER_LIST[i].y = 200
+                PLAYER_LIST[i].life = 100////fazer um cenario no caso de ambos perderem
+            }
+            readyToNextLevel = true
+            for(var i in SOCKET_LIST){
+                SOCKET_LIST[i].emit('readyToNextLevel')
+            }
+        }
     });
 });
 
 setInterval(function(){//criação do inimigo
-    if(total_zombies < max_zombies_level1 && players_ready == 2 && living_zombies < max_zombies){
+    if((restrictionsLevel1() || restrictionsLevel2()) && living_zombies < max_zombies_each && !playerDead){
         let type;
-        //console.log("zombie id:", idZombies)
-        let x ;
-        let y ;
-        let randNum= Math.floor(Math.random() *3);
+        let x;
+        let y;
+        let randNum = Math.floor(Math.random() * 3);
         
-        if(randNum==0){
-            x = 0;
-            y = Math.floor(Math.random() * (height));
-        }else if( randNum == 1){
-            x= width;
-            y= Math.floor(Math.random() * (height));
-        }else if(randNum ==2){
-            x=Math.floor(Math.random() * (width));
-            y=height;
+        if(level == 1){
+            if(randNum == 0){
+                x = 0;
+                y = Math.floor(Math.random() * height);
+            }else if(randNum == 1){
+                x = width;
+                y = Math.floor(Math.random() * height);
+            }else if(randNum ==2){
+                x = Math.floor(Math.random() * width);
+                y = height;
+            }
+        }else{
+            Math.floor(Math.random() * 2) == 0 ? x = 304 : x = 336
+            y = 113
         }
-
-        let prob = Math.floor(Math.random() * 100+1);
         
-        if(prob<=40){
-            type=1;
-        }else if(prob<=80){
-            type=2;
-        }else if(prob<=100){
-            type=3;
+        let prob = Math.floor(Math.random() * 100 + 1);
+        
+        if(prob <= 40){
+            type = 1;
+        }else if(prob <= 80){
+            type = 2;
+        }else{
+            type = 3;
         }
         
         idZombie++;
         living_zombies++;
         total_zombies++;
-        
-        //console.log("ZOMBIE", x, y, idZombie);
 
         var zombie = Zombie(x, y, idZombie, type);
         ZOMBIE_LIST[idZombie] = zombie;
-        
         for(var i in SOCKET_LIST){
-            var socketEmit = SOCKET_LIST[i];
-            socketEmit.emit('createZombie', {x:x, y:y, idZombie:idZombie, type:type, life:zombie.life});
+            SOCKET_LIST[i].emit('createZombie', {x:x, y:y, idZombie:idZombie, type:type, life:zombie.life});
         }
     }
 }, zombieTimerDelay);
 
 setInterval(function(){//mover o inimigo
-    if(living_zombies > 0 && players_ready == 2){
-        for(var ei in ZOMBIE_LIST){
-            var zombie = ZOMBIE_LIST[ei]
-            
-            var plCloser
-            var minor = 100000
-            for(var pi in PLAYER_LIST){
-                var player = PLAYER_LIST[pi]
-                var dist = Math.sqrt(Math.pow(zombie.x - player.x, 2) + Math.pow(zombie.y - player.y, 2))
-                if(minor > dist){
-                    plCloser = player
-                    minor = dist
-                }
-            }
-            if((zombie.type == 1 && zombie.dist < minor) || (zombie.type!=1)){
-                for(var i in SOCKET_LIST){
-                    var socketEmit = SOCKET_LIST[i];
-                    socketEmit.emit('moveZombie', {idPlayer:plCloser.id, idZombie:zombie.id});
-                }
-            }else{ // se for so tipo 1 e tiver a 200 não anda
-                for(var i in SOCKET_LIST){/////nao esta a resultar em alguns casos
-                    var socketEmit = SOCKET_LIST[i];
-                    socketEmit.emit('moveZombie', {idZombie:zombie.id});
-                }
-            }
-            
-        }
+    if(level != 3 && living_zombies > 0 && !playerDead){
+        moveZombie()
+    }
+    if(level == 2 && mage.life > 0 && !playerDead){
+        moveMage()
     }
 }, 200);
 
-setInterval(function(){//range o inimigo
-    if(total_zombies < max_zombies_level1 && players_ready == 2){
-        for(var ei in ZOMBIE_LIST){
-            var zombie = ZOMBIE_LIST[ei]
-            if(zombie.type == 1){
-                //console.log("shoot-> ", zombie.id, zombie.type, zombie.x, zombie.y)
-                for(var i in SOCKET_LIST){
-                    var socketEmit = SOCKET_LIST[i];
-                    socketEmit.emit('zombieShoot', {id:zombie.id, time:Date.now() - start});
-                }
+function moveZombie(){
+    for(var ei in ZOMBIE_LIST){
+        var zombie = ZOMBIE_LIST[ei]////zombie positions are not updated
+        var plCloser
+        var minor = 1000
+        for(var pi in PLAYER_LIST){
+            var player = PLAYER_LIST[pi]
+            var dist = Math.sqrt(Math.pow(zombie.x - player.x, 2) + Math.pow(zombie.y - player.y, 2))
+            if(minor > dist){
+                plCloser = player
+                minor = dist
+            }
+        }
+        if((zombie.type == 1 && zombie.dist < minor) || zombie.type != 1){
+            for(var i in SOCKET_LIST){
+                SOCKET_LIST[i].emit('moveZombie', {idPlayer:plCloser.id, idZombie:zombie.id});
+            }
+        }else{ // se for so tipo 1 e tiver a 200 não anda
+            for(var i in SOCKET_LIST){/////nao esta a resultar em alguns casos
+                SOCKET_LIST[i].emit('moveZombie', {idZombie:zombie.id});
             }
         }
     }
-}, 500);// 0
+}
 
-////////////fazer o mover e o ataque aqui no server
-////inicialmente fazer dist aqui, depois dist sempre nos jogadores, quando um dos jogadores enviar info que o player mais proximo mudou, fazer dist aqui
-/// mover vai ser um problema vamos ter que saber as posiçoes exatas dos inimigos aqui no servidor
+function moveMage(){
+    var plCloser
+    var minor = 1000
+    for(var pi in PLAYER_LIST){
+        var player = PLAYER_LIST[pi]
+        var dist = Math.sqrt(Math.pow(mage.x - player.x, 2) + Math.pow(mage.y - player.y, 2))
+        if(minor > dist){
+            plCloser = player
+            minor = dist
+        }
+    }
+    for(var i in SOCKET_LIST){
+        SOCKET_LIST[i].emit('moveMage', {idPlayer:plCloser.id});
+    }
+}
+
+function restrictionsLevel1(){
+    return level == 1 && total_zombies < max_zombies_level1;
+}
+
+function restrictionsLevel2(){
+    return level == 2 && mage.life > 0
+}
+
+setInterval(function(){//zombie shoot
+    if(level != 3 & living_zombies > 0 && !playerDead){
+        shootZombie()
+    }
+    if(level == 2 & mage.life > 0 && !playerDead){
+        shootMage()
+    }
+}, 500);
+
+function shootZombie(){///////////fazer if tempo aqui ->canShoot
+    for(var ei in ZOMBIE_LIST){
+        var zombie = ZOMBIE_LIST[ei]
+        if(zombie.type != 2){////type 2 was shooting
+            for(var i in SOCKET_LIST){
+                SOCKET_LIST[i].emit('zombieShoot', {id:zombie.id, time:Date.now() - start});
+            }
+        }
+    }
+}
+
+function shootMage(){
+    for(var i in SOCKET_LIST){
+        SOCKET_LIST[i].emit('mageShoot', {time:Date.now() - start});
+    }
+}
