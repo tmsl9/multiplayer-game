@@ -24,6 +24,9 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
         this.zombieTimerDelay = 2000;
         this.typeBullet = 'b'
         
+        this.timeToUpdatePositions = 0
+        this.delayPositions = 300
+
         this.bullet = new Bullet(this.scene, -500, -500, this.typeBullet).setActive(false)
         this.bullet.id = 1
 
@@ -69,10 +72,18 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
         return this.x > width || this.y > height || this.x < 0 || this.y < 0;
     }
 
-    update(){
-       this.bulletOutsideCanvas()
+    update(time, socket){
+        this.bulletOutsideCanvas()
+        this.updatePositionsSocket(time, socket)
     }
-
+ 
+     updatePositionsSocket(time, socket){
+        if(this.timeToUpdatePositions < time){
+            socket.emit('magePosition', {x:this.x, y:this.y})
+            this.timeToUpdatePositions = time + this.delayPositions
+        }
+    }
+ 
     move(pl, socket){
         const dx = pl.x - this.x;
         const dy = pl.y - this.y;

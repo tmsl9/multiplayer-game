@@ -25,6 +25,9 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.timeToMeelee = 0;
         this.zombieTimerDelay = 2000;
         this.typeBullet = "z"
+
+        this.timeToUpdatePositions = 0
+        this.delayPositions = 300
         
         if(this.type == 1){
             this.bullet = new Bullet(this.scene, -500, -500, this.typeBullet).setActive(false)
@@ -90,8 +93,16 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         return this.x > width || this.y > height || this.x < 0 || this.y < 0;
     }
 
-    update(){
+    update(time, socket){
        this.bulletOutsideCanvas()
+       this.updatePositionsSocket(time, socket)
+    }
+
+    updatePositionsSocket(time, socket){
+        if(this.timeToUpdatePositions < time){
+            socket.emit('zombiePosition', {id:this.id, x:this.x, y:this.y})
+            this.timeToUpdatePositions = time + this.delayPositions
+        }
     }
 
     move(pl, socket){
