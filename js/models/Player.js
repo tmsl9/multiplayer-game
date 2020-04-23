@@ -23,9 +23,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.sceneHeight = this.scene.game.config.height;
 
         this.life = 100;
+        this.atacklvl = 1;
         this.velocity = 200;
         this.fireRate = 350;
-        this.money = 1000;
+        this.money = 100000;
 
         this.canBeKilled = true;
 
@@ -55,12 +56,28 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.delayShop = 1000
     }
 
-    earnmoney(type){
-        if(type==3)
-        {
-            this.money+=30
-        }else{
-            this.money+=10
+    updateAnims(){
+        if(!this.scene.anims.exists(this.upAnim)){
+            this.scene.anims.create({
+                key: this.upAnim,
+                frameRate: 8,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 9, end: 11 })
+            });
+            this.scene.anims.create({
+                key: this.downAnim,
+                frameRate: 8,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 0, end: 2 })
+            });
+            this.scene.anims.create({
+                key: this.leftAnim,
+                frameRate: 8,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 3, end: 5 })
+            });
+            this.scene.anims.create({
+                key:  this.rightAnim,
+                frameRate: 8,
+                frames: this.scene.anims.generateFrameNumbers(this.img, { start: 6, end: 8 })
+            });
         }
     }
 
@@ -203,16 +220,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     buyPowerUp(n){
-        
         this.scene.moneyLabel.setText(this.money)
         if(n != 4){
             this.typeBullets = n
-        
             this.socket.emit("typeBullets", {typeBullets: n})
         }else{
-            console.log(this.life) //muda a vida
             this.life + 50 <= 100 ? this.life += 50 : this.life = 100
-            console.log(this.life) //muda a vida
             this.scene.myLifeLabel.setText("Player " + this.id + ": " + this.life)
             this.socket.emit("life", {life:this.life})
         }

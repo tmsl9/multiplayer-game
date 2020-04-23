@@ -1,6 +1,5 @@
 import Explosion from './Explosion.js'
 import Bullet from "./Bullet.js";
-import Coin from './Coin.js'
 
 export default class Zombie extends Phaser.Physics.Arcade.Sprite {
 
@@ -18,10 +17,8 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.id=id;
         this.type=type;
         this.life = 100;
-        //this.rangedDamage=20;
-        this.rangedDamage=0;
-        //this.meeleDamage=10;
-        this.meeleDamage=0;
+        this.rangedDamage=20;
+        this.meeleDamage=10;
         this.baseVelocity=5;
         this.fireRate=4000;
         this.timeToShoot = 0;
@@ -56,9 +53,6 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.life = 100;
         this.id = id;
         this.type = type
-        if(this.type!=1){
-            this.baseVelocity=100
-        }
         this.img = "z" + this.type
         this.updateAnims()
         this.visible = true;

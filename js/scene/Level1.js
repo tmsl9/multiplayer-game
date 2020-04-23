@@ -30,10 +30,7 @@ export default class level1 extends Phaser.Scene {
         this.front = this.map.createStaticLayer("front", tileset, 0, 0);
         this.objective = this.map.createStaticLayer("objective", tileset, -500, -500);
         this.front.setCollisionByProperty({ "collides": true }, true);
-        this.totalEnemiesDead=0;
         
-        this.objective=this.map.createStaticLayer("objective", this.tileset, -10000, -10000);
-
         this.players = new PlayersGroup(this.physics.world, this, this.id)
         this.myPlayer = this.players.me
         this.otherPlayer = this.players.other
@@ -71,15 +68,6 @@ export default class level1 extends Phaser.Scene {
         this.cursors = this.defCursors()
 
         this.physics.add.collider(this.players, this.front)
-        
-        this.physics.add.collider(this.players, this.objective,()=>{
-            this.myPlayer.finish()
-            this.otherPlayer.finish()
-            this.scene.stop();
-            this.themeSound.stop();
-            this.socket.emit('Level2')
-            this.scene.start('Level2', {data: this.data, players: this.players})
-        })
 
         this.zombies.children.iterate(function (zombie) {
             if(zombie.type != 3){
@@ -286,7 +274,6 @@ export default class level1 extends Phaser.Scene {
     }
 
     otherPlayerTypeBullets(data){
-        //console.log(this.otherPlayer.id) Type of bullet é mudado
         this.otherPlayer.typeBullets = data.typeBullets
     }
 
