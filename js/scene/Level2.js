@@ -146,22 +146,24 @@ export default class level2 extends Phaser.Scene {
                     player.dead()
                     this.myPlayer.finish()
                     this.otherPlayer.finish()
+                    this.zombiesDead()
+                    this.mage.setVelocity(0, 0)
                     this.scene.stop();
                     this.themeSound.stop();
                     this.socket.emit('Finish')
                     this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player.id})
                 }
-            }, this);
-            
+            }, this);////////balas do mago tem collider e nao overlap
+            //////////////shop when started, stops image for a second
             this.zombies.children.iterate(function (zombie) {
-                zombie.update(time, this.players);
+                zombie.update(time, this.socket);
                 if(zombie.life <= 0){
                     zombie.dead();
                     this.zombies.killAndHide(zombie);
                 }
             }, this);
             
-            this.mage.update()
+            this.mage.update(time, this.socket)
         }else{
             this.objective.x = 0
             this.objective.y = 0
@@ -219,6 +221,13 @@ export default class level2 extends Phaser.Scene {
         }
     }
 
+    zombiesDead(){
+        this.zombies.children.iterate(function (zombie) {
+            zombie.dead()
+            this.zombies.killAndHide(zombie)
+        }, this)
+    }
+//////////zombies and mage are always going "down" never leave the carpet
     myPlayerZombiesCollision(myPlayer, zombie){
         if(zombie.type != 1){
             if(zombie.meeleeAttack(this.currentTime, myPlayer)){

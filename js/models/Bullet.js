@@ -11,7 +11,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Image {
         this.type = type
 
         if(this.type == 'b'){
-            this.setScale(0.3)
+            this.setScale(0.1)
         }
         this.power = 10;
         this.baseVelocity = 350;
