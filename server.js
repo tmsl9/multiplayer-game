@@ -216,7 +216,7 @@ setInterval(function(){//criação do inimigo
         let x ;
         let y ;
         let randNum= Math.floor(Math.random() *3);
-        
+        if (level==1){
         if(randNum==0){
             x = 0;
             y = Math.floor(Math.random() * (height));
@@ -226,6 +226,18 @@ setInterval(function(){//criação do inimigo
         }else if(randNum ==2){
             x=Math.floor(Math.random() * (width));
             y=height;
+        }
+        }else if (level==2){
+            let alternate=1
+            if (alternate ==1){
+                y = 113
+                x = 304
+                alternate=2
+            }else if(alternate ==2){
+                y = 113
+                x = 336
+                alternate=1
+            }
         }
         let prob = Math.floor(Math.random() * 100+1);
         
