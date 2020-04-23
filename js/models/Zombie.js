@@ -31,16 +31,11 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
             this.bullet.id = 1
         }
 
-        this.upAnim = 'up' + this.img
-        this.downAnim = 'down' + this.img
-        this.leftAnim = 'left' + this.img
-        this.rightAnim = 'right' + this.img
-        this.pos = this.downAnim
-
         this.updateAnims()
 
-        this.play(this.pos, 0);
+        this.pos = this.downAnim
 
+        this.play(this.pos, 0);
     }
 
     removeFromScreen() {
@@ -60,6 +55,10 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
     }
 
     updateAnims(){
+        this.upAnim = 'up' + this.img
+        this.downAnim = 'down' + this.img
+        this.leftAnim = 'left' + this.img
+        this.rightAnim = 'right' + this.img
         if(!this.scene.anims.exists(this.upAnim)){
             this.scene.anims.create({
                 key: this.upAnim,
@@ -134,12 +133,11 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
     }
 
     attack(time, players){
-        if(this.type==1){
+        if(this.type == 1 || this.type == 3){
             this.rangedAttack(time, players);
-        }else if(this.type==2){
+        }
+        if(this.type == 2 || this.type == 3){
             this.meeleeAttack(players);
-        }else if(this.type==3){
-            this.bonusZombie(players);
         }
     }
     /**
