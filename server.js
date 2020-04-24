@@ -7,7 +7,7 @@ app.get('/',function(req, res) {
 });
 app.use('/',express.static(__dirname));
 
-serv.listen(5500, '192.168.8.1');
+serv.listen(5500, '192.168.1.99');
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
 var start = Date.now()
@@ -229,8 +229,6 @@ io.sockets.on('connection', function(socket){
         readyToNextLevel = false
         if(numReadyToText == 2){
             numReadyToText = 0
-            readyToText = true
-            playerDead = false
             for(var i in SOCKET_LIST){
                 SOCKET_LIST[i].emit('readyToText')
             }
