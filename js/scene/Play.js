@@ -4,15 +4,13 @@ export default class play extends Phaser.Scene {
     }
     
     init(data){
-        console.log("Play: ", data)
+        console.log("Play scene")
         this.data = data
         this.socket = data.socket
         this.id = data.id
     }
 
     create() {
-        console.log("Play");
-        
         this.playButton = this.add.text(280, 300, 'Play', { fill: '#fff' })
             .setInteractive()
             .on('pointerdown', () => {

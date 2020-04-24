@@ -4,12 +4,11 @@ export default class menu extends Phaser.Scene {
     }
     
     init(data){
-        console.log("Menu: ", data)
+        console.log("Menu scene")
         this.data = data
     }
 
     create() {
-        console.log("Menu");
         this.volumeButton = this.add.text(280, 300, 'Volume', { fill: '#fff' })
             .on('pointerdown', () => {
                 this.scene.stop()

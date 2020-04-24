@@ -32,6 +32,8 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         if(this.type == 1){
             this.bullet = new Bullet(this.scene, -500, -500, this.typeBullet).setActive(false)
             this.bullet.id = 1
+        }else{
+            this.baseVelocity = 50
         }
 
         this.updateAnims()
@@ -55,6 +57,11 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.updateAnims()
         this.visible = true;
         this.active = true;
+        if(this.type == 1){
+            this.baseVelocity = 5
+        }else{
+            this.baseVelocity = 50
+        }
     }
 
     updateAnims(){

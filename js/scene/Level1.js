@@ -8,15 +8,12 @@ export default class level1 extends Phaser.Scene {
     }
 
     init(data){
-        console.log("Level1 scene: ", data)
+        console.log("Level1 scene")
         this.data = data
         this.socket = data.socket
         this.id = data.id
         this.volume = data.volume
-        //console.log("volume",this.volume)
     }
-
-    /////type dos zombies not working, type 1 earns 30, not right
 
     preload(){
         this.load.image("tiles", "assets/tile-map.png");
@@ -24,8 +21,6 @@ export default class level1 extends Phaser.Scene {
     }
 
     create() {
-        console.log("Starting game");
-        
         this.map = this.make.tilemap({ key: "map1" });
         const tileset = this.map.addTilesetImage("tile-map", "tiles");
         this.back = this.map.createStaticLayer("back", tileset, 0, 0);
@@ -71,7 +66,7 @@ export default class level1 extends Phaser.Scene {
 
         this.physics.add.collider(this.players, this.front)
 
-        this.physics.add.overlap(this.myPlayer, this.zombies, this.myPlayerZombiesCollision, null, this)///colisão inimigos e eu
+        this.physics.add.overlap(this.myPlayer, this.zombies, this.myPlayerZombiesCollision, null, this)//colisão inimigos e eu
 
         this.physics.add.overlap(this.myPlayer, this.otherPlayer.bullets, this.myPlayerOtherPlayerBulletsCollision, null, this)//eu levar com bala
 
@@ -135,7 +130,6 @@ export default class level1 extends Phaser.Scene {
                     zombie.dead();
                     this.zombies.killAndHide(zombie);
                     this.deadZombies++
-                    //barra progresso
                     if(this.deadZombies > 0){
                         this.add.image(238.5 + this.deadZombies * 4, 10, "progresso").setScale(0.2, 0.4)
                     }
@@ -145,7 +139,7 @@ export default class level1 extends Phaser.Scene {
             this.objective.x = 0
             this.objective.y = 0
             this.myPlayer.finish()
-            this.otherPlayer.finish() ///////nao deixar que q o pointer seja o do lado direito
+            this.otherPlayer.finish()
             this.deadZombies++
             this.nextLevel()
         }
@@ -158,12 +152,13 @@ export default class level1 extends Phaser.Scene {
             loop: false,
             callback: () => {
                 if (i >= 200) {
+                    console.log("olaaaaaaa")
                     this.socket.emit('finishLevel')
                     this.data.myPlayer = this.myPlayer
                     this.data.otherPlayer = this.otherPlayer
-                    this.data.nextLevel++
                     this.socket.on('readyToText', ()=>{
                         this.socketOff()
+                        this.data.nextLevel++
                         this.scene.stop()
                         this.scene.start('NextLevel', this.data)
                     })
@@ -174,7 +169,6 @@ export default class level1 extends Phaser.Scene {
     }
 
     socketOff(){
-        this.socket.off('zombiePositionCollider')
         this.socket.off('playerAction')
         this.socket.off('life')
         this.socket.off('typeBullets')
@@ -239,7 +233,7 @@ export default class level1 extends Phaser.Scene {
                 
                 myPlayer.life -= bullet.power;
             
-                this.updateLifeLabel(myPlayer.id)///quando um dos players ficar com menos de 0 de vida, mudar para 0
+                this.updateLifeLabel(myPlayer.id)
 
                 this.socket.emit('life', {idZombie:zombie.id, idBullet:bullet.id, life:myPlayer.life})
             });
@@ -274,7 +268,7 @@ export default class level1 extends Phaser.Scene {
         this.otherPlayer.life = data.life
         if(data.idZombie){//se o outro jogador sofrer dano do inimigo
             this.zombies.children.iterate(function (zombie) {
-                if(zombie.id==data.idZombie){
+                if(zombie.id == data.idZombie){
                     zombie.removeBullet()
                 }
             }, this);
@@ -308,7 +302,7 @@ export default class level1 extends Phaser.Scene {
                     zombie.setVelocity(0);
                 }
             }
-        }, this)//////fazer stop de mago(rui) sound when in level
+        }, this)
     }
 
     zombieShoot(data){
@@ -329,12 +323,12 @@ export default class level1 extends Phaser.Scene {
     }
 
     updateLifeLabel(id){
-        if(id == this.id){
-            for(var i = 0; i < 10 - this.myPlayer.life / 10 ; i++){
+        if(id == this.myPlayer.id){
+            for(var i = 0; i < 10 - this.myPlayer.life / 10 && i < 10; i++){
                 this.myLifeLabel[9 - i].setVisible(false);
             }
         }else{
-            for(var i = 0; i < 10 - this.otherPlayer.life / 10 ; i++){
+            for(var i = 0; i < 10 - this.otherPlayer.life / 10 && i < 10; i++){
                 this.otherLifeLabel[9 - i].setVisible(false);
             }
         }

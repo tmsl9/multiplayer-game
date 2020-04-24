@@ -9,7 +9,7 @@ export default class level2 extends Phaser.Scene {
     }
     
     init(data){
-        console.log("Level2 scene: ", data)
+        console.log("Level2 scene")
         this.data = data
         this.socket = data.socket
         this.id = data.id
@@ -24,14 +24,12 @@ export default class level2 extends Phaser.Scene {
     }
 ////develop server when someone lost stop sending info to client
     create() {
-        console.log("Starting game");
-        
         this.map = this.make.tilemap({ key: "map2" });
         const tileset = this.map.addTilesetImage("tile-map", "tiles");
         this.back = this.map.createStaticLayer("back", tileset, 0, 0);
         this.objective = this.map.createStaticLayer("win", tileset, 0, 0);
         this.back.setCollisionByProperty({ "collides": true }, true);
-        
+        ////////player 1 moved after moved scene
         this.players = new PlayersGroup(this.physics.world, this, this.id)
         this.myPlayer = this.players.me
         this.otherPlayer = this.players.other
@@ -42,13 +40,11 @@ export default class level2 extends Phaser.Scene {
 
         this.mage = new Mage(this, 300, 200)
 
-        this.players.children.iterate(function(player){
-            player.x = player.id * 200
-            player.y = 400
-            player.scene = this
-        }, this)
-
-        this.add.image(320, 10, "barraprogresso")//objective
+        this.add.image(320, 10, "barraprogresso").setScale(1.25, 1)//objective
+        this.mageLifeLabel = [];
+        for(var i = 0; i < 20; i++){
+            this.mageLifeLabel[i] = this.add.image(225 + i * 10, 10, "progresso").setScale(0.5, 0.4);
+        }
         this.add.image(70, 20, "barraprogresso").setScale(0.625);//life player 1
         this.add.image(this.game.config.width - 100, 20, "barraprogresso").setScale(0.625);//life player 2
         var life1 = [];
@@ -60,6 +56,9 @@ export default class level2 extends Phaser.Scene {
         this.myLifeLabel = this.id == 1 ? life1 : life2
         this.otherLifeLabel = this.id == 1 ? life2 : life1
 
+        this.updateLifeLabel(this.myPlayer.id)
+        this.updateLifeLabel(this.otherPlayer.id)        
+/////zombie type 1 is stopped in the beggining of level 2
         this.coin = new Coin(this, 30, 75, 0)
 
         var textConfig = {font: "30px Cambria", fill: "#ffffff"}
@@ -136,7 +135,7 @@ export default class level2 extends Phaser.Scene {
     ///tem bugs que nao deixam o personagem mexer-se mas o anim corre na mesma
     ///as vezes da erro e o dinheiro começa a disparar e o power tem mais de 50, e mata logo o zombie
     update(time) {
-        if(this.mage.life > 0){
+        if(this.mage.life > 0 && this.mage.life <= 200){
             this.currentTime = time
 
             this.players.children.iterate(function (player) {
@@ -164,7 +163,8 @@ export default class level2 extends Phaser.Scene {
             }, this);
             
             this.mage.update(time, this.socket)
-        }else{
+        }else if(this.mage.life <= 200){
+            this.mage.dead();
             this.objective.x = 0
             this.objective.y = 0
             this.myPlayer.finish()
@@ -180,12 +180,13 @@ export default class level2 extends Phaser.Scene {
             loop: false,
             callback: () => {
                 if (i >= 200) {
+                    console.log("olaaaaaaa", this.mage.life)
                     this.socket.emit('finishLevel')
                     this.data.myPlayer = this.myPlayer
                     this.data.otherPlayer = this.otherPlayer
-                    this.data.nextLevel++//increments level
                     this.socket.on('readyToText', ()=>{
                         this.socketOff()
+                        this.data.nextLevel++
                         this.scene.start('NextLevel', this.data)
                         this.scene.destroy();
                     })
@@ -196,7 +197,6 @@ export default class level2 extends Phaser.Scene {
     }
 
     socketOff(){
-        this.socket.off('zombiePositionCollider')
         this.socket.off('playerAction')
         this.socket.off('life')
         this.socket.off('typeBullets')
@@ -318,19 +318,15 @@ export default class level2 extends Phaser.Scene {
         });
     }
 
-    mageMyPlayerBulletsCollision(zombie, bullet){
+    mageMyPlayerBulletsCollision(mage, bullet){
         this.myPlayer.removeBullet(bullet.id);
 
-        zombie.life -= bullet.power;
+        mage.life -= bullet.power;
 
-        if(zombie.life <= 0){
-            this.myPlayer.earnMoney(zombie.type)
-            this.coin.playAnim()
-            this.moneyLabel.setText(this.myPlayer.money)
-        }
+        this.updateLifeLabel('mage')
         
-        this.socket.emit('lifeMage', {idBullet:bullet.id, life:this.mage.life})
-    }
+        this.socket.emit('lifeMage', {idBullet:bullet.id, life:mage.life})
+    }////bullet doing collide and pushing 
 
     playerActions(data){
         if(data.mouseX && data.mouseY && data.idBullet){
@@ -346,7 +342,7 @@ export default class level2 extends Phaser.Scene {
         this.otherPlayer.life = data.life
         if(data.idZombie){//se o outro jogador sofrer dano do inimigo
             this.zombies.children.iterate(function (zombie) {
-                if(zombie.id==data.idZombie){
+                if(zombie.id == data.idZombie){
                     zombie.removeBullet()
                 }
             }, this);
@@ -381,8 +377,8 @@ export default class level2 extends Phaser.Scene {
                 }else{
                     zombie.setVelocity(0);
                 }
-            }
-        }, this)
+            }/////do when mage dies
+        }, this)///////dist not working
     }
 
     zombieShoot(data){
@@ -409,7 +405,6 @@ export default class level2 extends Phaser.Scene {
             }
         }, this)
     }
-    ////////player 1 is pushing player 2
 
     mageShoot(data){
         this.mage.rangedAttack(data.time, this.players)
@@ -417,25 +412,23 @@ export default class level2 extends Phaser.Scene {
 ////////////mage doesnt do near attack
     mageLife(data){
         this.mage.life = data.life;
-        //this.add.image(238.5 + this.deadZombies * 4, 10, "progresso").setScale(0.2, 0.4)
+        this.updateLifeLabel('mage')
         this.otherPlayer.removeBullet(data.idBullet);
     }
 
     updateLifeLabel(id){
-        if(id == this.id){
-            for(var i = 0; i < 10 - this.myPlayer.life / 10 ; i++){
+        if(id == this.myPlayer.id){
+            for(var i = 0; i < 10 - this.myPlayer.life / 10 && i < 10; i++){
                 this.myLifeLabel[9 - i].setVisible(false);
             }
-        }else{
-            for(var i = 0; i < 10 - this.otherPlayer.life / 10 ; i++){
+        }else if(id == this.otherPlayer.id){
+            for(var i = 0; i < 10 - this.otherPlayer.life / 10 && i < 10; i++){
                 this.otherLifeLabel[9 - i].setVisible(false);
+            }
+        }else{
+            for(var i = 0; i < 20 - this.mage.life / 10 && i < 20; i++){
+                this.mageLifeLabel[19 - i].setVisible(false);
             }
         }
     }
-
-    /*updateLifeLabelMage(){///change on create(), put all light green
-        for(var i = 0; i < 10 - this.myPlayer.life / 10 ; i++){
-            this.myLifeLabel[9 - i].setVisible(false);
-        }
-    }*/
 }///aumentar numero de inimigos, senao fica muito facil
