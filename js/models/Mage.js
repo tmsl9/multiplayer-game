@@ -122,14 +122,7 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
         this.bullet.removeFromScreen();
     }
 
-    /**
-     * comparar se é o meu jogador que está mais perto se for, so no meu ecra ele vai atras de mim, no outro ecra ele com
-     * "zombiePosition" linha 96, o server envia a info envia a info para ele, primeiro ve quem esta mais perto depois guarda
-     * numa variavel o id do player que ele tem que ir atras e dps envia a info para o que esta mais longe, no playGame o
-     * player mais longe receber a info do x e do y do zombie e atualiza como com o player2
-     */
     rangedAttack(time, players){
-       //console.log(this.timeToShoot, "----", time)
         if (this.timeToShoot < time) {
             var pl
             var minor = 100000
@@ -166,7 +159,9 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
     }
 
     dead() {
+        this.life = 100000
         this.setAngle(270)
-        this.setVelocity(0, 0);
+        this.setVelocity(0, 0)
+        this.setActive(false)
     }
 }

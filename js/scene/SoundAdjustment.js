@@ -4,7 +4,7 @@ export default class soundAdjustment extends Phaser.Scene {
     }
     
     init(data){
-        console.log("SoundAdjustment: ", data)
+        console.log("SoundAdjustment scene")
         this.data = data
         this.volume = data.volume * 100 + 300
     }
