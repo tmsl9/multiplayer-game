@@ -86,7 +86,7 @@ export default class bootGame extends Phaser.Scene {
     }
     
     create() {
-        console.log("BootGame")
+        console.log("BootGame scene")
 
         var cursors = {
             up: this.input.keyboard.addKey('W'),
@@ -100,7 +100,7 @@ export default class bootGame extends Phaser.Scene {
         var socket = io();
         socket.on('id',(data)=>{
             var id = data
-            console.log("id received:", id)
+            console.log("ID:", id)
             var data = {socket: socket, id: id, volume: 1, cursors: cursors, nextLevel: 1}
             this.scene.stop()
             this.scene.start("Play", data);

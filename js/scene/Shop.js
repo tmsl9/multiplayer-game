@@ -9,7 +9,7 @@ export default class shop extends Phaser.Scene {
     }
 
     create() {
-        console.log(this.name);
+        console.log(this.name, " scene");
 
         this.sceneWidth = this.game.config.width;
         this.sceneHeight = this.game.config.height;

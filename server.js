@@ -224,8 +224,9 @@ io.sockets.on('connection', function(socket){
         mage.y = data.y
     });
 
-    socket.on('finishLevel',function(data){
+    socket.on('finishLevel',function(){
         numReadyToText++
+        readyToNextLevel = false
         if(numReadyToText == 2){
             numReadyToText = 0
             readyToText = true
@@ -236,7 +237,7 @@ io.sockets.on('connection', function(socket){
         }
     });
 
-    socket.on('nextLevel',function(data){
+    socket.on('nextLevel',function(){
         numReadyToNextLevel++
         if(numReadyToNextLevel == 2){
             level++
@@ -246,7 +247,7 @@ io.sockets.on('connection', function(socket){
             total_zombies = 0
             for(var i in PLAYER_LIST){
                 PLAYER_LIST[i].x = 200 * PLAYER_LIST[i].id
-                PLAYER_LIST[i].y = 200
+                PLAYER_LIST[i].y = 400
                 PLAYER_LIST[i].life = 100////fazer um cenario no caso de ambos perderem
             }
             readyToNextLevel = true
@@ -258,7 +259,7 @@ io.sockets.on('connection', function(socket){
 });
 
 setInterval(function(){//criação do inimigo
-    if((restrictionsLevel1() || restrictionsLevel2()) && living_zombies < max_zombies_each && !playerDead){
+    if(readyToNextLevel && (restrictionsLevel1() || restrictionsLevel2()) && living_zombies < max_zombies_each && !playerDead){
         let type;
         let x;
         let y;
@@ -303,10 +304,10 @@ setInterval(function(){//criação do inimigo
 }, zombieTimerDelay);
 
 setInterval(function(){//mover o inimigo
-    if(level != 3 && living_zombies > 0 && !playerDead){
+    if(readyToNextLevel && level != 3 && living_zombies > 0 && !playerDead){
         moveZombie()
     }
-    if(level == 2 && mage.life > 0 && !playerDead){
+    if(readyToNextLevel && level == 2 && mage.life > 0 && !playerDead){
         moveMage()
     }
 }, 200);
@@ -361,10 +362,10 @@ function restrictionsLevel2(){
 }
 
 setInterval(function(){//zombie shoot
-    if(level != 3 & living_zombies > 0 && !playerDead){
+    if(readyToNextLevel && level != 3 & living_zombies > 0 && !playerDead){
         shootZombie()
     }
-    if(level == 2 & mage.life > 0 && !playerDead){
+    if(readyToNextLevel && level == 2 & mage.life > 0 && !playerDead){
         shootMage()
     }
 }, 500);
