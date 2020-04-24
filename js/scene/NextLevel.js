@@ -53,6 +53,7 @@ export default class nextLevel extends Phaser.Scene {
                     this.socket.emit('nextLevel')
                     this.socket.on('readyToNextLevel', ()=>{
                         this.scene.start('Level' + this.nextLevel, this.data)
+                        this.socketOff()
                     })
                 }else if(this.nextLevel == 3){
                     if (changeTint) {
@@ -67,5 +68,8 @@ export default class nextLevel extends Phaser.Scene {
                 i++
             }//////////////zombie type 2 is shooting
         });
+    }
+    socketOff(){
+        this.socket.off("readyToNextLevel")
     }
 }
