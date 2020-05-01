@@ -7,7 +7,7 @@ app.get('/',function(req, res) {
 });
 app.use('/',express.static(__dirname));
 
-serv.listen(5500, '192.168.1.77');
+serv.listen(5500, '192.168.1.134');
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
 var start = Date.now()
@@ -35,7 +35,7 @@ var playerDead = false
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
     var self = {
-        x:id % 2 != 0 ? 200 : 400,///////
+        x:id % 2 != 0 ? 200 : 440,///////
         y:400,
         life:100,
         id:id, //important information
@@ -72,7 +72,7 @@ var Zombie = function(x, y, id, type){
 var Mage = function(){
     //console.log("Zombie successfully created: ", id)
     var self = {
-        x:300,////////////
+        x:320,////////////
         y:200,////////////
         life:200
     }
@@ -229,8 +229,6 @@ io.sockets.on('connection', function(socket){
         readyToNextLevel = false
         if(numReadyToText == 2){
             numReadyToText = 0
-            readyToText = true
-            playerDead = false
             for(var i in SOCKET_LIST){
                 SOCKET_LIST[i].emit('readyToText')
             }

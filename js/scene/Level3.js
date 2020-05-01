@@ -1,4 +1,5 @@
 import Coin from "../models/Coin.js";
+import PlayersGroup from "../models/PlayersGroup.js";
 
 export default class level3 extends Phaser.Scene {
     constructor() {
@@ -30,8 +31,8 @@ export default class level3 extends Phaser.Scene {
         this.players = new PlayersGroup(this.physics.world, this, this.id)
         this.myPlayer = this.players.me
         this.otherPlayer = this.players.other
-        this.myPlayer.updatePlayer(this.myPlayerlvl1.money, this.myPlayerlvl1.life, this.myPlayerlvl1.typeBullets)
-        this.otherPlayer.updatePlayer(this.otherPlayerlvl1.money, this.otherPlayerlvl1.life, this.otherPlayerlvl1.typeBullets)
+        this.myPlayer.updatePlayer(this.myPlayerlvl1.money, this.myPlayerlvl1.life, this.myPlayerlvl1.typeBullets,this.myPlayerlvl1.shopNum)
+        this.otherPlayer.updatePlayer(this.otherPlayerlvl1.money, this.otherPlayerlvl1.life, this.otherPlayerlvl1.typeBullets,this.otherPlayerlvl1.shopNum)
 
         this.add.image(70, 20, "barraprogresso").setScale(0.625);//life player 1
         this.add.image(this.game.config.width - 100, 20, "barraprogresso").setScale(0.625);//life player 2
@@ -97,8 +98,9 @@ export default class level3 extends Phaser.Scene {
             if(player.life > 0){
                 player.update(time, this.data)
             }else{
-                this.objective.x = 0
-                this.objective.y = 0
+                
+                this.win.x = 0
+                this.win.y = 0
                 player.dead()
                 this.myPlayer.finish()
                 this.otherPlayer.finish()
