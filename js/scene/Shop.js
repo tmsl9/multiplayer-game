@@ -1,15 +1,14 @@
 import Coin from "../models/Coin.js";
 
 export default class shop extends Phaser.Scene {
-    constructor(name,myPlayer){
-        super(name)
-        this.name = name
+    constructor(myPlayer){
+        super("Shop")
         this.myPlayer = myPlayer
         this.money = myPlayer.money
     }
 
     create() {
-        console.log(this.name, " scene");
+        console.log(this.shop.scene, " scene");
 
         this.sceneWidth = this.game.config.width;
         this.sceneHeight = this.game.config.height;

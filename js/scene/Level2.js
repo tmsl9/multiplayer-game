@@ -38,7 +38,7 @@ export default class level2 extends Phaser.Scene {
 
         this.zombies = new ZombiesGroup(this.physics.world, this)
 
-        this.mage = new Mage(this, 300, 200)
+        this.mage = new Mage(this, 320, 200)
 
         this.add.image(320, 10, "barraprogresso").setScale(1.25, 1)//objective
         this.mageLifeLabel = [];
@@ -165,6 +165,7 @@ export default class level2 extends Phaser.Scene {
             this.mage.update(time, this.socket)
         }else if(this.mage.life <= 200){
             this.mage.dead();
+            this.zombiesDead()
             this.objective.x = 0
             this.objective.y = 0
             this.myPlayer.finish()
@@ -319,6 +320,7 @@ export default class level2 extends Phaser.Scene {
     }
 
     mageMyPlayerBulletsCollision(mage, bullet){
+        //if(this.mage>0)
         this.myPlayer.removeBullet(bullet.id);
 
         mage.life -= bullet.power;
@@ -384,7 +386,9 @@ export default class level2 extends Phaser.Scene {
     zombieShoot(data){
         this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.id){
+                if(this.mage.life>0){
                 zombie.rangedAttack(data.time, this.players)
+                }
             }
         }, this)
     }
@@ -407,7 +411,10 @@ export default class level2 extends Phaser.Scene {
     }
 
     mageShoot(data){
-        this.mage.rangedAttack(data.time, this.players)
+        console.log(this.mage.life)
+      // if(this.mage.life>0){
+            this.mage.rangedAttack(data.time, this.players)
+        //}
     }
 ////////////mage doesnt do near attack
     mageLife(data){
