@@ -18,7 +18,7 @@ export default class level2 extends Phaser.Scene {
         this.otherPlayerlvl1 = data.otherPlayer
     }
 //////////when player or zombie or mage have the some velocity x and y update walking anims
-    preload(){/////when mage life == 0 or less make dead()
+    preload(){
         this.load.image("tiles", "assets/tile-map.png");
         this.load.tilemapTiledJSON("map2", "assets/Map2.json");
     }

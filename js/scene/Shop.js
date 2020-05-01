@@ -1,15 +1,14 @@
 import Coin from "../models/Coin.js";
 
 export default class shop extends Phaser.Scene {
-    constructor(name,myPlayer){
-        super(name)
-        this.name = name
+    constructor(myPlayer){
+        super("Shop")
         this.myPlayer = myPlayer
         this.money = myPlayer.money
     }
 
     create() {
-        console.log(this.name, " scene");
+        console.log("Shop scene");
 
         this.sceneWidth = this.game.config.width;
         this.sceneHeight = this.game.config.height;
@@ -25,10 +24,10 @@ export default class shop extends Phaser.Scene {
         this.red = '#ff0000'
         this.darkGreen = '#16a823'
 
-        var bullet1 = this.add.image(40, this.y1, "bullet1").setScale(1.2)
-        var bullet2 = this.add.image(40, this.y2, "bullet2").setScale(1.2)
-        var bullet3 = this.add.image(40, this.y3, "bullet3").setScale(1.2)
-        var regenLife = this.add.image(40, this.y4, "regenLife").setScale(0.1)
+        this.add.image(40, this.y1, "bullet1").setScale(1.2)
+        this.add.image(40, this.y2, "bullet2").setScale(1.2)
+        this.add.image(40, this.y3, "bullet3").setScale(1.2)
+        this.add.image(40, this.y4, "regenLife").setScale(0.1)
 
         this.add.text(60, this.y1, "+damage", textConfig);
         this.add.text(60, this.y2, "+velocity", textConfig);

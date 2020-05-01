@@ -62,7 +62,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.money = money
         this.life = life
         this.typeBullets = typeBullets
-        this.x = this.id * 200
+        this.id == 1 ? this.x = 200 : this.x = 400
         this.y = 400
     }
 
@@ -129,13 +129,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }
 
             if(this.cursors.shop.isDown && this.timeToShop < this.time){
-                if(!this.scene.scene.isActive("Shop" + this.shopNum)){
-                    this.shopNum++
-                    //console.log(this.id, this.shopNum)
+                if(!this.scene.scene.isActive("Shop")){
                     this.timeToShop = this.time + this.delayShop
-                    this.scene.scene.add("Shop"+this.shopNum, new shop("Shop"+this.shopNum,this), true)
+                    this.scene.scene.add("Shop", new shop(this), true)
                 }else{
-                    this.scene.scene.stop("Shop" + this.shopNum)
+                    this.scene.scene.stop("Shop")
+                    this.scene.scene.remove("Shop")
                     this.timeToShop = this.time + this.delayShop
                 }
             }
