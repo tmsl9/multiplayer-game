@@ -30,11 +30,12 @@ var readyToText = false
 var numReadyToText = 0
 var readyToNextLevel = false
 var numReadyToNextLevel = 0
+var playerDead = false
 
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
     var self = {
-        x:id % 2 != 0 ? 200 : 400,///////
+        x:id % 2 != 0 ? 200 : 440,///////
         y:400,
         life:100,
         id:id, //important information
@@ -71,7 +72,7 @@ var Zombie = function(x, y, id, type){
 var Mage = function(){
     //console.log("Zombie successfully created: ", id)
     var self = {
-        x:300,////////////
+        x:320,////////////
         y:200,////////////
         life:200
     }
@@ -79,7 +80,7 @@ var Mage = function(){
     return self;
 }
 
-var boss = Mage();
+var mage = Mage()
 
 io.sockets.on('connection', function(socket){
     console.log("total --> ",total_players)////os dois ficam com id 2
@@ -153,10 +154,15 @@ io.sockets.on('connection', function(socket){
             var player2 = PLAYER_LIST[i];
             if(player2.id != player.id){
                 player.life = data.life
+                if(player.life <= 0){
+                    playerDead = true
+                }
                 if(data.idZombie){
                     SOCKET_LIST[player2.id].emit('life', {life:player.life, idZombie:data.idZombie})
                 }else if(data.idBullet){
                     SOCKET_LIST[player2.id].emit('life', {life:player.life, idBullet:data.idBullet})
+                }else if(data.mage){
+                    SOCKET_LIST[player2.id].emit('life', {mage:true, life:player.life})
                 }else{
                     SOCKET_LIST[player2.id].emit('life', {life:player.life})
                 }
@@ -192,21 +198,13 @@ io.sockets.on('connection', function(socket){
             }
         }
     });
-    
-    socket.on('zombiePositionCollider',function(data){
+
+    socket.on('zombiePosition',function(data){
         for(var i in ZOMBIE_LIST){
             var zombie = ZOMBIE_LIST[i];
             if(zombie.id == data.id){
                 zombie.x = data.x
                 zombie.y = data.y
-                if(data.collider){
-                    for(var i in PLAYER_LIST){
-                        var player2 = PLAYER_LIST[i];
-                        if(player2.id != player.id){
-                            SOCKET_LIST[player2.id].emit('zombiePositionCollider', {id:zombie.id, x:zombie.x, y:zombie.y})
-                        }
-                    }
-                }
             }
         }
     });
@@ -220,32 +218,24 @@ io.sockets.on('connection', function(socket){
             }
         }
     });
-    
-    socket.on('magePositionCollider',function(data){
+
+    socket.on('magePosition',function(data){
         mage.x = data.x
         mage.y = data.y
-        if(data.collider){
-            for(var i in PLAYER_LIST){
-                var player2 = PLAYER_LIST[i];
-                if(player2.id != player.id){
-                    SOCKET_LIST[player2.id].emit('magePositionCollider', {x:mage.x, y:mage.y})///overload server probably
-                }
-            }
-        }
     });
 
-    socket.on('finishLevel',function(data){
+    socket.on('finishLevel',function(){
         numReadyToText++
+        readyToNextLevel = false
         if(numReadyToText == 2){
             numReadyToText = 0
-            readyToText = true
             for(var i in SOCKET_LIST){
                 SOCKET_LIST[i].emit('readyToText')
             }
         }
     });
 
-    socket.on('nextLevel',function(data){
+    socket.on('nextLevel',function(){
         numReadyToNextLevel++
         if(numReadyToNextLevel == 2){
             level++
@@ -255,7 +245,7 @@ io.sockets.on('connection', function(socket){
             total_zombies = 0
             for(var i in PLAYER_LIST){
                 PLAYER_LIST[i].x = 200 * PLAYER_LIST[i].id
-                PLAYER_LIST[i].y = 200
+                PLAYER_LIST[i].y = 400
                 PLAYER_LIST[i].life = 100////fazer um cenario no caso de ambos perderem
             }
             readyToNextLevel = true
@@ -267,7 +257,7 @@ io.sockets.on('connection', function(socket){
 });
 
 setInterval(function(){//criação do inimigo
-    if((level == 1 && total_zombies < max_zombies_level1 || level == 2 && boss.life > 0) && living_zombies < max_zombies_each){
+    if(readyToNextLevel && (restrictionsLevel1() || restrictionsLevel2()) && living_zombies < max_zombies_each && !playerDead){
         let type;
         let x;
         let y;
@@ -312,41 +302,85 @@ setInterval(function(){//criação do inimigo
 }, zombieTimerDelay);
 
 setInterval(function(){//mover o inimigo
-    if(level != 3 && living_zombies > 0){
-        for(var ei in ZOMBIE_LIST){
-            var zombie = ZOMBIE_LIST[ei]
-            var plCloser
-            var minor = 100000
-            for(var pi in PLAYER_LIST){
-                var player = PLAYER_LIST[pi]
-                var dist = Math.sqrt(Math.pow(zombie.x - player.x, 2) + Math.pow(zombie.y - player.y, 2))
-                if(minor > dist){
-                    plCloser = player
-                    minor = dist
-                }
-            }
-            if((zombie.type == 1 && zombie.dist < minor) || (zombie.type != 1)){
-                for(var i in SOCKET_LIST){
-                    SOCKET_LIST[i].emit('moveZombie', {idPlayer:plCloser.id, idZombie:zombie.id});
-                }
-            }else{ // se for so tipo 1 e tiver a 200 não anda
-                for(var i in SOCKET_LIST){/////nao esta a resultar em alguns casos
-                    SOCKET_LIST[i].emit('moveZombie', {idZombie:zombie.id});
-                }
-            }
-        }
+    if(readyToNextLevel && level != 3 && living_zombies > 0 && !playerDead){
+        moveZombie()
+    }
+    if(readyToNextLevel && level == 2 && mage.life > 0 && !playerDead){
+        moveMage()
     }
 }, 200);
 
-setInterval(function(){//range o inimigo
-    if(level != 3 & living_zombies > 0){
-        for(var ei in ZOMBIE_LIST){
-            var zombie = ZOMBIE_LIST[ei]
-            if(zombie.type == 1){
-                for(var i in SOCKET_LIST){
-                    SOCKET_LIST[i].emit('zombieShoot', {id:zombie.id, time:Date.now() - start});
-                }
+function moveZombie(){
+    for(var ei in ZOMBIE_LIST){
+        var zombie = ZOMBIE_LIST[ei]////zombie positions are not updated
+        var plCloser
+        var minor = 1000
+        for(var pi in PLAYER_LIST){
+            var player = PLAYER_LIST[pi]
+            var dist = Math.sqrt(Math.pow(zombie.x - player.x, 2) + Math.pow(zombie.y - player.y, 2))
+            if(minor > dist){
+                plCloser = player
+                minor = dist
+            }
+        }
+        if((zombie.type == 1 && zombie.dist < minor) || zombie.type != 1){
+            for(var i in SOCKET_LIST){
+                SOCKET_LIST[i].emit('moveZombie', {idPlayer:plCloser.id, idZombie:zombie.id});
+            }
+        }else{ // se for so tipo 1 e tiver a 200 não anda
+            for(var i in SOCKET_LIST){/////nao esta a resultar em alguns casos
+                SOCKET_LIST[i].emit('moveZombie', {idZombie:zombie.id});
             }
         }
     }
+}
+
+function moveMage(){
+    var plCloser
+    var minor = 1000
+    for(var pi in PLAYER_LIST){
+        var player = PLAYER_LIST[pi]
+        var dist = Math.sqrt(Math.pow(mage.x - player.x, 2) + Math.pow(mage.y - player.y, 2))
+        if(minor > dist){
+            plCloser = player
+            minor = dist
+        }
+    }
+    for(var i in SOCKET_LIST){
+        SOCKET_LIST[i].emit('moveMage', {idPlayer:plCloser.id});
+    }
+}
+
+function restrictionsLevel1(){
+    return level == 1 && total_zombies < max_zombies_level1;
+}
+
+function restrictionsLevel2(){
+    return level == 2 && mage.life > 0
+}
+
+setInterval(function(){//zombie shoot
+    if(readyToNextLevel && level != 3 & living_zombies > 0 && !playerDead){
+        shootZombie()
+    }
+    if(readyToNextLevel && level == 2 & mage.life > 0 && !playerDead){
+        shootMage()
+    }
 }, 500);
+
+function shootZombie(){///////////fazer if tempo aqui ->canShoot
+    for(var ei in ZOMBIE_LIST){
+        var zombie = ZOMBIE_LIST[ei]
+        if(zombie.type != 2){////type 2 was shooting
+            for(var i in SOCKET_LIST){
+                SOCKET_LIST[i].emit('zombieShoot', {id:zombie.id, time:Date.now() - start});
+            }
+        }
+    }
+}
+
+function shootMage(){
+    for(var i in SOCKET_LIST){
+        SOCKET_LIST[i].emit('mageShoot', {time:Date.now() - start});
+    }
+}

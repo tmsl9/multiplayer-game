@@ -4,14 +4,12 @@ export default class controlsConfiguration extends Phaser.Scene {
     }
     
     init(data){
-        console.log("ControlsConfiguration: ", data)
+        console.log("ControlsConfiguration scene")
         this.data = data
         this.cursors = this.defCursors()
     }
 
     create() {
-        console.log("ControlsConfiguration");
-        
         this.charsAllowed = this.charsAllowedFun()
         
         this.add.text(50, 50, 'Characters allowed:', { fill: '#fff' })

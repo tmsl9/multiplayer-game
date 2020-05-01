@@ -25,22 +25,22 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.timeToMeelee = 0;
         this.zombieTimerDelay = 2000;
         this.typeBullet = "z"
+
+        this.timeToUpdatePositions = 0
+        this.delayPositions = 300
         
         if(this.type == 1){
             this.bullet = new Bullet(this.scene, -500, -500, this.typeBullet).setActive(false)
             this.bullet.id = 1
+        }else{
+            this.baseVelocity = 50
         }
-
-        this.upAnim = 'up' + this.img
-        this.downAnim = 'down' + this.img
-        this.leftAnim = 'left' + this.img
-        this.rightAnim = 'right' + this.img
-        this.pos = this.downAnim
 
         this.updateAnims()
 
-        this.play(this.pos, 0);
+        this.pos = this.downAnim
 
+        this.play(this.pos, 0);
     }
 
     removeFromScreen() {
@@ -57,6 +57,11 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.updateAnims()
         this.visible = true;
         this.active = true;
+        if(this.type == 1){
+            this.baseVelocity = 5
+        }else{
+            this.baseVelocity = 50
+        }
     }
 
     updateAnims(){
@@ -96,8 +101,16 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         return this.x > width || this.y > height || this.x < 0 || this.y < 0;
     }
 
-    update(){
+    update(time, socket){
        this.bulletOutsideCanvas()
+       this.updatePositionsSocket(time, socket)
+    }
+
+    updatePositionsSocket(time, socket){
+        if(this.timeToUpdatePositions < time){
+            socket.emit('zombiePosition', {id:this.id, x:this.x, y:this.y})
+            this.timeToUpdatePositions = time + this.delayPositions
+        }
     }
 
     move(pl, socket){
@@ -139,22 +152,15 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
     }
 
     attack(time, players){
-        if(this.type==1){
+        if(this.type == 1 || this.type == 3){
             this.rangedAttack(time, players);
-        }else if(this.type==2){
+        }
+        if(this.type == 2 || this.type == 3){
             this.meeleeAttack(players);
-        }else if(this.type==3){
-            this.bonusZombie(players);
         }
     }
-    /**
-     * comparar se é o meu jogador que está mais perto se for, so no meu ecra ele vai atras de mim, no outro ecra ele com
-     * "zombiePosition" linha 96, o server envia a info envia a info para ele, primeiro ve quem esta mais perto depois guarda
-     * numa variavel o id do player que ele tem que ir atras e dps envia a info para o que esta mais longe, no playGame o
-     * player mais longe receber a info do x e do y do zombie e atualiza como com o player2
-     */
+    
     rangedAttack(time, players){
-       //console.log(this.timeToShoot, "----", time)
         if (this.timeToShoot < time) {
             var pl
             var minor = 100000
@@ -170,8 +176,6 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
             this.bullet.x = this.x
             this.bullet.y = this.y
             this.bullet.fire(pl.x, pl.y, this.typeBullet);
-
-            //console.log("pl.id = ", pl.id, "minor: ", minor)
         
             this.timeToShoot = time + this.fireRate;
 

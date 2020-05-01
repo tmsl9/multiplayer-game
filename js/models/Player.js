@@ -14,7 +14,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.img = img
         
         this.scene = scene
-
+        
         this.scene.add.existing(this);
 
         this.scene.physics.world.enable(this);
@@ -54,6 +54,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.shopNum = 0
         this.timeToShop = 0
         this.delayShop = 1000
+
+        this.cursors;
+    }
+
+    updatePlayer(money, life, typeBullets,shopNum){
+        this.money = money
+        this.life = life
+        this.typeBullets = typeBullets
+        this.id==1 ? this.x =200 :this.x =440
+        this.y = 400
+        this.shopNum =shopNum
     }
 
     updateAnims(){
@@ -84,26 +95,26 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     update(time, data) {
         var id = data.id
         this.socket = data.socket
-        var cursors = this.defCursors(data)
+        this.defCursors(data)
         this.time = time
         if(this.id == id){
             this.setVelocity(0)
-            if (cursors.up.isDown && this.y > this.frame.halfHeight + 6) {///se mudar pra 7 fica um espacinho de sobra
+            if (this.cursors.up.isDown && this.y > this.frame.halfHeight + 6) {///se mudar pra 7 fica um espacinho de sobra
                 this.playAnim(this.upAnim)
                 this.setVelocityY(-this.velocity);
                 this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
             }
-            if (cursors.down.isDown && this.y < this.sceneHeight - this.frame.halfHeight - 6) {
+            if (this.cursors.down.isDown && this.y < this.sceneHeight - this.frame.halfHeight - 6) {
                 this.playAnim(this.downAnim)
                 this.setVelocityY(this.velocity);
                 this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
             }
-            if (cursors.left.isDown && this.x > this.frame.halfWidth + 6) {/////funciona se mandarmos vetor com teclas a false ou true
+            if (this.cursors.left.isDown && this.x > this.frame.halfWidth + 6) {/////funciona se mandarmos vetor com teclas a false ou true
                 this.playAnim(this.leftAnim)
                 this.setVelocityX(-this.velocity);
                 this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
             }
-            if (cursors.right.isDown && this.x < this.sceneWidth - this.frame.halfWidth - 6) {
+            if (this.cursors.right.isDown && this.x < this.sceneWidth - this.frame.halfWidth - 6) {
                 this.playAnim(this.rightAnim)
                 this.setVelocityX(this.velocity);
                 this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
@@ -111,21 +122,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
             this.scene.input.on("pointerdown", this.fire, this)
             
-            if (cursors.up.isUp && cursors.down.isUp) {
+            if (this.cursors.up.isUp && this.cursors.down.isUp) {
                 this.setVelocityY(0);
             }
-            if (cursors.left.isUp && cursors.right.isUp) {
+            if (this.cursors.left.isUp && this.cursors.right.isUp) {
                 this.setVelocityX(0);
             }
 
-            if(cursors.shop.isDown && this.timeToShop < this.time){
-                if(!this.scene.scene.isActive("Shop" + this.shopNum)){
-                    this.shopNum++
-                    //console.log(this.id, this.shopNum)
+            if(this.cursors.shop.isDown && this.timeToShop < this.time){
+                if(!this.scene.scene.isActive("Shop")){
                     this.timeToShop = this.time + this.delayShop
-                    this.scene.scene.add("Shop"+this.shopNum, new shop("Shop"+this.shopNum,this), true)
+                    this.scene.scene.add("Shop", new shop(this), true)
                 }else{
-                    this.scene.scene.stop("Shop" + this.shopNum)
+                    this.scene.scene.stop("Shop")
+                    this.scene.scene.remove("Shop")
                     this.timeToShop = this.time + this.delayShop
                 }
             }
@@ -149,7 +159,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     defCursors(data){
-        return {
+        this.cursors = {
             up: this.scene.input.keyboard.addKey(data.cursors.up.keyCode),
             down: this.scene.input.keyboard.addKey(data.cursors.down.keyCode),
             left: this.scene.input.keyboard.addKey(data.cursors.left.keyCode),
@@ -159,10 +169,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
+    destroyCursors(){
+        this.cursors.up.destroy()
+        this.cursors.down.destroy()
+        this.cursors.left.destroy()
+        this.cursors.right.destroy()
+        this.cursors.fight.destroy()
+        this.cursors.shop.destroy()
+    }
+
     removeBullet(idBullet){
         this.bullets.children.iterate(function (bullet) {
             if(bullet.id == idBullet){
-                //console.log("bullet removed", idBullet)
                 bullet.active = false
                 bullet.visible = false
                 this.bullets.killAndHide(bullet);
