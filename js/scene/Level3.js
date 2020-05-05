@@ -108,7 +108,8 @@ export default class level3 extends Phaser.Scene {
                 this.themeSound.stop();
                 this.socketOff()
                 this.socket.emit('Finish')
-                this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player.id})
+                this.data.loser = player.id;
+                this.scene.start('Finish', this.data)
             }
         }, this);
     }

@@ -150,7 +150,7 @@ export default class level2 extends Phaser.Scene {
                     this.scene.stop();
                     this.themeSound.stop();
                     this.socket.emit('Finish')
-                    this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player.id})
+                    this.scene.start('Finish', this.data)
                 }
             }, this);////////balas do mago tem collider e nao overlap
             //////////////shop when started, stops image for a second
