@@ -21,10 +21,19 @@
  "tiledversion":"1.3.3",
  "tileheight":32,
  "tilesets":[
-        {
-         "firstgid":1,
-         "source":"tile-map.tsx"
-        }],
+       {
+        "columns":23,
+        "firstgid":1,
+        "image":"tile-map.png",
+        "imageheight":672,
+        "imagewidth":736,
+        "margin":0,
+        "name":"tile-map",
+        "spacing":0,
+        "tilecount":483,
+        "tileheight":32,
+        "tilewidth":32
+       }],
  "tilewidth":32,
  "type":"map",
  "version":1.2,

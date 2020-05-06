@@ -19,50 +19,35 @@ export default class finish extends Phaser.Scene {
     }
 
     preload(){
-        console.log("PILAAAAAAAAA");
-
         if(this.nextLevel==3){
             this.load.image("tiles", "assets/tile-map.png");
             this.load.tilemapTiledJSON("finish", "assets/MapFinish.json");
         }else{
-            
-            console.log("PILAAAAAAAAA");
             this.load.image("tiles", "assets/tile-map.png");
-            
-            console.log("PILAAAAAAAAA");
             this.load.tilemapTiledJSON("loss", "assets/MapLoss.json");
-            
-            console.log("PILAAAAAAAAA");
         }
     }
 
     create() {
 
         if(this.nextLevel==3){
-            this.map = this.make.tilemap({ key: "map" });
+            this.map = this.make.tilemap({ key: "finish" });
             const tileset = this.map.addTilesetImage("tile-map", "tiles");
             this.map.createStaticLayer("finish", tileset, 0, 0);
+            this.loserID = 2;
             if(this.loserID == 2){
-                this.add.image(440, 400, "player1");//player 1
-                this.add.image(200, 400, "player2");//player 2
+                this.add.image(240, 560, "player1");//player 1
+                this.add.image(400, 560, "player2");//player 2
             }else{
-                this.add.image(200, 400, "player1");//player 1
-                this.add.image(440, 400, "player2");//player 2
+                this.add.image(400, 560, "player1");//player 1
+                this.add.image(240, 560, "player2");//player 2
             }
         }else{
-            
-            console.log("PILAAAAAAAAA");
             this.map = this.make.tilemap({ key: "loss" });
-            
-            console.log("PILAAAAAAAAA");
             const tileset = this.map.addTilesetImage("tile-map", "tiles");
-            
-            console.log("PILAAAAAAAAA");
             this.map.createStaticLayer("loss", tileset, 0, 0);
-            
-            console.log("PILAAAAAAAAA");
-            this.add.image(50, 500, "player1");//player 1
-            this.add.image(100, 500, "player2");//player 2
+            this.add.image(112, 560, "player1");//player 1
+            this.add.image(180, 560, "player2");//player 2
         }
 
         let { width, height } = this.sys.game.canvas
@@ -84,14 +69,36 @@ export default class finish extends Phaser.Scene {
         //scale background
        // this.bg.setDisplaySize(this.width, this.height);
 
-        this.add.text(230, 200, this.result, {
-            font: "50px Cambria",
-            fill: this.id == this.loserID ? "#ff0000" : "#0f0"
-        });
-        this.add.text(150, 300, "Press space to restart", {
-            font: "40px Cambria",
-            fill: this.id == this.loserID ? "#ff0000" : "#0f0"
-        });
+        if(this.nextLevel==3){
+            if(this.id == this.loserID){
+                this.add.text(250, 315, "Perdeste!", {
+                    font: "40px Cambria",
+                    fill: "#fff"
+                });
+            }else{
+                this.add.text(250, 315, "Ganhaste!", {
+                    font: "40px Cambria",
+                    fill: "#fff"
+                });
+            }
+            this.add.text(95, 355, "[Clique SPACE para jogar novamente]", {
+                font: "30px Cambria",
+                fill: "#fff"
+            }); 
+        }else{
+            this.add.text(290, 260, "Perdi?", {
+                font: "30px Cambria",
+                fill: "#fff"
+            });
+            this.add.text(165, 300, "Deixa-me jogar novamente!", {
+                font: "30px Cambria",
+                fill: "#fff"
+            });
+            this.add.text(95, 340, "[Clique SPACE para jogar novamente]", {
+                font: "30px Cambria",
+                fill: "#fff"
+            });
+        }
 
     }
 

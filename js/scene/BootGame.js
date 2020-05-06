@@ -104,7 +104,7 @@ export default class bootGame extends Phaser.Scene {
         socket.on('id',(data)=>{
             var id = data
             console.log("ID:", id)
-            var data = {socket: socket, id: id, volume: 1, cursors: cursors, nextLevel: 1}
+            var data = {socket: socket, id: id, volume: 1, cursors: cursors, nextLevel: 3}
             this.scene.stop()
             this.scene.start("Play", data);
         });
