@@ -7,7 +7,7 @@ app.get('/',function(req, res) {
 });
 app.use('/',express.static(__dirname));
 
-serv.listen(5500, '192.168.8.1');
+serv.listen(5500, '192.168.1.134'); 
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
 var start = Date.now()
@@ -22,7 +22,7 @@ var ZOMBIE_LIST = {};
 var max_zombies_each = 10;//presentes de uma vez no campo
 var living_zombies = 0;
 var total_zombies = 0;
-var max_zombies_level1 = 10;//max em todo o nivel
+var max_zombies_level1 = 1;//max em todo o nivel
 let idZombie = 1;
 const zombieTimerDelay = 5000;
 var level = 0
