@@ -403,7 +403,7 @@ export default class level2 extends Phaser.Scene {
     }
 
     moveMage(data){
-        if(mage.isAlive()){
+        if(this.mage.isAlive()){
             this.players.children.iterate(function (player) {
                 if(player.id == data.idPlayer){
                     this.mage.move(player, this.socket)
@@ -413,7 +413,7 @@ export default class level2 extends Phaser.Scene {
     }
 
     mageShoot(data){
-        if(mage.isAlive()){
+        if(this.mage.isAlive()){
             console.log(this.mage.life)
 
             this.mage.rangedAttack(data.time, this.players)
@@ -421,7 +421,7 @@ export default class level2 extends Phaser.Scene {
     }
 ////////////mage doesnt do near attack
     mageLife(data){
-        if(mage.isAlive()){
+        if(this.mage.isAlive()){
             this.mage.life = data.life;
             this.updateLifeLabel('mage')
             this.otherPlayer.removeBullet(data.idBullet);

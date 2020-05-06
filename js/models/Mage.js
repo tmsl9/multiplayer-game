@@ -166,6 +166,6 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
     }
 
     isAlive(){
-        return this.mage.life > 0 && this.mage < 8000;
+        return this.life > 0 && this.life < 8000;
     }
 }
