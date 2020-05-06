@@ -320,7 +320,7 @@ export default class level2 extends Phaser.Scene {
     }
 
     mageMyPlayerBulletsCollision(mage, bullet){
-        //if(this.mage>0)
+        if(this.mage>0)
         this.myPlayer.removeBullet(bullet.id);
 
         mage.life -= bullet.power;
@@ -328,7 +328,7 @@ export default class level2 extends Phaser.Scene {
         this.updateLifeLabel('mage')
         
         this.socket.emit('lifeMage', {idBullet:bullet.id, life:mage.life})
-    }////bullet doing collide and pushing 
+    }//bullet doing collide and pushing 
 
     playerActions(data){
         if(data.mouseX && data.mouseY && data.idBullet){
@@ -412,9 +412,9 @@ export default class level2 extends Phaser.Scene {
 
     mageShoot(data){
         console.log(this.mage.life)
-      // if(this.mage.life>0){
+      if(this.mage.life>0 && this.mage.life <8000){
             this.mage.rangedAttack(data.time, this.players)
-        //}
+        }
     }
 ////////////mage doesnt do near attack
     mageLife(data){
