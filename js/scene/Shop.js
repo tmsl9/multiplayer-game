@@ -15,11 +15,11 @@ export default class shop extends Phaser.Scene {
 
         var textConfig = {font: "15px Cambria", fill: "#fff"}
         
-        this.y1 = this.sceneHeight - 100
-        this.y2 = this.sceneHeight - 80
-        this.y3 = this.sceneHeight - 60
-        this.y4 = this.sceneHeight - 40
-
+        this.y1 = this.sceneWidth - 100
+        this.y2 = this.sceneWidth - 80
+        this.y3 = this.sceneWidth - 60
+        this.y4 = this.sceneWidth - 40
+        
         this.green = '#0f0'
         this.red = '#ff0000'
         this.darkGreen = '#16a823'

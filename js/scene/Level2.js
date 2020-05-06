@@ -33,8 +33,8 @@ export default class level2 extends Phaser.Scene {
         this.players = new PlayersGroup(this.physics.world, this, this.id)
         this.myPlayer = this.players.me
         this.otherPlayer = this.players.other
-        this.myPlayer.updatePlayer(this.myPlayerlvl1.money, this.myPlayerlvl1.life, this.myPlayerlvl1.typeBullets,this.myPlayerlvl1.shopNum)
-        this.otherPlayer.updatePlayer(this.otherPlayerlvl1.money, this.otherPlayerlvl1.life, this.otherPlayerlvl1.typeBullets,this.otherPlayerlvl1.shopNum)
+        this.myPlayer.updatePlayer(this.myPlayerlvl1.money, this.myPlayerlvl1.life, this.myPlayerlvl1.typeBullets)
+        this.otherPlayer.updatePlayer(this.otherPlayerlvl1.money, this.otherPlayerlvl1.life, this.otherPlayerlvl1.typeBullets)
 
         this.zombies = new ZombiesGroup(this.physics.world, this)
 
@@ -57,8 +57,8 @@ export default class level2 extends Phaser.Scene {
         this.otherLifeLabel = this.id == 1 ? life2 : life1
 
         this.updateLifeLabel(this.myPlayer.id)
-        this.updateLifeLabel(this.otherPlayer.id)        
-/////zombie type 1 is stopped in the beggining of level 2
+        this.updateLifeLabel(this.otherPlayer.id)
+        
         this.coin = new Coin(this, 30, 75, 0)
 
         var textConfig = {font: "30px Cambria", fill: "#ffffff"}
