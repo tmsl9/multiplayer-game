@@ -18,7 +18,7 @@ export default class level2 extends Phaser.Scene {
         this.otherPlayerlvl1 = data.otherPlayer
     }
 //////////when player or zombie or mage have the some velocity x and y update walking anims
-    preload(){/////when mage life == 0 or less make dead()
+    preload(){
         this.load.image("tiles", "assets/tile-map.png");
         this.load.tilemapTiledJSON("map2", "assets/Map2.json");
     }
@@ -33,8 +33,8 @@ export default class level2 extends Phaser.Scene {
         this.players = new PlayersGroup(this.physics.world, this, this.id)
         this.myPlayer = this.players.me
         this.otherPlayer = this.players.other
-        this.myPlayer.updatePlayer(this.myPlayerlvl1.money, this.myPlayerlvl1.life, this.myPlayerlvl1.typeBullets,this.myPlayerlvl1.shopNum)
-        this.otherPlayer.updatePlayer(this.otherPlayerlvl1.money, this.otherPlayerlvl1.life, this.otherPlayerlvl1.typeBullets,this.otherPlayerlvl1.shopNum)
+        this.myPlayer.updatePlayer(this.myPlayerlvl1.money, this.myPlayerlvl1.life, this.myPlayerlvl1.typeBullets)
+        this.otherPlayer.updatePlayer(this.otherPlayerlvl1.money, this.otherPlayerlvl1.life, this.otherPlayerlvl1.typeBullets)
 
         this.zombies = new ZombiesGroup(this.physics.world, this)
 
@@ -57,8 +57,8 @@ export default class level2 extends Phaser.Scene {
         this.otherLifeLabel = this.id == 1 ? life2 : life1
 
         this.updateLifeLabel(this.myPlayer.id)
-        this.updateLifeLabel(this.otherPlayer.id)        
-/////zombie type 1 is stopped in the beggining of level 2
+        this.updateLifeLabel(this.otherPlayer.id)
+        
         this.coin = new Coin(this, 30, 75, 0)
 
         var textConfig = {font: "30px Cambria", fill: "#ffffff"}
@@ -181,7 +181,6 @@ export default class level2 extends Phaser.Scene {
             loop: false,
             callback: () => {
                 if (i >= 200) {
-                    console.log("olaaaaaaa", this.mage.life)
                     this.socket.emit('finishLevel')
                     this.data.myPlayer = this.myPlayer
                     this.data.otherPlayer = this.otherPlayer
@@ -320,14 +319,15 @@ export default class level2 extends Phaser.Scene {
     }
 
     mageMyPlayerBulletsCollision(mage, bullet){
-        //if(this.mage>0)
-        this.myPlayer.removeBullet(bullet.id);
+        if(mage.isAlive()){
+            this.myPlayer.removeBullet(bullet.id);
 
-        mage.life -= bullet.power;
+            mage.life -= bullet.power;
 
-        this.updateLifeLabel('mage')
-        
-        this.socket.emit('lifeMage', {idBullet:bullet.id, life:mage.life})
+            this.updateLifeLabel('mage')
+            
+            this.socket.emit('lifeMage', {idBullet:bullet.id, life:mage.life})
+        }
     }////bullet doing collide and pushing 
 
     playerActions(data){
@@ -403,24 +403,29 @@ export default class level2 extends Phaser.Scene {
     }
 
     moveMage(data){
-        this.players.children.iterate(function (player) {
-            if(player.id == data.idPlayer){
-                this.mage.move(player, this.socket)
-            }
-        }, this)
+        if(this.mage.isAlive()){
+            this.players.children.iterate(function (player) {
+                if(player.id == data.idPlayer){
+                    this.mage.move(player, this.socket)
+                }
+            }, this)
+        }
     }
 
     mageShoot(data){
-        console.log(this.mage.life)
-      // if(this.mage.life>0){
+        if(this.mage.isAlive()){
+            console.log(this.mage.life)
+
             this.mage.rangedAttack(data.time, this.players)
-        //}
+        }
     }
 ////////////mage doesnt do near attack
     mageLife(data){
-        this.mage.life = data.life;
-        this.updateLifeLabel('mage')
-        this.otherPlayer.removeBullet(data.idBullet);
+        if(this.mage.isAlive()){
+            this.mage.life = data.life;
+            this.updateLifeLabel('mage')
+            this.otherPlayer.removeBullet(data.idBullet);
+        }
     }
 
     updateLifeLabel(id){

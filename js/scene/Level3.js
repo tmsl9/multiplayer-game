@@ -31,8 +31,8 @@ export default class level3 extends Phaser.Scene {
         this.players = new PlayersGroup(this.physics.world, this, this.id)
         this.myPlayer = this.players.me
         this.otherPlayer = this.players.other
-        this.myPlayer.updatePlayer(this.myPlayerlvl1.money, this.myPlayerlvl1.life, this.myPlayerlvl1.typeBullets,this.myPlayerlvl1.shopNum)
-        this.otherPlayer.updatePlayer(this.otherPlayerlvl1.money, this.otherPlayerlvl1.life, this.otherPlayerlvl1.typeBullets,this.otherPlayerlvl1.shopNum)
+        this.myPlayer.updatePlayer(this.myPlayerlvl1.money, this.myPlayerlvl1.life, this.myPlayerlvl1.typeBullets)
+        this.otherPlayer.updatePlayer(this.otherPlayerlvl1.money, this.otherPlayerlvl1.life, this.otherPlayerlvl1.typeBullets)
 
         this.add.image(70, 20, "barraprogresso").setScale(0.625);//life player 1
         this.add.image(this.game.config.width - 100, 20, "barraprogresso").setScale(0.625);//life player 2

@@ -8,26 +8,26 @@ export default class shop extends Phaser.Scene {
     }
 
     create() {
-        console.log(this.shop.scene, " scene");
+        console.log("Shop scene");
 
         this.sceneWidth = this.game.config.width;
         this.sceneHeight = this.game.config.height;
 
         var textConfig = {font: "15px Cambria", fill: "#fff"}
         
-        this.y1 = this.sceneHeight - 100
-        this.y2 = this.sceneHeight - 80
-        this.y3 = this.sceneHeight - 60
-        this.y4 = this.sceneHeight - 40
-
+        this.y1 = this.sceneWidth - 100
+        this.y2 = this.sceneWidth - 80
+        this.y3 = this.sceneWidth - 60
+        this.y4 = this.sceneWidth - 40
+        
         this.green = '#0f0'
         this.red = '#ff0000'
         this.darkGreen = '#16a823'
 
-        var bullet1 = this.add.image(40, this.y1, "bullet1").setScale(1.2)
-        var bullet2 = this.add.image(40, this.y2, "bullet2").setScale(1.2)
-        var bullet3 = this.add.image(40, this.y3, "bullet3").setScale(1.2)
-        var regenLife = this.add.image(40, this.y4, "regenLife").setScale(0.1)
+        this.add.image(40, this.y1, "bullet1").setScale(1.2)
+        this.add.image(40, this.y2, "bullet2").setScale(1.2)
+        this.add.image(40, this.y3, "bullet3").setScale(1.2)
+        this.add.image(40, this.y4, "regenLife").setScale(0.1)
 
         this.add.text(60, this.y1, "+damage", textConfig);
         this.add.text(60, this.y2, "+velocity", textConfig);
