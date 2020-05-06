@@ -421,7 +421,7 @@ export default class level2 extends Phaser.Scene {
     }
 ////////////mage doesnt do near attack
     mageLife(data){
-        if(mage.isAlive()){
+        if(this.mage.isAlive()){
             this.mage.life = data.life;
             this.updateLifeLabel('mage')
             this.otherPlayer.removeBullet(data.idBullet);
