@@ -33,7 +33,7 @@ export default class level1 extends Phaser.Scene {
         this.otherPlayer = this.players.other
         
         this.zombies = new ZombiesGroup(this.physics.world, this)
-        this.maxZombies = 1
+        this.maxZombies = 10
         this.deadZombies = 0
 
         this.add.image(320, 10, "barraprogresso")//objective
@@ -58,7 +58,7 @@ export default class level1 extends Phaser.Scene {
 
         this.themeSound = this.sound.add("theme", { volume: this.volume });
 
-        //this.themeSound.play();
+        this.themeSound.play();
 
         let fireSound = this.sound.add("fire", { volume: this.volume });
 
@@ -72,7 +72,7 @@ export default class level1 extends Phaser.Scene {
 
         this.players.children.iterate(function(player){
             this.playersBulletsFrontCollision(player)
-            //player.fireSound = fireSound
+            player.fireSound = fireSound
         }, this);//colisao balas com arvores, e som
 
         this.zombies.children.iterate(function (zombie) {
@@ -120,7 +120,7 @@ export default class level1 extends Phaser.Scene {
                     this.scene.stop();
                     this.themeSound.stop();
                     this.socket.emit('Finish')
-                    this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player.id})
+                    this.scene.start('Finish', this.data)
                 }
             }, this);
             
@@ -152,7 +152,6 @@ export default class level1 extends Phaser.Scene {
             loop: false,
             callback: () => {
                 if (i >= 200) {
-                    console.log("olaaaaaaa")
                     this.socket.emit('finishLevel')
                     this.data.myPlayer = this.myPlayer
                     this.data.otherPlayer = this.otherPlayer

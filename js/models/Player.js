@@ -51,20 +51,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         
         this.play(this.pos, 0)
 
-        this.shopNum = 0
         this.timeToShop = 0
         this.delayShop = 1000
 
         this.cursors;
     }
 
-    updatePlayer(money, life, typeBullets,shopNum){
+    updatePlayer(money, life, typeBullets){
         this.money = money
         this.life = life
         this.typeBullets = typeBullets
-        this.id==1 ? this.x =200 :this.x =440
+        this.id == 1 ? this.x =200 : this.x =440
         this.y = 400
-        this.shopNum =shopNum
     }
 
     updateAnims(){
