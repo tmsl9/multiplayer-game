@@ -181,7 +181,6 @@ export default class level2 extends Phaser.Scene {
             loop: false,
             callback: () => {
                 if (i >= 200) {
-                    console.log("olaaaaaaa", this.mage.life)
                     this.socket.emit('finishLevel')
                     this.data.myPlayer = this.myPlayer
                     this.data.otherPlayer = this.otherPlayer
@@ -320,14 +319,15 @@ export default class level2 extends Phaser.Scene {
     }
 
     mageMyPlayerBulletsCollision(mage, bullet){
-        //if(this.mage>0)
-        this.myPlayer.removeBullet(bullet.id);
+        if(mage.isAlive()){
+            this.myPlayer.removeBullet(bullet.id);
 
-        mage.life -= bullet.power;
+            mage.life -= bullet.power;
 
-        this.updateLifeLabel('mage')
-        
-        this.socket.emit('lifeMage', {idBullet:bullet.id, life:mage.life})
+            this.updateLifeLabel('mage')
+            
+            this.socket.emit('lifeMage', {idBullet:bullet.id, life:mage.life})
+        }
     }////bullet doing collide and pushing 
 
     playerActions(data){
@@ -403,24 +403,29 @@ export default class level2 extends Phaser.Scene {
     }
 
     moveMage(data){
-        this.players.children.iterate(function (player) {
-            if(player.id == data.idPlayer){
-                this.mage.move(player, this.socket)
-            }
-        }, this)
+        if(mage.isAlive()){
+            this.players.children.iterate(function (player) {
+                if(player.id == data.idPlayer){
+                    this.mage.move(player, this.socket)
+                }
+            }, this)
+        }
     }
 
     mageShoot(data){
-        console.log(this.mage.life)
-      // if(this.mage.life>0){
+        if(mage.isAlive()){
+            console.log(this.mage.life)
+
             this.mage.rangedAttack(data.time, this.players)
-        //}
+        }
     }
 ////////////mage doesnt do near attack
     mageLife(data){
-        this.mage.life = data.life;
-        this.updateLifeLabel('mage')
-        this.otherPlayer.removeBullet(data.idBullet);
+        if(mage.isAlive()){
+            this.mage.life = data.life;
+            this.updateLifeLabel('mage')
+            this.otherPlayer.removeBullet(data.idBullet);
+        }
     }
 
     updateLifeLabel(id){
