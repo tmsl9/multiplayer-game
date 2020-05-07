@@ -419,7 +419,7 @@ export default class level2 extends Phaser.Scene {
             this.mage.rangedAttack(data.time, this.players)
         }
     }
-////////////mage doesnt do near attack
+    
     mageLife(data){
         if(this.mage.isAlive()){
             this.mage.life = data.life;
