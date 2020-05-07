@@ -100,7 +100,13 @@ io.sockets.on('connection', function(socket){
     player.emitId();
     
     socket.on('Finish',function(){
-        players_ready = 0
+        mage = Mage();
+        players_ready = 0;
+        living_zombies = 0;
+        total_zombies = 0;
+        level = 0;
+        playerDead=false;
+        
     })
 
     socket.on('disconnect',function(){

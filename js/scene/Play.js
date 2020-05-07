@@ -11,10 +11,6 @@ export default class play extends Phaser.Scene {
     }
 
     create() {
-        this.data.loser=1;
-        this.scene.stop()
-        this.scene.start("Finish", this.data)
-
         this.playButton = this.add.text(280, 300, 'Play', { fill: '#fff' })
             .setInteractive()
             .on('pointerdown', () => {
