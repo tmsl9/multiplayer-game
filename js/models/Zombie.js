@@ -145,7 +145,6 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
     }
     
     shopUpdatePositions(x, y){
-        this.setVelocity(0, 0)
         this.x = x
         this.y = y
         this.setVelocity(this.velX, this.velY)

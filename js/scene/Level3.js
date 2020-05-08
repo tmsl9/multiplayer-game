@@ -160,7 +160,12 @@ export default class level3 extends Phaser.Scene {
         }
     }
 
-    shopUpdatePositions(data){
+    shopUpdatePositions(){
+        var data = []
+        this.socket.emit("sendUpdatedPositionsShop", data)
+    }
+
+    receiveUpdatedPositionsShop(data){
         for(var i = 0; i < data.length; i++){
             var object = data[i]
             this.players.children.iterate(function (player) {

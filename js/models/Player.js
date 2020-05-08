@@ -131,7 +131,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 if(!this.scene.scene.isActive("Shop")){
                     this.timeToShop = this.time + this.delayShop
                     this.scene.scene.add("Shop", new shop(this), true)
-                    this.shopPositionsAllObjectsEmit(zombies, mage, data.nextLevel)
+                    this.socket.emit("shop")
                 }else{
                     this.scene.scene.stop("Shop")
                     this.scene.scene.remove("Shop")
@@ -147,29 +147,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }, this);
     }
 
-    shopPositionsAllObjectsEmit(zombies, mage, level){
-        var data = []
-        if(level != 3){
-            zombies.children.iterate(function (zombie) {
-                if(zombie.z > 0){
-                    data.append({
-                        type: "z",
-                        id: zombie.id,
-                        x: zombie.x,
-                        y:zombie.y
-                    })
-                }
-            }, this);
-            if(level == 2 && mage.isAlive()){
-                data.append({
-                    type: "m",
-                    id: mage.id,
-                    x: mage.x,
-                    y:mage.y
-                })
-            }
-        }
-        this.socket.emit("shop", data)
+    shopPositionsAllObjectsEmit(level, zombies, mage){
+        
     }
 
     playAnim(posAnim){

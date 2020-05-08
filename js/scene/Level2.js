@@ -341,7 +341,32 @@ export default class level2 extends Phaser.Scene {
         }
     }
     
-    shopUpdatePositions(data){
+    shopUpdatePositions(){
+        var level = this.data.nextLevel
+        var data = []
+        if(level != 3){
+            this.zombies.children.iterate(function (zombie) {
+                if(zombie.x > 0){
+                    data.push({
+                        type: "z",
+                        id: zombie.id,
+                        x: zombie.x,
+                        y:zombie.y
+                    })
+                }
+            }, this);
+            if(level == 2 && mage.isAlive()){
+                data.push({
+                    type: "m",
+                    x: this.mage.x,
+                    y: this.mage.y
+                })
+            }
+        }
+        this.socket.emit("sendUpdatedPositionsShop", data)
+    }
+
+    receiveUpdatedPositionsShop(data){
         for(var i = 0; i < data.length; i++){
             var object = data[i]
             switch(object.type){
@@ -365,7 +390,6 @@ export default class level2 extends Phaser.Scene {
             }
         }
     }
-
 //////////mage bullets collision with player, and with map; server zombies with type 1 dist not working, they sometimes dont move
     otherPlayerLife(data){//////mage shoot all wrong, late; mage not collides with map; zombie dist wrong; mage melee attack nor working
         this.otherPlayer.life = data.life

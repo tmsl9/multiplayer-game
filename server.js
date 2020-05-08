@@ -156,6 +156,15 @@ io.sockets.on('connection', function(socket){
     });
 
     socket.on('shop',function(data){
+        for(var i in PLAYER_LIST){
+            var player2 = PLAYER_LIST[i];
+            if(player2.id != player.id){
+                SOCKET_LIST[player2.id].emit("shop")
+            }
+        }
+    });
+
+    socket.on('sendUpdatedPositionsShop', function(data){
         for(var j = 0; j < data.length; j++){
             var obj = data[j]
             if(level != 3){
@@ -175,8 +184,8 @@ io.sockets.on('connection', function(socket){
                 }
             }
         }
-        emitShopUpdatePositions()
-    });
+        emitShopUpdatePositionsToOtherPlayer(player.id)
+    })
 
     socket.on('life',function(data){
         for(var i in PLAYER_LIST){
@@ -285,7 +294,7 @@ io.sockets.on('connection', function(socket){
     });
 });
 
-function emitShopUpdatePositions(){
+function emitShopUpdatePositionsToOtherPlayer(id){
     var data = []
     for(var i in PLAYER_LIST){
         var p = PLAYER_LIST[i]
@@ -315,7 +324,9 @@ function emitShopUpdatePositions(){
         });
     }
     for(var j in SOCKET_LIST){
-        SOCKET_LIST[j].emit('shop', data)
+        if(j != id){
+            SOCKET_LIST[j].emit('receiveUpdatedPositionsShop', data)
+        }
     }
 }
 
