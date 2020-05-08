@@ -7,7 +7,7 @@ app.get('/',function(req, res) {
 });
 app.use('/',express.static(__dirname));
 
-serv.listen(5500, '192.168.1.77');
+serv.listen(5500, '192.168.8.1');
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
 var start = Date.now()
@@ -16,7 +16,7 @@ var SOCKET_LIST = {};
 var PLAYER_LIST = {};
 var total_players = 0;
 var players_ready = 0;
-const width = 640///////zombies caminharsa
+const width = 640
 const height = 640
 var ZOMBIE_LIST = {};
 var max_zombies_each = 10;//presentes de uma vez no campo
@@ -155,6 +155,29 @@ io.sockets.on('connection', function(socket){
         }
     });
 
+    socket.on('shop',function(data){
+        for(var j = 0; j < data.length; j++){
+            var obj = data[j]
+            if(level != 3){
+                if(obj.type == "z"){
+                    for(var i in ZOMBIE_LIST){
+                        var z = ZOMBIE_LIST[i]
+                        if(obj.id == z.id){
+                            z.x = obj.x
+                            z.y = obj.y
+                        }
+                    }
+                }else if(obj.type == "m"){
+                    if(level == 2){
+                        mage.x = obj.x
+                        mage.y = obj.y
+                    }
+                }
+            }
+        }
+        emitShopUpdatePositions()
+    });
+
     socket.on('life',function(data){
         for(var i in PLAYER_LIST){
             var player2 = PLAYER_LIST[i];
@@ -261,6 +284,40 @@ io.sockets.on('connection', function(socket){
         }
     });
 });
+
+function emitShopUpdatePositions(){
+    var data = []
+    for(var i in PLAYER_LIST){
+        var p = PLAYER_LIST[i]
+        data.push({
+            type: "p",
+            id: p.id,
+            x: p.x,
+            y: p.y
+        });
+    }
+    if(level != 3){
+        for(var i in ZOMBIE_LIST){
+            var z = ZOMBIE_LIST[i]
+            data.push({
+                type: "z",
+                id: z.id,
+                x: z.x,
+                y: z.y
+            });
+        }
+    }
+    if(level == 2){
+        data.push({
+            type: "m",
+            x: mage.x,
+            y: mage.y
+        });
+    }
+    for(var j in SOCKET_LIST){
+        SOCKET_LIST[j].emit('shop', data)
+    }
+}
 
 setInterval(function(){//criação do inimigo
     if(readyToNextLevel && (restrictionsLevel1() || restrictionsLevel2()) && living_zombies < max_zombies_each && !playerDead){

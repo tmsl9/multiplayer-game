@@ -36,6 +36,8 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
 
         this.play(this.pos, 0);
 
+        this.velX = 0
+        this.velY = 0
     }
 
     updateAnims(){
@@ -97,6 +99,8 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
         }
         this.setVelocityX(vx);
         this.setVelocityY(vy);
+        this.velX = vx
+        this.velY = vy
         socket.emit('zombiePosition', {id: this.id, x: this.x, y: this.y})
     }
 
@@ -108,6 +112,13 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
         if(this.anims.isPlaying && !(this.anims.currentAnim.key === this.pos)){
             this.play(this.pos)
         }
+    }
+    
+    shopUpdatePositions(x, y){
+        this.setVelocity(0, 0)
+        this.x = x
+        this.y = y
+        this.setVelocity(this.velX, this.velY)
     }
 
     bulletOutsideCanvas(){

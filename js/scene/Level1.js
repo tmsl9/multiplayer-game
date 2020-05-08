@@ -93,6 +93,8 @@ export default class level1 extends Phaser.Scene {
         
         this.socket.on('playerAction', (data)=>{ this.playerActions(data) });
 
+        this.socket.on('shop', (data) =>{ this.shopUpdatePositions(data) })
+
         this.socket.on('life', (data)=>{ this.otherPlayerLife(data) })//se o outro player tiver sido atingido, eu atualizo a vida dele
         
         this.socket.on('typeBullets', (data) =>{ this.otherPlayerTypeBullets(data) })
@@ -169,6 +171,7 @@ export default class level1 extends Phaser.Scene {
 
     socketOff(){
         this.socket.off('playerAction')
+        this.socket.off('shop')
         this.socket.off('life')
         this.socket.off('typeBullets')
         this.socket.off('createZombie')
@@ -188,6 +191,7 @@ export default class level1 extends Phaser.Scene {
             shop: this.input.keyboard.addKey(this.data.cursors.shop.keyCode)
         }
     }
+
 
     myPlayerZombiesCollision(myPlayer, zombie){
         if(zombie.type != 1){
@@ -260,6 +264,28 @@ export default class level1 extends Phaser.Scene {
             this.otherPlayer.x = data.x
             this.otherPlayer.y = data.y
             this.otherPlayer.playAnim(data.pos)
+        }
+    }
+    
+    shopUpdatePositions(data){
+        for(var i = 0; i < data.length; i++){
+            var object = data[i]
+            switch(object.type){
+                case "p": 
+                    this.players.children.iterate(function (player) {
+                        if(player.id == object.id){
+                            player.shopUpdatePositions(object.x, object.y)
+                        }
+                    }, this);
+                    break;
+                default:
+                    this.zombies.children.iterate(function (zombie) {
+                        if(zombie.id == object.id){
+                            zombie.shopUpdatePositions(object.x, object.y)
+                        }
+                    }, this);
+                    break;
+            }
         }
     }
 

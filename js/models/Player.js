@@ -90,7 +90,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    update(time, data) {
+    update(time, data, zombies, mage) {
         var id = data.id
         this.socket = data.socket
         this.defCursors(data)
@@ -131,6 +131,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 if(!this.scene.scene.isActive("Shop")){
                     this.timeToShop = this.time + this.delayShop
                     this.scene.scene.add("Shop", new shop(this), true)
+                    this.shopPositionsAllObjectsEmit(zombies, mage, data.nextLevel)
                 }else{
                     this.scene.scene.stop("Shop")
                     this.scene.scene.remove("Shop")
@@ -144,6 +145,31 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.bullets.killAndHide(bullet);
             }
         }, this);
+    }
+
+    shopPositionsAllObjectsEmit(zombies, mage, level){
+        var data = []
+        if(level != 3){
+            zombies.children.iterate(function (zombie) {
+                if(zombie.z > 0){
+                    data.append({
+                        type: "z",
+                        id: zombie.id,
+                        x: zombie.x,
+                        y:zombie.y
+                    })
+                }
+            }, this);
+            if(level == 2 && mage.isAlive()){
+                data.append({
+                    type: "m",
+                    id: mage.id,
+                    x: mage.x,
+                    y:mage.y
+                })
+            }
+        }
+        this.socket.emit("shop", data)
     }
 
     playAnim(posAnim){
@@ -174,6 +200,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.cursors.right.destroy()
         this.cursors.fight.destroy()
         this.cursors.shop.destroy()
+    }
+
+    shopUpdatePositions(x, y){
+        this.x = x
+        this.y = y
     }
 
     removeBullet(idBullet){
@@ -266,8 +297,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     
     finish(){
         this.setVelocity(0,0);
-        if(this.scene.scene.isActive("Shop" + this.shopNum)){
-            this.scene.scene.stop("Shop" + this.shopNum)
+        if(this.scene.scene.isActive("Shop")){
+            this.scene.scene.stop("Shop")
+            this.scene.scene.remove("Shop")
         }
     }
 }
