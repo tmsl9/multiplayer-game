@@ -315,14 +315,15 @@ function emitShopUpdatePositionsToOtherPlayer(id){
                 y: z.y
             });
         }
+        if(level == 2){
+            data.push({
+                type: "m",
+                x: mage.x,
+                y: mage.y
+            });
+        }
     }
-    if(level == 2){
-        data.push({
-            type: "m",
-            x: mage.x,
-            y: mage.y
-        });
-    }
+    
     for(var j in SOCKET_LIST){
         if(j != id){
             SOCKET_LIST[j].emit('receiveUpdatedPositionsShop', data)

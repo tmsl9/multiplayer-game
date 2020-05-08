@@ -114,6 +114,10 @@ export default class level2 extends Phaser.Scene {
 
         this.socket.on('playerAction', (data)=>{ this.playerActions(data) });
 
+        this.socket.on('shop', (data) =>{ this.sendUpdatedPositionsShop(data) })
+
+        this.socket.on('receiveUpdatedPositionsShop', (data) =>{ this.receiveUpdatedPositionsShop(data) })
+
         this.socket.on('life', (data)=>{ this.otherPlayerLife(data) })//se o outro player tiver sido atingido, eu atualizo a vida dele
         
         this.socket.on('typeBullets', (data) =>{ this.otherPlayerTypeBullets(data) })
@@ -199,6 +203,7 @@ export default class level2 extends Phaser.Scene {
     socketOff(){
         this.socket.off('playerAction')
         this.socket.off('shop')
+        this.socket.off('receiveUpdatedPositionsShop')
         this.socket.off('life')
         this.socket.off('typeBullets')
         this.socket.off('createZombie')
@@ -341,12 +346,11 @@ export default class level2 extends Phaser.Scene {
         }
     }
     
-    shopUpdatePositions(){
-        var level = this.data.nextLevel
+    sendUpdatedPositionsShop(){
         var data = []
-        if(level != 3){
+        if(mage.isAlive()){
             this.zombies.children.iterate(function (zombie) {
-                if(zombie.x > 0){
+                if(zombie.x >= 0){
                     data.push({
                         type: "z",
                         id: zombie.id,
@@ -355,13 +359,11 @@ export default class level2 extends Phaser.Scene {
                     })
                 }
             }, this);
-            if(level == 2 && mage.isAlive()){
-                data.push({
-                    type: "m",
-                    x: this.mage.x,
-                    y: this.mage.y
-                })
-            }
+            data.push({
+                type: "m",
+                x: this.mage.x,
+                y: this.mage.y
+            })
         }
         this.socket.emit("sendUpdatedPositionsShop", data)
     }

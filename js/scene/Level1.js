@@ -93,7 +93,7 @@ export default class level1 extends Phaser.Scene {
         
         this.socket.on('playerAction', (data)=>{ this.playerActions(data) });
 
-        this.socket.on('shop', (data) =>{ this.shopUpdatePositions(data) })
+        this.socket.on('shop', (data) =>{ this.sendUpdatedPositionsShop(data) })
 
         this.socket.on('receiveUpdatedPositionsShop', (data) =>{ this.receiveUpdatedPositionsShop(data) })
         
@@ -270,21 +270,18 @@ export default class level1 extends Phaser.Scene {
         }
     }
     
-    shopUpdatePositions(){
-        var level = this.data.nextLevel
+    sendUpdatedPositionsShop(){//////////////////////enviar animacao
         var data = []
-        if(level != 3){
-            this.zombies.children.iterate(function (zombie) {
-                if(zombie.x > 0){
-                    data.push({
-                        type: "z",
-                        id: zombie.id,
-                        x: zombie.x,
-                        y:zombie.y
-                    })
-                }
-            }, this);
-        }
+        this.zombies.children.iterate(function (zombie) {
+            if(zombie.x >= 0){
+                data.push({
+                    type: "z",
+                    id: zombie.id,
+                    x: zombie.x,
+                    y: zombie.y
+                })
+            }
+        }, this);
         this.socket.emit("sendUpdatedPositionsShop", data)
     }
 
@@ -302,7 +299,11 @@ export default class level1 extends Phaser.Scene {
                 default:
                     this.zombies.children.iterate(function (zombie) {
                         if(zombie.id == object.id){
+                            console.log("->")
+                            console.log(zombie.x, zombie.y)
+                            console.log(object.x, object.y)
                             zombie.shopUpdatePositions(object.x, object.y)
+                            console.log(zombie.x, zombie.y)
                         }
                     }, this);
                     break;
