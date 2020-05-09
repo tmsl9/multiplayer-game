@@ -150,7 +150,7 @@ export default class level2 extends Phaser.Scene {
                     this.scene.stop();
                     this.themeSound.stop();
                     this.socket.emit('Finish')
-                    this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player.id})
+                    this.scene.start('Finish', this.data)
                 }
             }, this);////////balas do mago tem collider e nao overlap
             //////////////shop when started, stops image for a second
@@ -198,6 +198,7 @@ export default class level2 extends Phaser.Scene {
 
     socketOff(){
         this.socket.off('playerAction')
+        this.socket.off('shop')
         this.socket.off('life')
         this.socket.off('typeBullets')
         this.socket.off('createZombie')
@@ -339,6 +340,56 @@ export default class level2 extends Phaser.Scene {
             this.otherPlayer.playAnim(data.pos)
         }
     }
+    
+    shopUpdatePositions(){
+        var level = this.data.nextLevel
+        var data = []
+        if(level != 3){
+            this.zombies.children.iterate(function (zombie) {
+                if(zombie.x > 0){
+                    data.push({
+                        type: "z",
+                        id: zombie.id,
+                        x: zombie.x,
+                        y:zombie.y
+                    })
+                }
+            }, this);
+            if(level == 2 && mage.isAlive()){
+                data.push({
+                    type: "m",
+                    x: this.mage.x,
+                    y: this.mage.y
+                })
+            }
+        }
+        this.socket.emit("sendUpdatedPositionsShop", data)
+    }
+
+    receiveUpdatedPositionsShop(data){
+        for(var i = 0; i < data.length; i++){
+            var object = data[i]
+            switch(object.type){
+                case "p": 
+                    this.players.children.iterate(function (player) {
+                        if(player.id == object.id){
+                            player.shopUpdatePositions(object.x, object.y)
+                        }
+                    }, this);
+                    break;
+                case "z": 
+                    this.zombies.children.iterate(function (zombie) {
+                        if(zombie.id == object.id){
+                            zombie.shopUpdatePositions(object.x, object.y)
+                        }
+                    }, this);
+                    break;
+                default:
+                    this.mage.shopUpdatePositions(object.x, object.y);
+                    break;
+            }
+        }
+    }
 //////////mage bullets collision with player, and with map; server zombies with type 1 dist not working, they sometimes dont move
     otherPlayerLife(data){//////mage shoot all wrong, late; mage not collides with map; zombie dist wrong; mage melee attack nor working
         this.otherPlayer.life = data.life
@@ -419,7 +470,7 @@ export default class level2 extends Phaser.Scene {
             this.mage.rangedAttack(data.time, this.players)
         }
     }
-////////////mage doesnt do near attack
+    
     mageLife(data){
         if(this.mage.isAlive()){
             this.mage.life = data.life;

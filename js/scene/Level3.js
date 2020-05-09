@@ -108,13 +108,15 @@ export default class level3 extends Phaser.Scene {
                 this.themeSound.stop();
                 this.socketOff()
                 this.socket.emit('Finish')
-                this.scene.start('Finish', {id: this.id, socket: this.socket, loserID: player.id})
+                this.data.loser = player.id;
+                this.scene.start('Finish', this.data)
             }
         }, this);
     }
 
     socketOff(){
         this.socket.off('playerAction')
+        this.socket.off('shop')
         this.socket.off('life')
         this.socket.off('typeBullets')
     }
@@ -155,6 +157,22 @@ export default class level3 extends Phaser.Scene {
             this.otherPlayer.x = data.x
             this.otherPlayer.y = data.y
             this.otherPlayer.playAnim(data.pos)
+        }
+    }
+
+    shopUpdatePositions(){
+        var data = []
+        this.socket.emit("sendUpdatedPositionsShop", data)
+    }
+
+    receiveUpdatedPositionsShop(data){
+        for(var i = 0; i < data.length; i++){
+            var object = data[i]
+            this.players.children.iterate(function (player) {
+                if(player.id == object.id){
+                    player.shopUpdatePositions(object.x, object.y)
+                }
+            }, this);
         }
     }
 

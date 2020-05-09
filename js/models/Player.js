@@ -26,7 +26,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.atacklvl = 1;
         this.velocity = 200;
         this.fireRate = 350;
-        this.money = 100000;
+        this.money = 0;
 
         this.canBeKilled = true;
 
@@ -90,7 +90,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    update(time, data) {
+    update(time, data, zombies, mage) {
         var id = data.id
         this.socket = data.socket
         this.defCursors(data)
@@ -131,6 +131,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 if(!this.scene.scene.isActive("Shop")){
                     this.timeToShop = this.time + this.delayShop
                     this.scene.scene.add("Shop", new shop(this), true)
+                    this.socket.emit("shop")
                 }else{
                     this.scene.scene.stop("Shop")
                     this.scene.scene.remove("Shop")
@@ -144,6 +145,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.bullets.killAndHide(bullet);
             }
         }, this);
+    }
+
+    shopPositionsAllObjectsEmit(level, zombies, mage){
+        
     }
 
     playAnim(posAnim){
@@ -174,6 +179,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.cursors.right.destroy()
         this.cursors.fight.destroy()
         this.cursors.shop.destroy()
+    }
+
+    shopUpdatePositions(x, y){
+        this.x = x
+        this.y = y
     }
 
     removeBullet(idBullet){
@@ -265,10 +275,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
     
     finish(){
-        this.setVelocity(0, 0)//not working
-        this.destroyCursors()
-        if(this.scene.scene.isActive("Shop" + this.shopNum)){
-            this.scene.scene.stop("Shop" + this.shopNum)
+        this.setVelocity(0,0);
+        if(this.scene.scene.isActive("Shop")){
+            this.scene.scene.stop("Shop")
+            this.scene.scene.remove("Shop")
         }
     }
 }

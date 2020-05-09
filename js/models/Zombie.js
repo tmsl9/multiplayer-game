@@ -41,6 +41,9 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.pos = this.downAnim
 
         this.play(this.pos, 0);
+
+        this.velX = 0
+        this.velY = 0
     }
 
     removeFromScreen() {
@@ -69,6 +72,7 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.downAnim = 'down' + this.img
         this.leftAnim = 'left' + this.img
         this.rightAnim = 'right' + this.img
+        
         if(!this.scene.anims.exists(this.upAnim)){
             this.scene.anims.create({
                 key: this.upAnim,
@@ -125,6 +129,8 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         }
         this.setVelocityX(vx);
         this.setVelocityY(vy);
+        this.velX = vx
+        this.velY = vy
         socket.emit('zombiePosition', {id: this.id, x: this.x, y: this.y})
     }
 
@@ -136,6 +142,12 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         if(this.anims.isPlaying && !(this.anims.currentAnim.key === this.pos)){
             this.play(this.pos)
         }
+    }
+    
+    shopUpdatePositions(x, y){
+        this.x = x
+        this.y = y
+        this.setVelocity(this.velX, this.velY)
     }
 
     bulletOutsideCanvas(){

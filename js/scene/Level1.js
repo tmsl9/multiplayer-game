@@ -93,6 +93,10 @@ export default class level1 extends Phaser.Scene {
         
         this.socket.on('playerAction', (data)=>{ this.playerActions(data) });
 
+        this.socket.on('shop', (data) =>{ this.shopUpdatePositions(data) })
+
+        this.socket.on('receiveUpdatedPositionsShop', (data) =>{ this.receiveUpdatedPositionsShop(data) })
+        
         this.socket.on('life', (data)=>{ this.otherPlayerLife(data) })//se o outro player tiver sido atingido, eu atualizo a vida dele
         
         this.socket.on('typeBullets', (data) =>{ this.otherPlayerTypeBullets(data) })
@@ -112,7 +116,7 @@ export default class level1 extends Phaser.Scene {
             this.currentTime = time
             this.players.children.iterate(function (player) {
                 if(player.life > 0){
-                    player.update(time, this.data)
+                    player.update(time, this.data, this.zombies)
                 }else{
                     player.dead()
                     this.myPlayer.finish()
@@ -169,6 +173,8 @@ export default class level1 extends Phaser.Scene {
 
     socketOff(){
         this.socket.off('playerAction')
+        this.socket.off('shop')
+        this.socket.off('receiveUpdatedPositionsShop')
         this.socket.off('life')
         this.socket.off('typeBullets')
         this.socket.off('createZombie')
@@ -188,6 +194,7 @@ export default class level1 extends Phaser.Scene {
             shop: this.input.keyboard.addKey(this.data.cursors.shop.keyCode)
         }
     }
+
 
     myPlayerZombiesCollision(myPlayer, zombie){
         if(zombie.type != 1){
@@ -262,6 +269,46 @@ export default class level1 extends Phaser.Scene {
             this.otherPlayer.playAnim(data.pos)
         }
     }
+    
+    shopUpdatePositions(){
+        var level = this.data.nextLevel
+        var data = []
+        if(level != 3){
+            this.zombies.children.iterate(function (zombie) {
+                if(zombie.x > 0){
+                    data.push({
+                        type: "z",
+                        id: zombie.id,
+                        x: zombie.x,
+                        y:zombie.y
+                    })
+                }
+            }, this);
+        }
+        this.socket.emit("sendUpdatedPositionsShop", data)
+    }
+
+    receiveUpdatedPositionsShop(data){
+        for(var i = 0; i < data.length; i++){
+            var object = data[i]
+            switch(object.type){
+                case "p": 
+                    this.players.children.iterate(function (player) {
+                        if(player.id == object.id){
+                            player.shopUpdatePositions(object.x, object.y)
+                        }
+                    }, this);
+                    break;
+                default:
+                    this.zombies.children.iterate(function (zombie) {
+                        if(zombie.id == object.id){
+                            zombie.shopUpdatePositions(object.x, object.y)
+                        }
+                    }, this);
+                    break;
+            }
+        }
+    }
 
     otherPlayerLife(data){
         this.otherPlayer.life = data.life
@@ -320,15 +367,15 @@ export default class level1 extends Phaser.Scene {
             }
         }, this)
     }
-
+    
     updateLifeLabel(id){
-        if(id == this.myPlayer.id){
-            for(var i = 0; i < 10 - this.myPlayer.life / 10 && i < 10; i++){
-                this.myLifeLabel[9 - i].setVisible(false);
+        if(id==this.id){
+            for(var i = 0; i<10 - this.myPlayer.life/10 ; i++){
+                this.myLifeLabel[9-i].setVisible(false);
             }
         }else{
-            for(var i = 0; i < 10 - this.otherPlayer.life / 10 && i < 10; i++){
-                this.otherLifeLabel[9 - i].setVisible(false);
+            for(var i = 0; i<10 - this.otherPlayer.life/10 ; i++){
+                this.otherLifeLabel[9-i].setVisible(false);
             }
         }
     }
