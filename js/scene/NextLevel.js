@@ -39,7 +39,7 @@ export default class nextLevel extends Phaser.Scene {
         }
         let i = 0
         let changeTint = true;
-        let repetition = 700
+        let repetition = this.nextLevel != 3 ? 500 : 700
         this.time.addEvent({
             repeat: repetition,
             loop: false,

@@ -66,10 +66,12 @@ export default class level2 extends Phaser.Scene {
 
         this.currentTime;
 
-        this.themeSound = this.sound.add("theme", { loop: true, delay: 0, volume: this.volume });
+        this.themeSound = this.sound.add("theme", { volume: this.volume });
 
         this.themeSound.play();
 
+        this.themeSound.once('complete', ()=>{this.themeSound.play()});
+        
         let fireSound = this.sound.add("fire", { volume: this.volume });
 
         this.cursors = this.defCursors()
