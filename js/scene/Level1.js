@@ -56,7 +56,7 @@ export default class level1 extends Phaser.Scene {
 
         this.currentTime;
 
-        this.themeSound = this.sound.add("theme", { volume: this.volume });
+        this.themeSound = this.sound.add("theme", { loop: true, delay: 0, volume: this.volume });
 
         this.themeSound.play();
 
@@ -84,12 +84,6 @@ export default class level1 extends Phaser.Scene {
         }, this);
 
         this.physics.add.overlap(this.zombies, this.myPlayer.bullets, this.zombiesMyPlayerBulletsCollision, null, this)
-
-        //recomeçar o jogo quando servidor desligar e voltar a ligar, mas nao funciona bem por causa do servidor
-        /*this.socket.on('id', (data)=>{
-            this.scene.stop()
-            this.scene.start("Play")
-        })*/
         
         this.socket.on('playerAction', (data)=>{ this.playerActions(data) })
         
@@ -105,8 +99,7 @@ export default class level1 extends Phaser.Scene {
 
         this.socket.on('lifeZombie', (data) =>{ this.zombieLife(data) })
     }
-    ///tem bugs que nao deixam o personagem mexer-se mas o anim corre na mesma
-    ///as vezes da erro e o dinheiro começa a disparar e o power tem mais de 50, e mata logo o zombie
+
     update(time) {
         if(this.deadZombies < this.maxZombies){
             this.currentTime = time
@@ -333,4 +326,4 @@ export default class level1 extends Phaser.Scene {
             }
         }
     }
-}///aumentar numero de inimigos, senao fica muito facil
+}

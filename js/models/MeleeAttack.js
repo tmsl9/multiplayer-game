@@ -5,12 +5,10 @@ export default class MeleeAttack extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this);
 
         this.meleeAttack=this.scene.anims.create({
-            key: 'playerMelee', //animation identifier
-            //frames to play in animation 
-            //https://photonstorm.github.io/phaser3-docs/Phaser.Animations.AnimationManager.html#generateFrameNumbers__anchor
+            key: 'playerMelee',
             frames: this.scene.anims.generateFrameNumbers('playerMelee', { start: 0, end: 24 }),
             frameRate: 60,
-            repeat: 0 //animation repetition (-1 = infinity)
+            repeat: 0
         });
 
         this.setScale(0.3)

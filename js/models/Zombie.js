@@ -171,7 +171,6 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
             var minor = 100000
             players.children.iterate(function (player ) {
                 var dist = Phaser.Math.Distance.Between(player.x, player.y, this.x, this.y)
-                ////console.log("dist-> ", dist, ", id-> ", player.id)
                 if(dist < minor){
                     pl = player
                     minor = dist

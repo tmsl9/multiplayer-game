@@ -39,7 +39,7 @@ export default class nextLevel extends Phaser.Scene {
         }
         let i = 0
         let changeTint = true;
-        let repetition = 100//////////////ver tempo por causa da voz do mago(rui)
+        let repetition = 100
         this.time.addEvent({
             repeat: repetition,
             loop: false,
@@ -66,9 +66,10 @@ export default class nextLevel extends Phaser.Scene {
                     }
                 }
                 i++
-            }//////////////zombie type 2 is shooting
+            }
         });
     }
+
     socketOff(){
         this.socket.off("readyToNextLevel")
     }

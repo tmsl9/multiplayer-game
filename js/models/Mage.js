@@ -132,7 +132,6 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
             var minor = 100000
             players.children.iterate(function (player ) {
                 var dist = Phaser.Math.Distance.Between(player.x, player.y, this.x, this.y)
-                ////console.log("dist-> ", dist, ", id-> ", player.id)
                 if(dist < minor){
                     pl = player
                     minor = dist
@@ -142,8 +141,6 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
             this.bullet.x = this.x
             this.bullet.y = this.y
             this.bullet.fire(pl.x, pl.y, this.typeBullet);
-
-            //console.log("pl.id = ", pl.id, "minor: ", minor)
         
             this.timeToShoot = time + this.fireRate;
 
@@ -154,7 +151,7 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
     }
 
     meeleeAttack(time, myPlayer){
-        if (this.timeToMeelee < time) {////////////do in server
+        if (this.timeToMeelee < time) {
             myPlayer.life -= this.meeleDamage
             this.timeToMeelee = time + this.zombieTimerDelay;
             return true
