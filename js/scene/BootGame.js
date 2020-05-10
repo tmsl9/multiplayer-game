@@ -76,7 +76,7 @@ export default class bootGame extends Phaser.Scene {
 
         this.load.image("progresso", "assets/progresso.png");
 
-        this.load.image("bg", "assets/background.png");
+        this.load.image("bg", "assets/bg.png");
 
         this.load.audio("fire", "assets/fireball.mp3");
         this.load.audio("theme", "assets/overworld.mp3");

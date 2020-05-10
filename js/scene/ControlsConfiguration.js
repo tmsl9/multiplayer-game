@@ -10,38 +10,40 @@ export default class controlsConfiguration extends Phaser.Scene {
     }
 
     create() {
+        
+        this.add.image(0, 0, "bg").setDisplayOrigin(0, 0).setDisplaySize(640, 640);
         this.charsAllowed = this.charsAllowedFun()
         
-        this.add.text(50, 50, 'Characters allowed:', { fill: '#fff' })
-        this.add.text(100, 80, 'A-Z, 0-9, LeftShift, LeftControl, Alt,', { fill: '#fff' })
-        this.add.text(100, 100, 'CapsLock, Esc, Spacebar, Tab, Enter, Ponto,', { fill: '#fff' })
-        this.add.text(100, 120, 'Backspace, Up, Left, Right, Down, Vírgula', { fill: '#fff' })
+        this.add.text(50, 50, 'Characters allowed:', { fill: '#000' })
+        this.add.text(100, 80, 'A-Z, 0-9, LeftShift, LeftControl, Alt,', { fill: '#000' })
+        this.add.text(100, 100, 'CapsLock, Esc, Spacebar, Tab, Enter, Ponto,', { fill: '#000' })
+        this.add.text(100, 120, 'Backspace, Up, Left, Right, Down, Vírgula', { fill: '#000' })
         
-        this.add.text(100, 200, 'Mover para cima', { fill: '#fff' })
-        this.upButton = this.add.text(400, 200, this.keyText(this.cursors.up.keyCode), { fill: '#fff' })
+        this.add.text(100, 200, 'Mover para cima', { fill: '#000' })
+        this.upButton = this.add.text(400, 200, this.keyText(this.cursors.up.keyCode), { fill: '#000' })
         this.buttonInteraction(this.upButton)
-        this.add.text(100, 220, 'Mover para baixo', { fill: '#fff' })
-        this.downButton = this.add.text(400, 220, this.keyText(this.cursors.down.keyCode), { fill: '#fff' })
+        this.add.text(100, 220, 'Mover para baixo', { fill: '#000' })
+        this.downButton = this.add.text(400, 220, this.keyText(this.cursors.down.keyCode), { fill: '#000' })
         this.buttonInteraction(this.downButton)
-        this.add.text(100, 240, 'Mover para a esquerda', { fill: '#fff' })
-        this.leftButton = this.add.text(400, 240, this.keyText(this.cursors.left.keyCode), { fill: '#fff' })
+        this.add.text(100, 240, 'Mover para a esquerda', { fill: '#000' })
+        this.leftButton = this.add.text(400, 240, this.keyText(this.cursors.left.keyCode), { fill: '#000' })
         this.buttonInteraction(this.leftButton)
-        this.add.text(100, 260, 'Mover para a direita', { fill: '#fff' })
-        this.rightButton = this.add.text(400, 260, this.keyText(this.cursors.right.keyCode), { fill: '#fff' })
+        this.add.text(100, 260, 'Mover para a direita', { fill: '#000' })
+        this.rightButton = this.add.text(400, 260, this.keyText(this.cursors.right.keyCode), { fill: '#000' })
         this.buttonInteraction(this.rightButton)
-        this.add.text(100, 280, 'Lutar', { fill: '#fff' })
-        this.fightButton = this.add.text(400, 280, this.keyText(this.cursors.fight.keyCode), { fill: '#fff' })
+        this.add.text(100, 280, 'Lutar', { fill: '#000' })
+        this.fightButton = this.add.text(400, 280, this.keyText(this.cursors.fight.keyCode), { fill: '#000' })
         this.buttonInteraction(this.fightButton)
-        this.add.text(100, 300, 'Loja', { fill: '#fff' })
-        this.shopButton = this.add.text(400, 300, this.keyText(this.cursors.shop.keyCode), { fill: '#fff' })
+        this.add.text(100, 300, 'Loja', { fill: '#000' })
+        this.shopButton = this.add.text(400, 300, this.keyText(this.cursors.shop.keyCode), { fill: '#000' })
         this.buttonInteraction(this.shopButton)
-        this.add.text(100, 320, 'Atirar', { fill: '#fff' })
-        this.shopButton = this.add.text(400, 320, 'Mouse\'s left button (*)', { fill: '#fff' })
-        this.add.text(100, 500, '(*) Não pode ser alterado', { fill: '#fff' })
+        this.add.text(100, 320, 'Atirar', { fill: '#000' })
+        this.shopButton = this.add.text(400, 320, 'Mouse\'s left button (*)', { fill: '#000' })
+        this.add.text(100, 500, '(*) Não pode ser alterado', { fill: '#000' })
 
         this.input.on("pointerdown", this.clickKey, this)
 
-        this.okButton = this.add.text(220, 400, 'Ok', { fill: '#fff' })
+        this.okButton = this.add.text(220, 400, 'Ok', { fill: '#000' })
             .on('pointerdown', () => {
                 if(this.clickLeft){
                     this.data.cursors = this.cursors
@@ -51,7 +53,7 @@ export default class controlsConfiguration extends Phaser.Scene {
                 }
             })
         this.buttonInteraction(this.okButton)
-        this.cancelarButton = this.add.text(300, 400, 'Cancelar', { fill: '#fff' })
+        this.cancelarButton = this.add.text(300, 400, 'Cancelar', { fill: '#000' })
             .on('pointerdown', () => {
                 if(this.clickLeft){
                     this.destroyCursors()
@@ -64,8 +66,8 @@ export default class controlsConfiguration extends Phaser.Scene {
 
     buttonInteraction(but){
         but.setInteractive()
-        but.on('pointerover', () => but.setStyle({ fill: '#ffa82e'}))
-        but.on('pointerout', () => but.setStyle({ fill: '#fff'}))
+        but.on('pointerover', () => but.setStyle({ fill: '#800000'}))
+        but.on('pointerout', () => but.setStyle({ fill: '#000'}))
     }
     
     clickLeft(pointer){

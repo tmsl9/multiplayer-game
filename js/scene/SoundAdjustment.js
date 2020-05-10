@@ -10,19 +10,21 @@ export default class soundAdjustment extends Phaser.Scene {
     }
 
     create() {
+        
+        this.add.image(0, 0, "bg").setDisplayOrigin(0, 0).setDisplaySize(640, 640);
         console.log("SoundAdjustment");
         
         this.min =300
         this.max = 400
-        this.add.text(150, 290, 'Volume', { fill: '#fff' })
-        this.add.text(260, 290, '0 |', { fill: '#fff' })
-        this.add.text(345, 290, '|', { fill: '#fff' })
-        this.add.text(411, 290, '| 100', { fill: '#fff' })
+        this.add.text(150, 290, 'Volume', { fill: '#000' })
+        this.add.text(260, 290, '0 |', { fill: '#000' })
+        this.add.text(345, 290, '|', { fill: '#000' })
+        this.add.text(411, 290, '| 100', { fill: '#000' })
         this.volumeButton = this.add.image(this.volume, 298, "volume")
             .setInteractive()
             .on('pointerdown', this.clickVolume, this)
             .setScale(0.06)
-        this.okButton = this.add.text(220, 400, 'Ok', { fill: '#fff' })
+        this.okButton = this.add.text(220, 400, 'Ok', { fill: '#000' })
             .on('pointerdown', () => {
                 if(this.clickLeft){
                     this.data.volume = (this.volume - 300) / 100
@@ -31,7 +33,7 @@ export default class soundAdjustment extends Phaser.Scene {
                 }
             })
         this.buttonInteraction(this.okButton)
-        this.cancelarButton = this.add.text(300, 400, 'Cancelar', { fill: '#fff' })
+        this.cancelarButton = this.add.text(300, 400, 'Cancelar', { fill: '#000' })
             .on('pointerdown', () => {
                 if(this.clickLeft){
                     this.scene.stop()
@@ -43,8 +45,8 @@ export default class soundAdjustment extends Phaser.Scene {
 
     buttonInteraction(but){
         but.setInteractive()
-        but.on('pointerover', () => but.setStyle({ fill: '#ffa82e'}))
-        but.on('pointerout', () => but.setStyle({ fill: '#fff'}))
+        but.on('pointerover', () => but.setStyle({ fill: '#800000'}))
+        but.on('pointerout', () => but.setStyle({ fill: '#000'}))
     }
 
     clickLeft(pointer){
