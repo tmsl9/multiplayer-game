@@ -91,11 +91,7 @@ export default class level1 extends Phaser.Scene {
             this.scene.start("Play")
         })*/
         
-        this.socket.on('playerAction', (data)=>{ this.playerActions(data) });
-
-        this.socket.on('shop', (data) =>{ this.sendUpdatedPositionsShop(data) })
-
-        this.socket.on('receiveUpdatedPositionsShop', (data) =>{ this.receiveUpdatedPositionsShop(data) })
+        this.socket.on('playerAction', (data)=>{ this.playerActions(data) })
         
         this.socket.on('life', (data)=>{ this.otherPlayerLife(data) })//se o outro player tiver sido atingido, eu atualizo a vida dele
         
@@ -173,8 +169,6 @@ export default class level1 extends Phaser.Scene {
 
     socketOff(){
         this.socket.off('playerAction')
-        this.socket.off('shop')
-        this.socket.off('receiveUpdatedPositionsShop')
         this.socket.off('life')
         this.socket.off('typeBullets')
         this.socket.off('createZombie')
@@ -267,47 +261,6 @@ export default class level1 extends Phaser.Scene {
             this.otherPlayer.x = data.x
             this.otherPlayer.y = data.y
             this.otherPlayer.playAnim(data.pos)
-        }
-    }
-    
-    sendUpdatedPositionsShop(){//////////////////////enviar animacao
-        var data = []
-        this.zombies.children.iterate(function (zombie) {
-            if(zombie.x >= 0){
-                data.push({
-                    type: "z",
-                    id: zombie.id,
-                    x: zombie.x,
-                    y: zombie.y
-                })
-            }
-        }, this);
-        this.socket.emit("sendUpdatedPositionsShop", data)
-    }
-
-    receiveUpdatedPositionsShop(data){
-        for(var i = 0; i < data.length; i++){
-            var object = data[i]
-            switch(object.type){
-                case "p": 
-                    this.players.children.iterate(function (player) {
-                        if(player.id == object.id){
-                            player.shopUpdatePositions(object.x, object.y)
-                        }
-                    }, this);
-                    break;
-                default:
-                    this.zombies.children.iterate(function (zombie) {
-                        if(zombie.id == object.id){
-                            console.log("->")
-                            console.log(zombie.x, zombie.y)
-                            console.log(object.x, object.y)
-                            zombie.shopUpdatePositions(object.x, object.y)
-                            console.log(zombie.x, zombie.y)
-                        }
-                    }, this);
-                    break;
-            }
         }
     }
 

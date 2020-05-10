@@ -13,61 +13,53 @@ export default class shop extends Phaser.Scene {
         this.sceneWidth = this.game.config.width;
         this.sceneHeight = this.game.config.height;
 
-        var textConfig = {font: "15px Cambria", fill: "#fff"}
-        
         this.y1 = this.sceneWidth - 100
         this.y2 = this.sceneWidth - 80
         this.y3 = this.sceneWidth - 60
         this.y4 = this.sceneWidth - 40
         
-        this.green = '#0f0'
-        this.red = '#ff0000'
-        this.darkGreen = '#16a823'
+        this.red = 0
+        this.green = 1
+        this.darkGreen = 2
 
         this.add.image(40, this.y1, "bullet1").setScale(1.2)
         this.add.image(40, this.y2, "bullet2").setScale(1.2)
         this.add.image(40, this.y3, "bullet3").setScale(1.2)
         this.add.image(40, this.y4, "regenLife").setScale(0.1)
 
-        this.add.text(60, this.y1, "+damage", textConfig);
-        this.add.text(60, this.y2, "+velocity", textConfig);
-        this.add.text(60, this.y3, "-fire rate", textConfig);
-        this.add.text(60, this.y4, "+life", textConfig);
+        var a =this.add.image(95, this.y1, "+damage").setScale(0.1)
+        this.add.image(100, this.y2, "+velocity").setScale(0.1)
+        this.add.image(102, this.y3, "-fire rate").setScale(0.1)
+        this.add.image(85, this.y4, "+life").setScale(0.1)
+        
+        new Coin(this, 150, this.y1).setScale(0.06).playAnim()
+        new Coin(this, 150, this.y2).setScale(0.06).playAnim()
+        new Coin(this, 150, this.y3).setScale(0.06).playAnim()
+        new Coin(this, 150, this.y4).setScale(0.06).playAnim()
 
-        var coin1 = new Coin(this, 150, this.y1).setScale(0.06)
-        .playAnim()
-        var coin2 = new Coin(this, 150, this.y2).setScale(0.06)
-        .playAnim()
-        var coin3 = new Coin(this, 150, this.y3).setScale(0.06)
-        .playAnim()
-        var coin4 = new Coin(this, 150, this.y4).setScale(0.06)
-        .playAnim()
+        this.buttonInteraction(this.add.image(180, this.y1, "100", this.color(100)).setScale(0.1))
+        this.buttonInteraction(this.add.image(180, this.y2, "200", this.color(200)).setScale(0.1))
+        this.buttonInteraction(this.add.image(180, this.y3, "300", this.color(300)).setScale(0.1))
+        this.buttonInteraction(this.add.image(180, this.y4, "200", this.color(200)).setScale(0.1))
 
-        var bullet1Price = this.add.text(160, this.y1, "100", textConfig).setFill(this.color(100))
-        this.buttonInteraction(bullet1Price)
-        var bullet2Price = this.add.text(160, this.y2, "200", textConfig).setFill(this.color(200))
-        this.buttonInteraction(bullet2Price)
-        var bullet3Price = this.add.text(160, this.y3, "300", textConfig).setFill(this.color(300))
-        this.buttonInteraction(bullet3Price)
-        var regenLifePrice = this.add.text(160, this.y4, "200", textConfig).setFill(this.color(200))
-        this.buttonInteraction(regenLifePrice)
         this.input.on("pointerdown", this.buyPowerUp, this)
     }
 
     buttonInteraction(but){
-        if(but.style.color == this.green){
+        if(but.frame.name == this.green){
             but.setInteractive()
-            but.on('pointerover', () => but.setStyle({ fill: this.darkGreen }))
-            but.on('pointerout', () => but.setStyle({ fill: this.green }))
+            but.on('pointerover', () => but.setFrame(this.darkGreen))
+            but.on('pointerout', () => but.setFrame(this.green))
         }
     }
 
     buyPowerUp(pointer, prices){
         var price = prices[0]
-        if(prices.length > 0 && price.style.color == this.darkGreen){
-            this.myPlayer.money -= parseInt(price.text)
+        if(prices.length > 0 && price.frame.name == this.darkGreen){
+            this.myPlayer.money -= parseInt(price.texture.key)
             this.myPlayer.buyPowerUp(this.numberPowerUp(price.y))
             this.scene.stop()
+            this.scene.remove()
         }
     }
 

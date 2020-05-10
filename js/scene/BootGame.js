@@ -86,6 +86,23 @@ export default class bootGame extends Phaser.Scene {
         this.load.audio("text2", "assets/text2.mp3");
         this.load.audio("text3", "assets/text3.mp3");
 
+        this.load.image("+damage", "assets/+damage.png");
+        this.load.image("+velocity", "assets/+velocity.png");
+        this.load.image("-fire rate", "assets/-fire rate.png");
+        this.load.image("+life", "assets/+life.png");
+        this.load.spritesheet("100", "assets/100.png", {
+            frameWidth: 947/3,
+            frameHeight: 120
+        });
+        this.load.spritesheet("200", "assets/200.png", {
+            frameWidth: 1042/3,
+            frameHeight: 133
+        });
+        this.load.spritesheet("300", "assets/300.png", {
+            frameWidth: 1064/3,
+            frameHeight: 132
+        });
+
     }
     
     create() {

@@ -112,11 +112,7 @@ export default class level2 extends Phaser.Scene {
             this.scene.start("Play")
         })*/
 
-        this.socket.on('playerAction', (data)=>{ this.playerActions(data) });
-
-        this.socket.on('shop', (data) =>{ this.sendUpdatedPositionsShop(data) })
-
-        this.socket.on('receiveUpdatedPositionsShop', (data) =>{ this.receiveUpdatedPositionsShop(data) })
+        this.socket.on('playerAction', (data)=>{ this.playerActions(data) })
 
         this.socket.on('life', (data)=>{ this.otherPlayerLife(data) })//se o outro player tiver sido atingido, eu atualizo a vida dele
         
@@ -156,8 +152,8 @@ export default class level2 extends Phaser.Scene {
                     this.socket.emit('Finish')
                     this.scene.start('Finish', this.data)
                 }
-            }, this);////////balas do mago tem collider e nao overlap
-            //////////////shop when started, stops image for a second
+            }, this);
+            
             this.zombies.children.iterate(function (zombie) {
                 zombie.update(time, this.socket);
                 if(zombie.life <= 0){
@@ -202,8 +198,6 @@ export default class level2 extends Phaser.Scene {
 
     socketOff(){
         this.socket.off('playerAction')
-        this.socket.off('shop')
-        this.socket.off('receiveUpdatedPositionsShop')
         this.socket.off('life')
         this.socket.off('typeBullets')
         this.socket.off('createZombie')
@@ -346,54 +340,7 @@ export default class level2 extends Phaser.Scene {
         }
     }
     
-    sendUpdatedPositionsShop(){
-        var data = []
-        if(mage.isAlive()){
-            this.zombies.children.iterate(function (zombie) {
-                if(zombie.x >= 0){
-                    data.push({
-                        type: "z",
-                        id: zombie.id,
-                        x: zombie.x,
-                        y:zombie.y
-                    })
-                }
-            }, this);
-            data.push({
-                type: "m",
-                x: this.mage.x,
-                y: this.mage.y
-            })
-        }
-        this.socket.emit("sendUpdatedPositionsShop", data)
-    }
-
-    receiveUpdatedPositionsShop(data){
-        for(var i = 0; i < data.length; i++){
-            var object = data[i]
-            switch(object.type){
-                case "p": 
-                    this.players.children.iterate(function (player) {
-                        if(player.id == object.id){
-                            player.shopUpdatePositions(object.x, object.y)
-                        }
-                    }, this);
-                    break;
-                case "z": 
-                    this.zombies.children.iterate(function (zombie) {
-                        if(zombie.id == object.id){
-                            zombie.shopUpdatePositions(object.x, object.y)
-                        }
-                    }, this);
-                    break;
-                default:
-                    this.mage.shopUpdatePositions(object.x, object.y);
-                    break;
-            }
-        }
-    }
-//////////mage bullets collision with player, and with map; server zombies with type 1 dist not working, they sometimes dont move
-    otherPlayerLife(data){//////mage shoot all wrong, late; mage not collides with map; zombie dist wrong; mage melee attack nor working
+    otherPlayerLife(data){
         this.otherPlayer.life = data.life
         if(data.idZombie){//se o outro jogador sofrer dano do inimigo
             this.zombies.children.iterate(function (zombie) {

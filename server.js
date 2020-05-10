@@ -155,38 +155,6 @@ io.sockets.on('connection', function(socket){
         }
     });
 
-    socket.on('shop',function(data){
-        for(var i in PLAYER_LIST){
-            var player2 = PLAYER_LIST[i];
-            if(player2.id != player.id){
-                SOCKET_LIST[player2.id].emit("shop")
-            }
-        }
-    });
-
-    socket.on('sendUpdatedPositionsShop', function(data){
-        for(var j = 0; j < data.length; j++){
-            var obj = data[j]
-            if(level != 3){
-                if(obj.type == "z"){
-                    for(var i in ZOMBIE_LIST){
-                        var z = ZOMBIE_LIST[i]
-                        if(obj.id == z.id){
-                            z.x = obj.x
-                            z.y = obj.y
-                        }
-                    }
-                }else if(obj.type == "m"){
-                    if(level == 2){
-                        mage.x = obj.x
-                        mage.y = obj.y
-                    }
-                }
-            }
-        }
-        emitShopUpdatePositionsToOtherPlayer(player.id)
-    })
-
     socket.on('life',function(data){
         for(var i in PLAYER_LIST){
             var player2 = PLAYER_LIST[i];
@@ -293,43 +261,6 @@ io.sockets.on('connection', function(socket){
         }
     });
 });
-
-function emitShopUpdatePositionsToOtherPlayer(id){
-    var data = []
-    for(var i in PLAYER_LIST){
-        var p = PLAYER_LIST[i]
-        data.push({
-            type: "p",
-            id: p.id,
-            x: p.x,
-            y: p.y
-        });
-    }
-    if(level != 3){
-        for(var i in ZOMBIE_LIST){
-            var z = ZOMBIE_LIST[i]
-            data.push({
-                type: "z",
-                id: z.id,
-                x: z.x,
-                y: z.y
-            });
-        }
-        if(level == 2){
-            data.push({
-                type: "m",
-                x: mage.x,
-                y: mage.y
-            });
-        }
-    }
-    
-    for(var j in SOCKET_LIST){
-        if(j != id){
-            SOCKET_LIST[j].emit('receiveUpdatedPositionsShop', data)
-        }
-    }
-}
 
 setInterval(function(){//criação do inimigo
     if(readyToNextLevel && (restrictionsLevel1() || restrictionsLevel2()) && living_zombies < max_zombies_each && !playerDead){

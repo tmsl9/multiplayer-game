@@ -26,7 +26,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.atacklvl = 1;
         this.velocity = 200;
         this.fireRate = 350;
-        this.money = 0;
+        this.money = 10000;
 
         this.canBeKilled = true;
 
@@ -131,7 +131,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 if(!this.scene.scene.isActive("Shop")){
                     this.timeToShop = this.time + this.delayShop
                     this.scene.scene.add("Shop", new shop(this), true)
-                    this.socket.emit("shop")
                 }else{
                     this.scene.scene.stop("Shop")
                     this.scene.scene.remove("Shop")
@@ -145,10 +144,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.bullets.killAndHide(bullet);
             }
         }, this);
-    }
-
-    shopPositionsAllObjectsEmit(level, zombies, mage){
-        
     }
 
     playAnim(posAnim){
@@ -179,11 +174,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.cursors.right.destroy()
         this.cursors.fight.destroy()
         this.cursors.shop.destroy()
-    }
-
-    shopUpdatePositions(x, y){
-        this.x = x
-        this.y = y
     }
 
     removeBullet(idBullet){

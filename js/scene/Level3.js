@@ -85,11 +85,7 @@ export default class level3 extends Phaser.Scene {
             this.scene.start("Play")
         })*/
 
-        this.socket.on('playerAction', (data)=>{ this.playerActions(data) });
-
-        this.socket.on('shop', (data) =>{ this.sendUpdatedPositionsShop(data) })
-
-        this.socket.on('receiveUpdatedPositionsShop', (data) =>{ this.receiveUpdatedPositionsShop(data) })
+        this.socket.on('playerAction', (data)=>{ this.playerActions(data) })
 
         this.socket.on('life', (data)=>{ this.otherPlayerLife(data) })//se o outro player tiver sido atingido, eu atualizo a vida dele
         
@@ -120,8 +116,6 @@ export default class level3 extends Phaser.Scene {
 
     socketOff(){
         this.socket.off('playerAction')
-        this.socket.off('shop')
-        this.socket.off('receiveUpdatedPositionsShop')
         this.socket.off('life')
         this.socket.off('typeBullets')
     }
@@ -162,21 +156,6 @@ export default class level3 extends Phaser.Scene {
             this.otherPlayer.x = data.x
             this.otherPlayer.y = data.y
             this.otherPlayer.playAnim(data.pos)
-        }
-    }
-
-    sendUpdatedPositionsShop(){
-        this.socket.emit("sendUpdatedPositionsShop", [])
-    }
-
-    receiveUpdatedPositionsShop(data){
-        for(var i = 0; i < data.length; i++){
-            var object = data[i]
-            this.players.children.iterate(function (player) {
-                if(player.id == object.id){
-                    player.shopUpdatePositions(object.x, object.y)
-                }
-            }, this);
         }
     }
 

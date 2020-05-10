@@ -113,12 +113,6 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
             this.play(this.pos)
         }
     }
-    
-    shopUpdatePositions(x, y){
-        this.x = x
-        this.y = y
-        this.setVelocity(this.velX, this.velY)
-    }
 
     bulletOutsideCanvas(){
         if (this.bullet.isOutsideCanvas()) {
