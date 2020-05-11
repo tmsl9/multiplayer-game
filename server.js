@@ -7,7 +7,7 @@ app.get('/',function(req, res) {
 });
 app.use('/',express.static(__dirname));
 
-serv.listen(5500, '192.168.8.1');
+serv.listen(5500, '192.168.1.77');
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
 var start = Date.now()
@@ -45,7 +45,7 @@ var Player = function(id){
         ready:false,
         maxSpd:10
     }
-    
+
     self.emitId = function(){
         var socket = SOCKET_LIST[self.id]
         socket.emit('id', self.id);
@@ -94,11 +94,11 @@ io.sockets.on('connection', function(socket){
     total_players++;
     socket.id = total_players;
     SOCKET_LIST[socket.id] = socket;
-    
+
     var player = Player(socket.id);
     PLAYER_LIST[socket.id] = player;
     player.emitId();
-    
+
     socket.on('Finish',function(){
         mage = Mage();
         players_ready = 0;
@@ -106,7 +106,7 @@ io.sockets.on('connection', function(socket){
         total_zombies = 0;
         level = 0;
         playerDead=false;
-        
+
     })
 
     socket.on('disconnect',function(){
@@ -268,7 +268,7 @@ setInterval(function(){//criação do inimigo
         let x;
         let y;
         let randNum = Math.floor(Math.random() * 3);
-        
+
         if(level == 1){
             if(randNum == 0){
                 x = 0;
@@ -284,9 +284,9 @@ setInterval(function(){//criação do inimigo
             Math.floor(Math.random() * 2) == 0 ? x = 304 : x = 336
             y = 113
         }
-        
+
         let prob = Math.floor(Math.random() * 100 + 1);
-        
+
         if(prob <= 40){
             type = 1;
         }else if(prob <= 80){
@@ -294,7 +294,7 @@ setInterval(function(){//criação do inimigo
         }else{
             type = 3;
         }
-        
+
         idZombie++;
         living_zombies++;
         total_zombies++;
