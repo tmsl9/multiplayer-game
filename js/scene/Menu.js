@@ -9,19 +9,20 @@ export default class menu extends Phaser.Scene {
     }
 
     create() {
-        this.volumeButton = this.add.text(280, 300, 'Volume', { fill: '#fff' })
+        this.add.image(0, 0, "bg").setDisplayOrigin(0, 0).setDisplaySize(640, 640);
+        this.volumeButton = this.add.text(268, 270, 'Volume', { fill: '#000' , fontSize: "25px"})
             .on('pointerdown', () => {
                 this.scene.stop()
                 this.scene.start("SoundAdjustment", this.data)
             })
             this.buttonInteraction(this.volumeButton)
-        this.tecladoButton = this.add.text(280, 330, 'Teclado', { fill: '#fff' })
+        this.tecladoButton = this.add.text(262, 300, 'Teclado', { fill: '#000' , fontSize: "25px"})
             .on('pointerdown', () => {
                 this.scene.stop()
                 this.scene.start("ControlsConfiguration", this.data)
             })
             this.buttonInteraction(this.tecladoButton)
-        this.retrocederButton = this.add.text(150, 380, '<- Retroceder', { fill: '#fff' })
+        this.retrocederButton = this.add.text(305, 400, '←', { fill: '#000' , fontSize: "30px"})
             .on('pointerdown', () => {
                 this.scene.stop()
                 this.scene.start("Play", this.data)
@@ -31,8 +32,8 @@ export default class menu extends Phaser.Scene {
 
     buttonInteraction(but){
         but.setInteractive()
-        but.on('pointerover', () => but.setStyle({ fill: '#ffa82e'}))
-        but.on('pointerout', () => but.setStyle({ fill: '#fff'}))
+        but.on('pointerover', () => but.setStyle({ fill: '#800000'}))
+        but.on('pointerout', () => but.setStyle({ fill: '#000'}))
     }
 
 }

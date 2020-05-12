@@ -90,14 +90,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    update(time, data, zombies, mage) {
+    update(time, data) {
         var id = data.id
         this.socket = data.socket
         this.defCursors(data)
         this.time = time
         if(this.id == id){
             this.setVelocity(0)
-            if (this.cursors.up.isDown && this.y > this.frame.halfHeight + 6) {///se mudar pra 7 fica um espacinho de sobra
+            if (this.cursors.up.isDown && this.y > this.frame.halfHeight + 6) {
                 this.playAnim(this.upAnim)
                 this.setVelocityY(-this.velocity);
                 this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
@@ -107,7 +107,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.setVelocityY(this.velocity);
                 this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
             }
-            if (this.cursors.left.isDown && this.x > this.frame.halfWidth + 6) {/////funciona se mandarmos vetor com teclas a false ou true
+            if (this.cursors.left.isDown && this.x > this.frame.halfWidth + 6) {
                 this.playAnim(this.leftAnim)
                 this.setVelocityX(-this.velocity);
                 this.socket.emit('keyPress',{input:'xy', x:this.x, y:this.y, pos:this.pos});
@@ -131,7 +131,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 if(!this.scene.scene.isActive("Shop")){
                     this.timeToShop = this.time + this.delayShop
                     this.scene.scene.add("Shop", new shop(this), true)
-                    this.socket.emit("shop")
                 }else{
                     this.scene.scene.stop("Shop")
                     this.scene.scene.remove("Shop")
@@ -145,10 +144,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.bullets.killAndHide(bullet);
             }
         }, this);
-    }
-
-    shopPositionsAllObjectsEmit(level, zombies, mage){
-        
     }
 
     playAnim(posAnim){
@@ -181,11 +176,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.cursors.shop.destroy()
     }
 
-    shopUpdatePositions(x, y){
-        this.x = x
-        this.y = y
-    }
-
     removeBullet(idBullet){
         this.bullets.children.iterate(function (bullet) {
             if(bullet.id == idBullet){
@@ -205,7 +195,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         if(this.clickLeft(pointer)){
             var mouseX = Math.floor(pointer.x)
             var mouseY = Math.floor(pointer.y)
-            //console.log(mouseX, mouseY)
 
             if (this.timeToShoot < this.time) {
                 let bullet = this.bullets.getFirstDead(true, this.x, this.y, this.typeBullet)
@@ -214,10 +203,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     bullet.fire(mouseX, mouseY, this.typeBullets)
                 
                     this.timeToShoot = this.time + bullet.fireRate;
-
-                    if (this.bullets.children.size > this.bulletsMaxsize) {
-                        //console.log("Group size failed")
-                    }
 
                     if (this.fireSound) {
                         this.fireSound.play();
@@ -234,7 +219,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             if(bullet.id == idBullet){
                 bullet.x = this.x
                 bullet.y = this.y
-                bullet.fire(x, y, this.typeBullets)////testar
+                bullet.fire(x, y, this.typeBullets)
             }
         }, this)
     
@@ -263,9 +248,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    /**
-     * create an explosion, decrease one life, prevent a new collision and put the player off-screen
-     */
     dead() {
         new Explosion(this.scene, this.x, this.y);
 

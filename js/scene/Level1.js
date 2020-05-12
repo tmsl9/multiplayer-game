@@ -33,7 +33,7 @@ export default class level1 extends Phaser.Scene {
         this.otherPlayer = this.players.other
         
         this.zombies = new ZombiesGroup(this.physics.world, this)
-        this.maxZombies = 1
+        this.maxZombies = 40
         this.deadZombies = 0
 
         this.add.image(320, 10, "barraprogresso")//objective
@@ -60,6 +60,8 @@ export default class level1 extends Phaser.Scene {
 
         this.themeSound.play();
 
+        this.themeSound.once('complete', ()=>{this.themeSound.play()});
+
         let fireSound = this.sound.add("fire", { volume: this.volume });
 
         this.cursors = this.defCursors()
@@ -84,18 +86,8 @@ export default class level1 extends Phaser.Scene {
         }, this);
 
         this.physics.add.overlap(this.zombies, this.myPlayer.bullets, this.zombiesMyPlayerBulletsCollision, null, this)
-
-        //recomeçar o jogo quando servidor desligar e voltar a ligar, mas nao funciona bem por causa do servidor
-        /*this.socket.on('id', (data)=>{
-            this.scene.stop()
-            this.scene.start("Play")
-        })*/
         
-        this.socket.on('playerAction', (data)=>{ this.playerActions(data) });
-
-        this.socket.on('shop', (data) =>{ this.shopUpdatePositions(data) })
-
-        this.socket.on('receiveUpdatedPositionsShop', (data) =>{ this.receiveUpdatedPositionsShop(data) })
+        this.socket.on('playerAction', (data)=>{ this.playerActions(data) })
         
         this.socket.on('life', (data)=>{ this.otherPlayerLife(data) })//se o outro player tiver sido atingido, eu atualizo a vida dele
         
@@ -109,8 +101,7 @@ export default class level1 extends Phaser.Scene {
 
         this.socket.on('lifeZombie', (data) =>{ this.zombieLife(data) })
     }
-    ///tem bugs que nao deixam o personagem mexer-se mas o anim corre na mesma
-    ///as vezes da erro e o dinheiro começa a disparar e o power tem mais de 50, e mata logo o zombie
+
     update(time) {
         if(this.deadZombies < this.maxZombies){
             this.currentTime = time
@@ -173,8 +164,6 @@ export default class level1 extends Phaser.Scene {
 
     socketOff(){
         this.socket.off('playerAction')
-        this.socket.off('shop')
-        this.socket.off('receiveUpdatedPositionsShop')
         this.socket.off('life')
         this.socket.off('typeBullets')
         this.socket.off('createZombie')
@@ -269,46 +258,6 @@ export default class level1 extends Phaser.Scene {
             this.otherPlayer.playAnim(data.pos)
         }
     }
-    
-    shopUpdatePositions(){
-        var level = this.data.nextLevel
-        var data = []
-        if(level != 3){
-            this.zombies.children.iterate(function (zombie) {
-                if(zombie.x > 0){
-                    data.push({
-                        type: "z",
-                        id: zombie.id,
-                        x: zombie.x,
-                        y:zombie.y
-                    })
-                }
-            }, this);
-        }
-        this.socket.emit("sendUpdatedPositionsShop", data)
-    }
-
-    receiveUpdatedPositionsShop(data){
-        for(var i = 0; i < data.length; i++){
-            var object = data[i]
-            switch(object.type){
-                case "p": 
-                    this.players.children.iterate(function (player) {
-                        if(player.id == object.id){
-                            player.shopUpdatePositions(object.x, object.y)
-                        }
-                    }, this);
-                    break;
-                default:
-                    this.zombies.children.iterate(function (zombie) {
-                        if(zombie.id == object.id){
-                            zombie.shopUpdatePositions(object.x, object.y)
-                        }
-                    }, this);
-                    break;
-            }
-        }
-    }
 
     otherPlayerLife(data){
         this.otherPlayer.life = data.life
@@ -379,4 +328,4 @@ export default class level1 extends Phaser.Scene {
             }
         }
     }
-}///aumentar numero de inimigos, senao fica muito facil
+}
