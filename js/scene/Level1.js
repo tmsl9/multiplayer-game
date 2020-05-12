@@ -33,7 +33,6 @@ export default class level1 extends Phaser.Scene {
         this.otherPlayer = this.players.other
         
         this.zombies = new ZombiesGroup(this.physics.world, this)
-        this.maxZombies = 40
         this.deadZombies = 0
 
         this.add.image(320, 10, "barraprogresso")//objective
@@ -152,6 +151,7 @@ export default class level1 extends Phaser.Scene {
                     this.data.otherPlayer = this.otherPlayer
                     this.socket.on('readyToText', ()=>{
                         this.socketOff()
+                        this.themeSound.stop();
                         this.data.nextLevel++
                         this.scene.stop()
                         this.scene.start('NextLevel', this.data)
