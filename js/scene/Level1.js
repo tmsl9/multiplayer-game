@@ -118,7 +118,7 @@ export default class level1 extends Phaser.Scene {
                     this.scene.start('Finish', this.data)
                 }
             }, this);
-            
+
             this.zombies.children.iterate(function (zombie) {
                 zombie.update(time, this.socket);
                 if(zombie.life <= 0){
