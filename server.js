@@ -299,6 +299,7 @@ setInterval(function(){//criação do inimigo
 
         var zombie = Zombie(x, y, idZombie, type);
         ZOMBIE_LIST[idZombie] = zombie;
+        console.log("Creation zombie ", zombie)
         for(var i in SOCKET_LIST){
             SOCKET_LIST[i].emit('createZombie', {x:x, y:y, idZombie:idZombie, type:type, life:zombie.life});
         }

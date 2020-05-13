@@ -278,9 +278,13 @@ export default class level1 extends Phaser.Scene {
     }
 
     createZombie(data){
+        console.log("Create -> ", data)
         let zombie = this.zombies.getFirstDead(true, data.x, data.y, data.type, data.idZombie);
         if(zombie){
+            console.log("Zombie -> ", zombie.id, ", ", zombie.texture)
             zombie.spawn(data.idZombie, data.type)
+        }else{
+            console.log("No zombie -> ", zombie.id, ", ", zombie.texture)
         }
     }
 
