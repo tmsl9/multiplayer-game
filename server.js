@@ -7,7 +7,7 @@ app.get('/',function(req, res) {
 });
 app.use('/',express.static(__dirname));
 
-serv.listen(5500, '192.168.1.134');
+serv.listen(5500, '192.168.8.1');
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
 var start = Date.now()
@@ -23,7 +23,7 @@ var max_zombies_each = 10;//max de zombies presentes ao mesmo tempo no campo
 var living_zombies = 0;
 var total_zombies = 0;
 var max_zombies_level1 = 40;//max em todo o nivel
-let idZombie = 1;
+var idZombie = 0;
 const zombieTimerDelay = 5000;
 var level = 0
 var readyToText = false
@@ -31,6 +31,7 @@ var numReadyToText = 0
 var readyToNextLevel = false
 var numReadyToNextLevel = 0
 var playerDead = false
+var finish = 0
 
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
@@ -81,13 +82,6 @@ var Mage = function(){
 var mage = Mage()
 
 io.sockets.on('connection', function(socket){
-    console.log("total --> ", total_players)
-    if(total_players == 2){
-        total_players = 0;
-        players_ready = 0;
-        SOCKET_LIST = {}
-        PLAYER_LIST = {}
-    }
     console.log("New connection", total_players + 1)
     total_players++;
     socket.id = total_players;
@@ -98,13 +92,24 @@ io.sockets.on('connection', function(socket){
     player.emitId();
     
     socket.on('Finish',function(){
-        mage = Mage();
-        players_ready = 0;
-        living_zombies = 0;
-        total_zombies = 0;
-        level = 0;
-        playerDead=false;
-        
+        finish++
+        if(finish == 1){
+            players_ready = 0;
+            mage = Mage();
+            living_zombies = 0;
+            total_zombies = 0;
+            level = 0;
+            ZOMBIE_LIST = {};
+            idZombie = 0;
+            readyToText = false
+            numReadyToText = 0
+            readyToNextLevel = false
+            numReadyToNextLevel = 0
+            playerDead = false
+        }else{
+            finish = 0
+        }
+        player = Player(socket.id)
     })
 
     socket.on('disconnect',function(){
@@ -299,9 +304,8 @@ setInterval(function(){//criação do inimigo
 
         var zombie = Zombie(x, y, idZombie, type);
         ZOMBIE_LIST[idZombie] = zombie;
-        console.log("Creation zombie ", zombie)
         for(var i in SOCKET_LIST){
-            SOCKET_LIST[i].emit('createZombie', {x:x, y:y, idZombie:idZombie, type:type, life:zombie.life});
+            SOCKET_LIST[i].emit('createZombie', {x:x, y:y, idZombie:idZombie, type:type});
         }
     }
 }, zombieTimerDelay);

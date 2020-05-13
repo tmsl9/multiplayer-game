@@ -5,7 +5,7 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
 
     constructor(scene, x, y, type, id) {
         var img = 'z' + type
-        
+
         super(scene, x, y, img);
 
         this.scene = scene
@@ -61,7 +61,7 @@ export default class Zombie extends Phaser.Physics.Arcade.Sprite {
         this.visible = true;
         this.active = true;
         if(this.type == 1){
-            this.baseVelocity = 5
+            this.baseVelocity = 10
         }else{
             this.baseVelocity = 50
         }

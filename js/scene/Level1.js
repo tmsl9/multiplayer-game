@@ -112,9 +112,10 @@ export default class level1 extends Phaser.Scene {
                     player.dead()
                     this.myPlayer.finish()
                     this.otherPlayer.finish()
-                    this.scene.stop();
                     this.themeSound.stop();
                     this.socket.emit('Finish')
+                    this.socketOff()
+                    this.scene.stop();
                     this.scene.start('Finish', this.data)
                 }
             }, this);
@@ -152,7 +153,6 @@ export default class level1 extends Phaser.Scene {
                     this.data.otherPlayer = this.otherPlayer
                     this.socket.on('readyToText', ()=>{
                         this.socketOff()
-                        this.themeSound.stop();
                         this.data.nextLevel++
                         this.scene.stop()
                         this.scene.start('NextLevel', this.data)
@@ -279,17 +279,14 @@ export default class level1 extends Phaser.Scene {
     }
 
     createZombie(data){
-        console.log("Create -> ", data)
-        let zombie = this.zombies.getFirstDead(true, data.x, data.y, data.type, data.idZombie);
+        let zombie = this.zombies.getFirstDead(true, data.x, data.y);
         if(zombie){
-            console.log("Zombie -> ", zombie.id, ", ", zombie.texture)
             zombie.spawn(data.idZombie, data.type)
-        }else{
-            console.log("No zombie -> ", zombie.id, ", ", zombie.texture)
         }
     }
 
     moveZombie(data){
+        console.log("move zombie")
         this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.idZombie){
                 if(data.idPlayer){

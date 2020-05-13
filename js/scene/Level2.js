@@ -142,6 +142,7 @@ export default class level2 extends Phaser.Scene {
                     this.zombiesDead()
                     this.mage.setVelocity(0, 0)
                     this.scene.stop();
+                    this.socketOff()
                     this.themeSound.stop();
                     this.socket.emit('Finish')
                     this.scene.start('Finish', this.data)

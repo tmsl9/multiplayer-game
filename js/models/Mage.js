@@ -17,7 +17,7 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
         this.life = 200;
         this.rangedDamage=20;
         this.meeleDamage=10;
-        this.baseVelocity=5;
+        this.baseVelocity=10;
         this.fireRate=3000;
         this.timeToShoot = 0;
         this.timeToMeelee = 0;
@@ -35,9 +35,6 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
         this.pos = this.downAnim
 
         this.play(this.pos, 0);
-
-        this.velX = 0
-        this.velY = 0
     }
 
     updateAnims(){

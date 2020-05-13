@@ -18,9 +18,12 @@ export default class waitingOpponent extends Phaser.Scene {
         this.socket.emit('ready')
         this.socket.on('2players_ready', ()=>{
             this.scene.stop()
+            this.socketOff()
             this.scene.start("NextLevel", this.data)
         })
     }
 
-
+    socketOff(){
+        this.socket.off("2players_ready")
+    }
 }

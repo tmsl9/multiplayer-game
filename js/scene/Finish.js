@@ -15,7 +15,6 @@ export default class finish extends Phaser.Scene {
         this.socket = data.socket
         this.volume = data.volume
         this.loserID = data.loser
-        console.log(this.loserID)
     }
 
     preload(){
