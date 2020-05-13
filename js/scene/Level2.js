@@ -181,6 +181,7 @@ export default class level2 extends Phaser.Scene {
                     this.socket.on('readyToText', ()=>{
                         this.socketOff()
                         this.data.nextLevel++
+                        this.themeSound.stop();
                         this.scene.start('NextLevel', this.data)
                         this.scene.destroy();
                     })
