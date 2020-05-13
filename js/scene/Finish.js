@@ -15,7 +15,6 @@ export default class finish extends Phaser.Scene {
         this.socket = data.socket
         this.volume = data.volume
         this.loserID = data.loser
-
     }
 
     preload(){
@@ -29,12 +28,10 @@ export default class finish extends Phaser.Scene {
     }
 
     create() {
-
         if(this.nextLevel==3){
             this.map = this.make.tilemap({ key: "finish" });
             const tileset = this.map.addTilesetImage("tile-map", "tiles");
             this.map.createStaticLayer("finish", tileset, 0, 0);
-            this.loserID = 2;
             if(this.loserID == 2){
                 this.add.image(240, 560, "player1");//player 1
                 this.add.image(400, 560, "player2");//player 2

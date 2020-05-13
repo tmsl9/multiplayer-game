@@ -12,16 +12,18 @@ export default class waitingOpponent extends Phaser.Scene {
     }
     
     create() {
-        
         this.add.image(0, 0, "bg").setDisplayOrigin(0, 0).setDisplaySize(640, 640);
         this.add.text(210, 255, 'Waiting for opponent', { fill: '#000' })
         this.add.text(260, 285, 'Good luck!', { fill: '#000' })
         this.socket.emit('ready')
         this.socket.on('2players_ready', ()=>{
             this.scene.stop()
+            this.socketOff()
             this.scene.start("NextLevel", this.data)
         })
     }
 
-
+    socketOff(){
+        this.socket.off("2players_ready")
+    }
 }

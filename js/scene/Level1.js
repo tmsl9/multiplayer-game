@@ -33,7 +33,7 @@ export default class level1 extends Phaser.Scene {
         this.otherPlayer = this.players.other
         
         this.zombies = new ZombiesGroup(this.physics.world, this)
-        this.maxZombies = 1
+        this.maxZombies = 40
         this.deadZombies = 0
 
         this.add.image(320, 10, "barraprogresso")//objective
@@ -60,6 +60,8 @@ export default class level1 extends Phaser.Scene {
 
         this.themeSound.play();
 
+        this.themeSound.once('complete', ()=>{this.themeSound.play()});
+
         let fireSound = this.sound.add("fire", { volume: this.volume });
 
         this.cursors = this.defCursors()
@@ -84,12 +86,6 @@ export default class level1 extends Phaser.Scene {
         }, this);
 
         this.physics.add.overlap(this.zombies, this.myPlayer.bullets, this.zombiesMyPlayerBulletsCollision, null, this)
-
-        //recomeçar o jogo quando servidor desligar e voltar a ligar, mas nao funciona bem por causa do servidor
-        /*this.socket.on('id', (data)=>{
-            this.scene.stop()
-            this.scene.start("Play")
-        })*/
         
         this.socket.on('playerAction', (data)=>{ this.playerActions(data) })
         
@@ -105,8 +101,7 @@ export default class level1 extends Phaser.Scene {
 
         this.socket.on('lifeZombie', (data) =>{ this.zombieLife(data) })
     }
-    ///tem bugs que nao deixam o personagem mexer-se mas o anim corre na mesma
-    ///as vezes da erro e o dinheiro começa a disparar e o power tem mais de 50, e mata logo o zombie
+
     update(time) {
         if(this.deadZombies < this.maxZombies){
             this.currentTime = time
@@ -117,13 +112,14 @@ export default class level1 extends Phaser.Scene {
                     player.dead()
                     this.myPlayer.finish()
                     this.otherPlayer.finish()
-                    this.scene.stop();
                     this.themeSound.stop();
                     this.socket.emit('Finish')
+                    this.socketOff()
+                    this.scene.stop();
                     this.scene.start('Finish', this.data)
                 }
             }, this);
-            
+
             this.zombies.children.iterate(function (zombie) {
                 zombie.update(time, this.socket);
                 if(zombie.life <= 0){
@@ -283,13 +279,14 @@ export default class level1 extends Phaser.Scene {
     }
 
     createZombie(data){
-        let zombie = this.zombies.getFirstDead(true, data.x, data.y, data.type, data.idZombie);
+        let zombie = this.zombies.getFirstDead(true, data.x, data.y);
         if(zombie){
             zombie.spawn(data.idZombie, data.type)
         }
     }
 
     moveZombie(data){
+        console.log("move zombie")
         this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.idZombie){
                 if(data.idPlayer){
@@ -333,4 +330,4 @@ export default class level1 extends Phaser.Scene {
             }
         }
     }
-}///aumentar numero de inimigos, senao fica muito facil
+}
