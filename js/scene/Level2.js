@@ -42,7 +42,7 @@ export default class level2 extends Phaser.Scene {
         this.add.image(320, 10, "barraprogresso").setScale(1.25, 1)//objective
         this.mageLifeLabel = [];
         for(var i = 0; i < 100; i++){
-            this.mageLifeLabel[i] = this.add.image(221 + i*2, 15, "progresso").setScale(0.1, 0.4);
+            this.mageLifeLabel[i] = this.add.image(221 + i*2, 10, "progresso").setScale(0.1, 0.4);
         } 
         this.add.image(70, 20, "barraprogresso").setScale(0.625);//life player 1
         this.add.image(this.game.config.width - 100, 20, "barraprogresso").setScale(0.625);//life player 2
