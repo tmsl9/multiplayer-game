@@ -33,6 +33,7 @@ export default class play extends Phaser.Scene {
             })
             .on('pointerover', () => this.menuButton.setStyle({ fill: '#800000'}))
             .on('pointerout', () => this.menuButton.setStyle({ fill: '#000'}));
+    
     }
 
     clickLeft(pointer){

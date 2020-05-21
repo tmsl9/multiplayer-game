@@ -22,7 +22,7 @@ var ZOMBIE_LIST = {};
 var max_zombies_each = 10;//max de zombies presentes ao mesmo tempo no campo
 var living_zombies = 0;
 var total_zombies = 0;
-var max_zombies_level1 = 40;//max em todo o nivel
+var max_zombies_level1 = 15;//max em todo o nivel
 var idZombie = 0;
 const zombieTimerDelay = 5000;
 var level = 0
@@ -73,7 +73,7 @@ var Mage = function(){
     var self = {
         x:320,
         y:200,
-        life:200
+        life:1000
     }
 
     return self;
@@ -100,6 +100,7 @@ io.sockets.on('connection', function(socket){
             total_zombies = 0;
             level = 0;
             ZOMBIE_LIST = {};
+            PLAYER_LIST = {};
             idZombie = 0;
             readyToText = false
             numReadyToText = 0
@@ -110,6 +111,7 @@ io.sockets.on('connection', function(socket){
             finish = 0
         }
         player = Player(socket.id)
+        PLAYER_LIST[socket.id] = player;
     })
 
     socket.on('disconnect',function(){

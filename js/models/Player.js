@@ -230,9 +230,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     earnMoney(type){
         if(type == 3){
-            this.money += 30
+            this.money += 100
         }else{
-            this.money += 10
+            this.money += 50
         }
     }
 
