@@ -41,9 +41,9 @@ export default class level2 extends Phaser.Scene {
 
         this.add.image(320, 10, "barraprogresso").setScale(1.25, 1)//objective
         this.mageLifeLabel = [];
-        for(var i = 0; i < 20; i++){
-            this.mageLifeLabel[i] = this.add.image(225 + i * 10, 10, "progresso").setScale(0.5, 0.4);
-        }
+        for(var i = 0; i < 100; i++){
+            this.mageLifeLabel[i] = this.add.image(221 + i*2, 10, "progresso").setScale(0.1, 0.4);
+        } 
         this.add.image(70, 20, "barraprogresso").setScale(0.625);//life player 1
         this.add.image(this.game.config.width - 100, 20, "barraprogresso").setScale(0.625);//life player 2
         var life1 = [];
@@ -88,9 +88,6 @@ export default class level2 extends Phaser.Scene {
         }, this);//colisao balas com arvores, e som
 
         this.zombies.children.iterate(function (zombie) {
-            if(zombie.type != 3){
-                this.physics.add.collider(zombie, this.back)
-            }
             this.zombiesBulletsBackCollision(zombie)//balas inimigos com arvores
             this.myPlayerZombiesBulletsCollision(zombie)
         }, this);
@@ -129,9 +126,8 @@ export default class level2 extends Phaser.Scene {
     }
 
     update(time) {
-        if(this.mage.life > 0 && this.mage.life <= 200){
+        if(this.mage.life > 0 && this.mage.life <= this.mage.fullLife){
             this.currentTime = time
-
             this.players.children.iterate(function (player) {
                 if(player.life > 0){
                     player.update(time, this.data)
@@ -158,7 +154,7 @@ export default class level2 extends Phaser.Scene {
             }, this);
             
             this.mage.update(time, this.socket)
-        }else if(this.mage.life <= 200){
+        }else if(this.mage.life <= this.mage.fullLife){
             this.mage.dead();
             this.zombiesDead()
             this.objective.x = 0
@@ -361,6 +357,9 @@ export default class level2 extends Phaser.Scene {
         if(zombie){
             zombie.spawn(data.idZombie, data.type)
         }
+        if(zombie.type != 3){
+            this.physics.add.collider(zombie, this.back)
+        }
     }
 
     moveZombie(data){
@@ -410,8 +409,6 @@ export default class level2 extends Phaser.Scene {
 
     mageShoot(data){
         if(this.mage.isAlive()){
-            console.log(this.mage.life)
-
             this.mage.rangedAttack(data.time, this.players)
         }
     }
@@ -434,8 +431,8 @@ export default class level2 extends Phaser.Scene {
                 this.otherLifeLabel[9 - i].setVisible(false);
             }
         }else{
-            for(var i = 0; i < 20 - this.mage.life / 10 && i < 20; i++){
-                this.mageLifeLabel[19 - i].setVisible(false);
+            for(var i = 0; i < 100 - this.mage.life / 10 && i < 100; i++){
+                this.mageLifeLabel[99 - i].setVisible(false);
             }
         }
     }

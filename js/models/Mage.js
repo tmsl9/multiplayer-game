@@ -14,10 +14,11 @@ export default class Mage extends Phaser.Physics.Arcade.Sprite {
         
         this.scene.physics.world.enable(this);
         
-        this.life = 200;
+        this.life = 1000;
+        this.fullLife = 1000
         this.rangedDamage=20;
         this.meeleDamage=10;
-        this.baseVelocity=10;
+        this.baseVelocity=30;
         this.fireRate=3000;
         this.timeToShoot = 0;
         this.timeToMeelee = 0;
