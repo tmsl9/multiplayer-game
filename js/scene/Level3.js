@@ -88,6 +88,10 @@ export default class level3 extends Phaser.Scene {
         this.players.children.iterate(function (player) {
             if(player.life > 0){
                 player.update(time, this.data)
+                if(player.updateLifeLabel == true){
+                    this.updateLifeLabelRegen(player.id)
+                    player.updateLifeLabel = false
+                }
             }else{
                 this.win.x = 0
                 this.win.y = 0
@@ -150,11 +154,16 @@ export default class level3 extends Phaser.Scene {
     }
 
     otherPlayerLife(data){
-        this.otherPlayer.life = data.life
+        if(this.otherPlayer.life > data.life){
+            this.otherPlayer.life = data.life
+            this.updateLifeLabel(this.otherPlayer.id)
+        }else{
+            this.otherPlayer.life = data.life
+            this.updateLifeLabelRegen(this.otherPlayer.id)
+        }
         if(data.idBullet){//se o outro jogador sofrer dano de mim
             this.myPlayer.removeBullet(data.idBullet)
         }
-        this.updateLifeLabel(this.otherPlayer.id);
     }
 
     otherPlayerTypeBullets(data){
@@ -169,6 +178,18 @@ export default class level3 extends Phaser.Scene {
         }else{
             for(var i = 0; i < 10 - this.otherPlayer.life / 10 && i < 10; i++){
                 this.otherLifeLabel[9 - i].setVisible(false);
+            }
+        }
+    }
+    
+    updateLifeLabelRegen(id){
+        if(id==this.id){
+            for(var i = 0; i < this.myPlayer.life/10; i++){
+                this.myLifeLabel[i].setVisible(true);
+            }
+        }else{
+            for(var i = 0; i < this.otherPlayer.life/10; i++){
+                this.otherLifeLabel[i].setVisible(true);
             }
         }
     }
