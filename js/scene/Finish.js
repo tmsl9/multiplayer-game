@@ -3,13 +3,9 @@ export default class finish extends Phaser.Scene {
         super("Finish");
     }
 
-    /**
-     * used to receive data from other scenes
-     */
     init(data) {
         console.log("Finish scene: ", data)
 
-        //get score passed from PlayGame scene
         this.id = data.id
         this.nextLevel = data.nextLevel
         this.socket = data.socket
@@ -51,21 +47,11 @@ export default class finish extends Phaser.Scene {
         this.width = width;
         this.height = height;
 
-        //get all basic cursors input (Up, Down, Left, Right, Space Bar and Shift)
         this.cursors = this.input.keyboard.createCursorKeys();
         this.composeHUD();
-
-        this.gameOverSound = this.sound.add("gameover", { volume: this.volume });
-
-        //this.gameOverSound.play();
-
     }
-    composeHUD() {
-        //add the background in the center of screen (could set anchor point to left up using .setOrigin(0,0))
-       // this.bg = this.add.image(this.width / 2, this.height / 2, "bg");
-        //scale background
-       // this.bg.setDisplaySize(this.width, this.height);
 
+    composeHUD() {
         if(this.nextLevel==3){
             if(this.id == this.loserID){
                 this.add.text(250, 315, "Perdeste!", {
@@ -96,19 +82,16 @@ export default class finish extends Phaser.Scene {
                 fill: "#fff"
             });
         }
-
     }
 
     update() {
         if (this.cursors.space.isDown) {
 
-            //stops the presente scene
             this.scene.stop();
 
             this.gameOverSound.stop();
 
-            //starts PlayGame scene
-            this.scene.start('Play');/////look at this because the socket will be rebooted
+            this.scene.start('Play');
         }
     }
 

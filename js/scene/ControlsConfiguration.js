@@ -2,7 +2,7 @@ export default class controlsConfiguration extends Phaser.Scene {
     constructor() {
         super("ControlsConfiguration");
     }
-    
+
     init(data){
         console.log("ControlsConfiguration scene")
         this.data = data
@@ -10,7 +10,6 @@ export default class controlsConfiguration extends Phaser.Scene {
     }
 
     create() {
-        
         this.add.image(0, 0, "bg").setDisplayOrigin(0, 0).setDisplaySize(640, 640);
         this.charsAllowed = this.charsAllowedFun()
         

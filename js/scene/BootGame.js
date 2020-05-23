@@ -13,7 +13,6 @@ export default class bootGame extends Phaser.Scene {
             frameWidth: 96/3,
             frameHeight: 194/4
         });
-
         
         this.load.image("tiles", "assets/tile-map.png");
 
@@ -102,7 +101,6 @@ export default class bootGame extends Phaser.Scene {
             frameWidth: 1064/3,
             frameHeight: 132
         });
-
     }
     
     create() {
