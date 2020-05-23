@@ -33,10 +33,10 @@ export default class level1 extends Phaser.Scene {
         this.otherPlayer = this.players.other
         
         this.zombies = new ZombiesGroup(this.physics.world, this)
-        this.maxZombies = 40
+        this.maxZombies = 15
         this.deadZombies = 0
 
-        this.add.image(320, 10, "barraprogresso")//objective
+        this.add.image(320, 10, "barraprogresso").setScale(0.9375, 1)//objective
         this.add.image(70, 20, "barraprogresso").setScale(0.625);//life player 1
         this.add.image(this.game.config.width - 100, 20, "barraprogresso").setScale(0.625);//life player 2
         var life1 = [];
@@ -78,9 +78,6 @@ export default class level1 extends Phaser.Scene {
         }, this);//colisao balas com arvores, e som
 
         this.zombies.children.iterate(function (zombie) {
-            if(zombie.type != 3){
-                this.physics.add.collider(zombie, this.front)
-            }
             this.zombiesBulletsFrontCollision(zombie)//balas inimigos com arvores
             this.myPlayerZombiesBulletsCollision(zombie)
         }, this);
@@ -108,6 +105,10 @@ export default class level1 extends Phaser.Scene {
             this.players.children.iterate(function (player) {
                 if(player.life > 0){
                     player.update(time, this.data, this.zombies)
+                    if(player.updateLifeLabel == true){
+                        this.updateLifeLabelRegen(player.id)
+                        player.updateLifeLabel = false
+                    }
                 }else{
                     player.dead()
                     this.myPlayer.finish()
@@ -127,7 +128,7 @@ export default class level1 extends Phaser.Scene {
                     this.zombies.killAndHide(zombie);
                     this.deadZombies++
                     if(this.deadZombies > 0){
-                        this.add.image(238.5 + this.deadZombies * 4, 10, "progresso").setScale(0.2, 0.4)
+                        this.add.image(240 + this.deadZombies * 10, 10, "progresso").setScale(0.5, 0.4)
                     }
                 }
             }, this);
@@ -261,7 +262,13 @@ export default class level1 extends Phaser.Scene {
     }
 
     otherPlayerLife(data){
-        this.otherPlayer.life = data.life
+        if(this.otherPlayer.life > data.life){
+            this.otherPlayer.life = data.life
+            this.updateLifeLabel(this.otherPlayer.id)
+        }else{
+            this.otherPlayer.life = data.life
+            this.updateLifeLabelRegen(this.otherPlayer.id)
+        }
         if(data.idZombie){//se o outro jogador sofrer dano do inimigo
             this.zombies.children.iterate(function (zombie) {
                 if(zombie.id == data.idZombie){
@@ -271,7 +278,6 @@ export default class level1 extends Phaser.Scene {
         }else if(data.idBullet){//se o outro jogador sofrer dano de mim
             this.myPlayer.removeBullet(data.idBullet)
         }
-        this.updateLifeLabel(this.otherPlayer.id)
     }
 
     otherPlayerTypeBullets(data){
@@ -283,10 +289,12 @@ export default class level1 extends Phaser.Scene {
         if(zombie){
             zombie.spawn(data.idZombie, data.type)
         }
+        if(zombie.type != 3){
+            this.physics.add.collider(zombie, this.front)
+        }
     }
 
     moveZombie(data){
-        console.log("move zombie")
         this.zombies.children.iterate(function (zombie) {
             if(zombie.id == data.idZombie){
                 if(data.idPlayer){
@@ -327,6 +335,18 @@ export default class level1 extends Phaser.Scene {
         }else{
             for(var i = 0; i<10 - this.otherPlayer.life/10 ; i++){
                 this.otherLifeLabel[9-i].setVisible(false);
+            }
+        }
+    }
+
+    updateLifeLabelRegen(id){
+        if(id==this.id){
+            for(var i = 0; i < this.myPlayer.life/10; i++){
+                this.myLifeLabel[i].setVisible(true);
+            }
+        }else{
+            for(var i = 0; i < this.otherPlayer.life/10; i++){
+                this.otherLifeLabel[i].setVisible(true);
             }
         }
     }

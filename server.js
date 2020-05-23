@@ -22,8 +22,8 @@ var ZOMBIE_LIST = {};
 var max_zombies_each = 10;//presentes de uma vez no campo
 var living_zombies = 0;
 var total_zombies = 0;
-var max_zombies_level1 = 4;//max em todo o nivel
-let idZombie = 1;
+var max_zombies_level1 = 15;//max em todo o nivel
+var idZombie = 0;
 const zombieTimerDelay = 5000;
 var level = 0
 var readyToText = false
@@ -72,9 +72,9 @@ var Zombie = function(x, y, id, type){
 var Mage = function(){
     //console.log("Zombie successfully created: ", id)
     var self = {
-        x:320,////////////
-        y:200,////////////
-        life:200
+        x:320,
+        y:200,
+        life:1000
     }
 
     return self;
@@ -83,14 +83,7 @@ var Mage = function(){
 var mage = Mage()
 
 io.sockets.on('connection', function(socket){
-    console.log("total --> ",total_players)////os dois ficam com id 2
-    if(total_players == 2){///está a dar problemas na sincronização
-        total_players = 0;
-        players_ready = 0;
-        SOCKET_LIST = {}
-        PLAYER_LIST = {}
-    }
-    console.log("New connection", total_players + 1)
+    console.log("New connection", total_players + 1)/////make if 2 players are already playing
     total_players++;
     socket.id = total_players;
     SOCKET_LIST[socket.id] = socket;
@@ -100,13 +93,26 @@ io.sockets.on('connection', function(socket){
     player.emitId();
     
     socket.on('Finish',function(){
-        mage = Mage();
-        players_ready = 0;
-        living_zombies = 0;
-        total_zombies = 0;
-        level = 0;
-        playerDead=false;
-        
+        finish++
+        if(finish == 1){
+            players_ready = 0;
+            mage = Mage();
+            living_zombies = 0;
+            total_zombies = 0;
+            level = 0;
+            ZOMBIE_LIST = {};
+            PLAYER_LIST = {};
+            idZombie = 0;
+            readyToText = false
+            numReadyToText = 0
+            readyToNextLevel = false
+            numReadyToNextLevel = 0
+            playerDead = false
+        }else{
+            finish = 0
+        }
+        player = Player(socket.id)
+        PLAYER_LIST[socket.id] = player;
     })
 
     socket.on('disconnect',function(){

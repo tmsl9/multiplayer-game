@@ -55,6 +55,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.delayShop = 1000
 
         this.cursors;
+
+        this.updateLifeLabel = false
     }
 
     updatePlayer(money, life, typeBullets){
@@ -230,9 +232,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     earnMoney(type){
         if(type == 3){
-            this.money += 30
+            this.money += 100
         }else{
-            this.money += 10
+            this.money += 50
         }
     }
 
@@ -243,7 +245,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.socket.emit("typeBullets", {typeBullets: n})
         }else{
             this.life + 50 <= 100 ? this.life += 50 : this.life = 100
-            this.scene.myLifeLabel.setText("Player " + this.id + ": " + this.life)
+            this.updateLifeLabel = true
             this.socket.emit("life", {life:this.life})
         }
     }
