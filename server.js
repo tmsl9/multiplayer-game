@@ -7,7 +7,7 @@ app.get('/',function(req, res) {
 });
 app.use('/',express.static(__dirname));
 
-serv.listen(5500, '192.168.8.1');
+serv.listen(5500);
 var io = require('socket.io')(serv,{});
 console.log("Server started.");
 var start = Date.now()
@@ -32,7 +32,10 @@ var readyToNextLevel = false
 var numReadyToNextLevel = 0
 var playerDead = false
 var finish = 0
-
+/**
+ * Objeto jogador
+ * @param {integer} id id do jogador
+ */
 var Player = function(id){
     console.log("Client entered the game with id: ", id)
     var self = {
@@ -55,7 +58,13 @@ var Player = function(id){
 
     return self;
 }
-
+/**
+ * Objeto zombie
+ * @param {integer} x posição do zombie em x
+ * @param {integer} y posição do zombie em y
+ * @param {integer} id id do zombie 
+ * @param {integer} type  tipo do zombie
+ */
 var Zombie = function(x, y, id, type){
     var self = {
         x:x,
@@ -68,7 +77,9 @@ var Zombie = function(x, y, id, type){
 
     return self;
 }
-
+/**
+ * Objeto mago
+ */
 var Mage = function(){
     var self = {
         x:320,
@@ -78,9 +89,13 @@ var Mage = function(){
 
     return self;
 }
-
+/**
+ * Cria um mago 
+ */
 var mage = Mage()
-
+/**
+ * Recebe novas conexões
+ */
 io.sockets.on('connection', function(socket){
     console.log("New connection", total_players + 1)
     total_players++;
@@ -90,7 +105,10 @@ io.sockets.on('connection', function(socket){
     var player = Player(socket.id);
     PLAYER_LIST[socket.id] = player;
     player.emitId();
-    
+
+    /**
+     * O jogo acaba reinicializa todas as variáveis, para o jogo poder recomeçar
+     */
     socket.on('Finish',function(){
         finish++
         if(finish == 1){
@@ -113,14 +131,18 @@ io.sockets.on('connection', function(socket){
         player = Player(socket.id)
         PLAYER_LIST[socket.id] = player;
     })
-
+    /**
+     * Um jogador se desconecta
+     */
     socket.on('disconnect',function(){
         delete SOCKET_LIST[socket.id];
         delete PLAYER_LIST[socket.id];
         total_players--
         players_ready--
     });
-
+    /**
+     * Jogador está pronto para jogar
+     */
     socket.on('ready', function(){
         console.log("Player id", socket.id, "ready")
         PLAYER_LIST[socket.id].ready = true
@@ -133,7 +155,9 @@ io.sockets.on('connection', function(socket){
             console.log('Both players are ready!')
         }
     });
-
+    /**
+     * Jogador clica em alguma tecla, incluindo rato, envia info para o outro jogador
+     */
     socket.on('keyPress',function(data){
         var pack = [];
         for(var i in PLAYER_LIST){
@@ -159,7 +183,9 @@ io.sockets.on('connection', function(socket){
             }
         }
     });
-
+    /**
+     * Atualização da vida do jogador, envia info para o outro jogador
+     */
     socket.on('life',function(data){
         for(var i in PLAYER_LIST){
             var player2 = PLAYER_LIST[i];
@@ -180,7 +206,9 @@ io.sockets.on('connection', function(socket){
             }
         }
     });
-
+    /**
+     * Atualização do tipo de balas do jogador, envia info para o outro jogador
+     */
     socket.on('typeBullets',function(data){
         for(var i in PLAYER_LIST){
             var player2 = PLAYER_LIST[i];
@@ -190,7 +218,9 @@ io.sockets.on('connection', function(socket){
             }
         }
     });
-
+    /**
+     * Atualização da vida de um zombie, envia info para todos os jogadores
+     */
     socket.on('lifeZombie',function(data){
         for(var i in ZOMBIE_LIST){
             var zombie = ZOMBIE_LIST[i];
@@ -209,7 +239,9 @@ io.sockets.on('connection', function(socket){
             }
         }
     });
-
+    /**
+     * Atualização do posicionamento dos zombies, envia info para todos os jogadores
+     */
     socket.on('zombiePosition',function(data){
         for(var i in ZOMBIE_LIST){
             var zombie = ZOMBIE_LIST[i];
@@ -219,7 +251,9 @@ io.sockets.on('connection', function(socket){
             }
         }
     });
-
+    /**
+     * Atualização da vida do mago, envia info para todos os jogadores
+     */
     socket.on('lifeMage',function(data){
         mage.life = data.life
         for(var j in PLAYER_LIST){
@@ -229,12 +263,16 @@ io.sockets.on('connection', function(socket){
             }
         }
     });
-
+    /**
+     * Atualização do posicionamento do mago, envia info para todos os jogadores
+     */
     socket.on('magePosition',function(data){
         mage.x = data.x
         mage.y = data.y
     });
-
+    /**
+     * Atualização da vida de um zombie, envia info para todos os jogadores
+     */
     socket.on('finishLevel',function(){
         numReadyToText++
         readyToNextLevel = false
@@ -245,7 +283,9 @@ io.sockets.on('connection', function(socket){
             }
         }
     });
-
+    /**
+     * Atualização da vida de um zombie, envia info para todos os jogadores
+     */
     socket.on('nextLevel',function(){
         numReadyToNextLevel++
         if(numReadyToNextLevel == 2){
@@ -266,8 +306,11 @@ io.sockets.on('connection', function(socket){
         }
     });
 });
-
-setInterval(function(){//criação do inimigo
+/**
+ * Criação de um zombie de 5 em 5 segundos se tendo no máximo em campo 15 zombies no 1º
+ * e se o mago não tiver morrido no 2º, envia info para todos os jogadores
+ */
+setInterval(function(){
     if(readyToNextLevel && (restrictionsLevel1() || restrictionsLevel2()) && living_zombies < max_zombies_each && !playerDead){
         let type;
         let x;
@@ -311,7 +354,9 @@ setInterval(function(){//criação do inimigo
         }
     }
 }, zombieTimerDelay);
-
+/**
+ * Movimentação dos zombies e/ou do mago de 200 em 200 milissegundos
+ */
 setInterval(function(){
     if(readyToNextLevel && level != 3 && living_zombies > 0 && !playerDead){//zombie move
         moveZombie()
@@ -320,7 +365,9 @@ setInterval(function(){
         moveMage()
     }
 }, 200);
-
+/**
+ * Movimentação dos zombies, envia info para todos os jogadores
+ */
 function moveZombie(){//zombie move
     for(var ei in ZOMBIE_LIST){
         var zombie = ZOMBIE_LIST[ei]
@@ -345,7 +392,9 @@ function moveZombie(){//zombie move
         }
     }
 }
-
+/**
+ * Movimentação do mago, envia info para todos os jogadores
+ */
 function moveMage(){//mage move
     var plCloser
     var minor = 1000
@@ -361,7 +410,9 @@ function moveMage(){//mage move
         SOCKET_LIST[i].emit('moveMage', {idPlayer:plCloser.id});
     }
 }
-
+/**
+ * Restrições para o nível 1 para a criação de zombies
+ */
 function restrictionsLevel1(){
     return level == 1 && total_zombies < max_zombies_level1;
 }
@@ -369,17 +420,21 @@ function restrictionsLevel1(){
 function restrictionsLevel2(){
     return level == 2 && mage.life > 0
 }
-
+/**
+ * zombies e/ou do mago disparam de 500 em 500 milissegundos
+ */
 setInterval(function(){
-    if(readyToNextLevel && level != 3 & living_zombies > 0 && !playerDead){//zombie shoot
+    if(readyToNextLevel && level != 3 & living_zombies > 0 && !playerDead){
         shootZombie()
     }
-    if(readyToNextLevel && level == 2 & mage.life > 0 && !playerDead){//mage shoot
+    if(readyToNextLevel && level == 2 & mage.life > 0 && !playerDead){
         shootMage()
     }
 }, 500);
-
-function shootZombie(){//zombie shoot
+/**
+ * Zombies disparam se não forem do tipo 2, envia info para todos os jogadores
+ */
+function shootZombie(){
     for(var ei in ZOMBIE_LIST){
         var zombie = ZOMBIE_LIST[ei]
         if(zombie.type != 2){
@@ -389,8 +444,10 @@ function shootZombie(){//zombie shoot
         }
     }
 }
-
-function shootMage(){//mage shoot
+/**
+ * Mago dispara, envia info para todos os jogadores
+ */
+function shootMage(){
     for(var i in SOCKET_LIST){
         SOCKET_LIST[i].emit('mageShoot', {time:Date.now() - start});
     }
