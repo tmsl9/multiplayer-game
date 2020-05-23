@@ -33,7 +33,7 @@ export default class level1 extends Phaser.Scene {
         this.otherPlayer = this.players.other
         
         this.zombies = new ZombiesGroup(this.physics.world, this)
-        this.maxZombies = 1
+        this.maxZombies = 4
         this.deadZombies = 0
 
         this.add.image(320, 10, "barraprogresso")//objective

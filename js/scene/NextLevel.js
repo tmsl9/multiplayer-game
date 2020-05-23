@@ -39,7 +39,7 @@ export default class nextLevel extends Phaser.Scene {
         }
         let i = 0
         let changeTint = true;
-        let repetition = 100//////////////ver tempo por causa da voz do mago(rui)
+        let repetition = 600//////////////ver tempo por causa da voz do mago(rui)
         this.time.addEvent({
             repeat: repetition,
             loop: false,
