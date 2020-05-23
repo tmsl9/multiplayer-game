@@ -79,7 +79,7 @@ export default class bootGame extends Phaser.Scene {
         this.load.image("bg", "assets/bg.png");
 
         this.load.audio("fire", "assets/fireball.mp3");
-        this.load.audio("theme", "assets/overworld.mp3");
+        this.load.audio("theme", "assets/mediaval.mp3");
         this.load.audio("gameover", "assets/gameover.mp3");
         
         this.load.audio("text1", "assets/text1.mp3");
@@ -123,6 +123,7 @@ export default class bootGame extends Phaser.Scene {
             console.log("ID:", id)
             var data = {socket: socket, id: id, volume: 1, cursors: cursors, nextLevel: 1}
             this.scene.stop()
+            socket.off('id')
             this.scene.start("Play", data);
         });
     }

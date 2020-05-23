@@ -10,7 +10,7 @@ export default class Coin extends Phaser.Physics.Arcade.Sprite {
             repeat: 0
         });
 
-        this.on("animationcomplete", ()=>{ //listen to when an animation completes, then run stays at frame 0
+        this.on("animationcomplete", ()=>{//listen to when an animation is complete, then run stays at frame 0
             this.setFrame(0)
         })
         

@@ -25,7 +25,7 @@ export default class nextLevel extends Phaser.Scene {
 
         var textConfig = {font: "17px Cambria", fill: "#ffffff"}
 
-        this.textSound = this.sound.add("text"+this.nextLevel, { volume: this.volume });
+        this.textSound = this.sound.add("text" + this.nextLevel, { volume: this.volume });
         this.textSound.play();
         
         if(this.nextLevel == 1){
@@ -39,7 +39,7 @@ export default class nextLevel extends Phaser.Scene {
         }
         let i = 0
         let changeTint = true;
-        let repetition = 600//////////////ver tempo por causa da voz do mago(rui)
+        let repetition = this.nextLevel != 3 ? 500 : 700
         this.time.addEvent({
             repeat: repetition,
             loop: false,
@@ -66,9 +66,10 @@ export default class nextLevel extends Phaser.Scene {
                     }
                 }
                 i++
-            }//////////////zombie type 2 is shooting
+            }
         });
     }
+
     socketOff(){
         this.socket.off("readyToNextLevel")
     }
