@@ -1,6 +1,6 @@
 # Multiplayer Game - Phaser 3 and Node.js
 
-[Wiki](https://github.com/tmsl9/multiplayer-game/wiki)
+## [Wiki](https://github.com/tmsl9/multiplayer-game/wiki)
 
 *Multiplayer game for 2 players*
 
