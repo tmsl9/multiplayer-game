@@ -23,4 +23,4 @@ Language of the code: English
 Language of the game: Portuguese
 
 
-## [Wiki](https://github.com/tmsl9/multiplayer-game/wiki)
+### [Wiki](https://github.com/tmsl9/multiplayer-game/wiki)
