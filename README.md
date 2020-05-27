@@ -2,7 +2,11 @@
 
 *Multiplayer game for 2 players developed in Portuguese*
 
+To run the game:
+
 >node server.js
+
+Game is playing on your local domain
 
 ## Requirement
 
