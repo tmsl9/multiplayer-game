@@ -1,7 +1,7 @@
 # Multiplayer Game - Phaser 3 and Node.js
 
 <p align="center">
-  <img width="460" height="300" src="https://i.imgur.com/4UxoMWy.png">
+  <img src="https://i.imgur.com/4UxoMWy.png">
 </p>
 
 ![Game](https://i.imgur.com/4UxoMWy.png)
