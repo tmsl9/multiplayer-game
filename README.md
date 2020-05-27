@@ -2,15 +2,15 @@
 
 *Multiplayer game for 2 players*
 
-<p align="center">
-  <img src="https://i.imgur.com/4UxoMWy.png">
-</p>
-
 To run the game:
 
 >node server.js
 
 Game is playing on your local domain
+
+<p align="center">
+  <img src="https://i.imgur.com/4UxoMWy.png">
+</p>
 
 ## Requirement
 
