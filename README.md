@@ -15,3 +15,9 @@ Game is playing on your local domain
 > https://nodejs.org/en/download/
 
 Needed for reproducing the server of the game
+
+##Language
+
+Language of the game: Portuguese
+
+Language of the comments/code: English
