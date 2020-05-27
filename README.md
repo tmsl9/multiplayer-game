@@ -1,5 +1,7 @@
 # Multiplayer Game - Phaser 3 and Node.js
 
+![Game](https://i.imgur.com/M6PF0l7.png)
+
 *Multiplayer game for 2 players*
 
 To run the game:
