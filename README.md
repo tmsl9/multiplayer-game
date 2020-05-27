@@ -1,6 +1,6 @@
 # Multiplayer Game - Phaser 3 and Node.js
 
-*Multiplayer game for 2 players developed in Portuguese*
+*Multiplayer game for 2 players*
 
 To run the game:
 
