@@ -4,8 +4,6 @@
   <img src="https://i.imgur.com/4UxoMWy.png">
 </p>
 
-![Game](https://i.imgur.com/4UxoMWy.png)
-
 *Multiplayer game for 2 players*
 
 To run the game:
