@@ -2,10 +2,6 @@
 
 *Multiplayer game for 2 players*
 
-<p align="center">
-  <img src="https://i.imgur.com/4UxoMWy.png">
-</p>
-
 To run the game:
 
 >node server.js
@@ -28,3 +24,7 @@ Language of the game: Portuguese
 
 
 ### [Wiki](https://github.com/tmsl9/multiplayer-game/wiki)
+
+<p align="center">
+  <img src="https://i.imgur.com/4UxoMWy.png">
+</p>
