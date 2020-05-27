@@ -18,6 +18,6 @@ Needed for reproducing the server of the game
 
 ## Language
 
-Language of the game: Portuguese
+Language of the code: English
 
-Language of the comments/code: English
+Language of the game: Portuguese
