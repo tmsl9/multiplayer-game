@@ -1,7 +1,5 @@
 # Multiplayer Game - Phaser 3 and Node.js
 
-## [Wiki](https://github.com/tmsl9/multiplayer-game/wiki)
-
 *Multiplayer game for 2 players*
 
 To run the game:
@@ -23,3 +21,6 @@ Needed for reproducing the server of the game
 Language of the code: English
 
 Language of the game: Portuguese
+
+
+## [Wiki](https://github.com/tmsl9/multiplayer-game/wiki)
