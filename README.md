@@ -16,7 +16,7 @@ Game is playing on your local domain
 
 Needed for reproducing the server of the game
 
-##Language
+## Language
 
 Language of the game: Portuguese
 
