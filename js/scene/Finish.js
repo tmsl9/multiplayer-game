@@ -89,8 +89,6 @@ export default class finish extends Phaser.Scene {
 
             this.scene.stop();
 
-            this.gameOverSound.stop();
-
             this.scene.start('Play');
         }
     }
