@@ -6,7 +6,7 @@ To run the game:
 
 >node server.js
 
-Game is playing on your local domain
+Game is played on your local domain
 
 ## Requirement
 
